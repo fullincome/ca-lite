@@ -1,0 +1,67 @@
+#!/bin/bash 
+
+
+# инициализация
+BUILD_DIR=""
+BUILD_CONFIG=""
+PROJECT_DIR=$(pwd)
+ARGV=$@
+
+
+
+# парсинг аргументов
+#--------------------------------------------------------
+for arg_cur in ${ARGV}; 
+do
+    # второй раз такое написать не представляется возможным
+    config="`echo ${arg_cur}|awk -F= '/^\-\-config=.+/{print $2}'`"
+    case ${config} in
+        "debug")
+            BUILD_DIR="build_debug"
+            BUILD_CONFIG="debug qml_debug"
+            echo "Configuration: DEBUG"
+            ;;
+        "release")
+            BUILD_DIR="build_release"
+            echo "Configuration: RELEASE"
+            BUILD_CONFIG="release"
+            ;;
+        *)
+            BUILD_DIR="build_release"
+            echo "Configuration: RELEASE"
+            BUILD_CONFIG="release"
+            ;;
+    esac
+done
+#--------------------------------------------------------
+
+
+
+# подготовка директории сборки и сборка
+#--------------------------------------------------------
+if ! test -d ${BUILD_DIR};
+then
+    mkdir ${BUILD_DIR} || exit 1
+fi
+cd ${BUILD_DIR} &&
+qmake ${PROJECT_DIR}/ca-lite.pro -spec \
+linux-g++ CONFIG+="${BUILD_CONFIG}" && /usr/bin/make qmake_all
+cd ..
+#--------------------------------------------------------
+
+
+
+# генерация Makefile в PROJECT_DIR
+# TODO рассмотреть вариант Makefile.in
+#--------------------------------------------------------
+touch Makefile
+echo "
+all:
+	\$(MAKE) -C ./${BUILD_DIR}
+clean:
+	\$(MAKE) -C ./${BUILD_DIR} clean
+clean_all:
+	rm ./${BUILD_DIR} -rf
+	rm ./Makefile
+" > Makefile
+#--------------------------------------------------------

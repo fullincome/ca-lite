@@ -1,0 +1,44 @@
+stages:
+  - build_release
+  - build_debug
+  - deploy
+
+build_release:
+  stage: build_release
+  variables: 
+    BUILD_CONFIG: "release"
+  script:
+    - ./configure --config=${BUILD_CONFIG} && make
+  artifacts:
+    paths:
+      - ./build_release/ca_light
+
+build_debug:
+  stage: build_debug
+  variables:
+    BUILD_CONFIG: "debug"
+  script:
+    - ./configure --config=${BUILD_CONFIG} && make
+  artifacts:
+    paths:
+      - ./build_debug/ca_light
+
+deploy:
+  stage: deploy
+  script:
+    - cp ./build_release/ca_light ./
+    - chmod +x ca_light
+    - chmod +x install_dependencies.sh
+    - chmod +x gen_key.sh
+    - tar -cvzf ca_light_release.tar.gz ca_light install_dependencies.sh gen_key.sh
+    - cp ./build_debug/ca_light ./
+    - chmod +x ca_light
+    - chmod +x install_dependencies.sh
+    - chmod +x gen_key.sh
+    - tar -cvzf ca_light_debug.tar.gz ca_light install_dependencies.sh gen_key.sh
+  artifacts:
+    paths:
+      - ca_light_release.tar.gz
+      - ca_light_debug.tar.gz
+  only:
+    - master
