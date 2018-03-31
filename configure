@@ -3,7 +3,7 @@
 
 # инициализация
 BUILD_DIR=""
-BUILD_CONFIG=""
+BUILD_CONFIG="release"
 PROJECT_DIR=$(pwd)
 ARGV=$@
 
@@ -17,25 +17,30 @@ do
     config="`echo ${arg_cur}|awk -F= '/^\-\-config=.+/{print $2}'`"
     case ${config} in
         "debug")
-            BUILD_DIR="build_debug"
             BUILD_CONFIG="debug qml_debug"
-            echo "Configuration: DEBUG"
             ;;
         "release")
-            BUILD_DIR="build_release"
-            echo "Configuration: RELEASE"
-            BUILD_CONFIG="release"
-            ;;
-        *)
-            BUILD_DIR="build_release"
-            echo "Configuration: RELEASE"
             BUILD_CONFIG="release"
             ;;
     esac
+    dir="`echo ${arg_cur}|awk -F= '/^\-\-dir=.+/{print $2}'`"
+    if ! test -z ${dir}; then BUILD_DIR=${dir}; fi
 done
 #--------------------------------------------------------
 
-
+case ${BUILD_CONFIG} in
+    "debug qml_debug")
+        if test -z ${BUILD_DIR}; then BUILD_DIR="${PROJECT_DIR}/build_debug"; fi
+        echo "Configuration: DEBUG"
+        ;;
+    "release")
+        if test -z ${BUILD_DIR}; then BUILD_DIR="${PROJECT_DIR}/build_release"; fi
+        echo "Configuration: RELEASE"
+        ;;
+    *)
+        echo "Configuration: ERROR" || exit 1
+        ;;
+esac
 
 # подготовка директории сборки и сборка
 #--------------------------------------------------------
@@ -48,20 +53,5 @@ qmake ${PROJECT_DIR}/ca-lite.pro -spec \
 linux-g++ CONFIG+="${BUILD_CONFIG}" && /usr/bin/make qmake_all
 cd ..
 #--------------------------------------------------------
-
-
-
-# генерация Makefile в PROJECT_DIR
-# TODO рассмотреть вариант Makefile.in
 #--------------------------------------------------------
-touch Makefile
-echo "
-all:
-	\$(MAKE) -C ./${BUILD_DIR}
-clean:
-	\$(MAKE) -C ./${BUILD_DIR} clean
-clean_all:
-	rm ./${BUILD_DIR} -rf
-	rm ./Makefile
-" > Makefile
-#--------------------------------------------------------
+
