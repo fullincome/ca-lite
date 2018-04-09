@@ -2,9 +2,9 @@
 based on openssl and cryptopro CSP.
 
 ## For use ca: 
-1. **Download ca-lite** (or build from source):  
-[Release (linux-x64)](http://gitlab.com/fullincome/CA_Light/-/jobs/artifacts/master/raw/ca_light_release.tar.gz?job=deploy)  
-[Debug (linux-x64)](http://gitlab.com/fullincome/CA_Light/-/jobs/artifacts/master/raw/ca_light_debug.tar.gz?job=deploy)  
+1. **Download** last version **ca-lite** (or build from source):  
+[Release (linux-x64)](https://github.com/fullincome/ca-lite/releases/download/ca-lite-1.0/ca-lite-1.0-release_linux-amd64.tar.gz)  
+[Debug (linux-x64)](https://github.com/fullincome/ca-lite/releases/download/ca-lite-1.0/ca-lite-1.0-debug_linux-amd64.tar.gz)  
 2. Run **./install_dependencies.sh**
 3. If need test keys - **gen_key.sh**
 
