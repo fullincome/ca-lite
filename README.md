@@ -1,6 +1,9 @@
 # ca-lite 
 based on openssl and cryptopro CSP.
 
+## Supported OS:
+Ubuntu-16.04
+
 ## For use ca: 
 1. **Download** last version **ca-lite** (or build from source):  
 [Release (linux-x64)](https://github.com/fullincome/ca-lite/releases/download/ca-lite-1.0/ca-lite-1.0-release_linux-amd64.tar.gz)  
