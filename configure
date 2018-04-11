@@ -1,5 +1,4 @@
-#!/bin/bash 
-
+#!/bin/bash
 
 # инициализация
 BUILD_DIR=""
@@ -50,8 +49,20 @@ then
 fi
 cd ${BUILD_DIR} &&
 qmake ${PROJECT_DIR}/ca-lite.pro -spec \
-linux-g++ CONFIG+="${BUILD_CONFIG}" && /usr/bin/make qmake_all
+linux-g++ CONFIG+="${BUILD_CONFIG}"
 cd ..
+
+touch Makefile
+echo "
+all:
+    \$(MAKE) -C ${BUILD_DIR}
+clean:
+    \$(MAKE) -C ${BUILD_DIR} clean
+clean_all:
+    rm ${BUILD_DIR} -rf
+    rm ./Makefile
+" > Makefile || exit 1
+echo "Makefile create: OK"
 #--------------------------------------------------------
 #--------------------------------------------------------
 
