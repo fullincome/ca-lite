@@ -55,12 +55,12 @@ cd ..
 touch Makefile
 echo "
 all:
-    \$(MAKE) -C ${BUILD_DIR}
+	\$(MAKE) -C ${BUILD_DIR}
 clean:
-    \$(MAKE) -C ${BUILD_DIR} clean
+	\$(MAKE) -C ${BUILD_DIR} clean
 clean_all:
-    rm ${BUILD_DIR} -rf
-    rm ./Makefile
+	rm ${BUILD_DIR} -rf
+	rm ./Makefile
 " > Makefile || exit 1
 echo "Makefile create: OK"
 #--------------------------------------------------------
