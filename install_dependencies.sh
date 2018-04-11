@@ -5,6 +5,7 @@
 
 # Пакеты будут скачены с "$url"
 url="https://update.cryptopro.ru/support/nginx-gost"
+url_temp="https://update.cryptopro.ru/temp/20180411_gostengy"
 
 revision_openssl="168667"
 
@@ -15,10 +16,10 @@ then
     pkgmsys="rpm"
     pkglist="rpm -qa"
     install="rpm -i"
-    openssl_packages=(cprocsp-cpopenssl-110-base-5.0.10976-5.noarch.rpm \
-    cprocsp-cpopenssl-110-64-5.0.10976-5.x86_64.rpm \
-    cprocsp-cpopenssl-110-devel-5.0.10976-5.noarch.rpm \
-    cprocsp-cpopenssl-110-gost-64-5.0.10976-5.x86_64.rpm)
+    openssl_packages=(cprocsp-cpopenssl-110-base-5.0.11074-5.noarch.rpm \
+    cprocsp-cpopenssl-110-64-5.0.11074-5.x86_64.rpm \
+    cprocsp-cpopenssl-110-devel-5.0.11074-5.noarch.rpm \
+    cprocsp-cpopenssl-110-gost-64-5.0.11074-5.x86_64.rpm)
 else
     cat /etc/*release* | grep -Ei "(ubuntu|debian)"
     if [ "$?" -eq 0 ] 
@@ -27,10 +28,10 @@ else
         pkgmsys="deb"
         pkglist="dpkg-query --list"
         install="dpkg -i"
-	openssl_packages=(cprocsp-cpopenssl-110-base_5.0.10976-5_all.deb \
-	cprocsp-cpopenssl-110-64_5.0.10976-5_amd64.deb \
-	cprocsp-cpopenssl-110-devel_5.0.10976-5_all.deb \
-	cprocsp-cpopenssl-110-gost-64_5.0.10976-5_amd64.deb)
+	openssl_packages=(cprocsp-cpopenssl-110-base_5.0.11074-5_all.deb \
+	cprocsp-cpopenssl-110-64_5.0.11074-5_amd64.deb \
+	cprocsp-cpopenssl-110-devel_5.0.11074-5_all.deb \
+	cprocsp-cpopenssl-110-gost-64_5.0.11074-5_amd64.deb)
     else
         printf "Not supported system (supported: Ubuntu, CentOS, Red Hat)."
         exit 0
@@ -59,8 +60,8 @@ then
     fi
 fi
 
-
-for i in ${openssl_packages[@]}; do wget --no-check-certificate -O $i ${url}/bin/"${revision_openssl}"/$i || exit 1; done
+for i in ${openssl_packages[@]}; do wget --no-check-certificate -O $i ${url_temp}/$i || exit 1; done
+#for i in ${openssl_packages[@]}; do wget --no-check-certificate -O $i ${url}/bin/"${revision_openssl}"/$i || exit 1; done
 
 for i in ${openssl_packages[@]}; do
     cmd=$install" "$i
