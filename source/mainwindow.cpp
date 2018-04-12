@@ -304,7 +304,7 @@ void MainWindow::on_debugCheckContainersBtn_clicked()
 //------------ГЕНЕРАЦИЯ СЕРТИФИКАТОВ,-------------------
 //-------------ПРОВЕРКА И СОХРАНЕНИЕ--------------------
 // Сохранение в бд
-// TODO посмотреть над возможностью query().lastQuery()
+// TODO рассмотреть фозможность query().lastQuery()
 void MainWindow::updateView(DataBase data_base) {
     DbTable table = data_base.table;
     QSqlQuery *query = data_base.query;
