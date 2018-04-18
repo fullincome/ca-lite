@@ -502,7 +502,8 @@ void MainWindow::saveConfig(QString data) {
     if (work_dir.config.writeToConfigFile(work_dir.config.name, data) == "error") {
         messageError(this, "Не удалось записать в файл конфигурации");
     } else {
-        on_openWorkDirBtn_clicked();
+        if (!work_dir.isOk || !work_dir.config.isOk || !work_dir.data_base.isOk)
+            on_openWorkDirBtn_clicked();
     }
 }
 // Слот, принимающие данные от сигналов
