@@ -218,6 +218,7 @@ void MainWindow::on_revokeCertBtn_clicked()
         table_cert.issuer = table_cert.getCNFromCert(work_dir.ca_cert.file_name);
         work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
         updateView(work_dir.data_base);
+        ui_mw->revokeCertBtn->setVisible(false);
     } else {
         messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
     }
