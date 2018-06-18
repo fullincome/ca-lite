@@ -52,7 +52,7 @@
     <item>
      <widget class="QLabel" name="nameCertLabel">
       <property name="text">
-       <string>Имя сертификата</string>
+       <string>Имя сертификата (*)</string>
       </property>
      </widget>
     </item>

@@ -58,7 +58,7 @@ public:
     void saveToDb(DbTable table, QSqlQuery *query);
 };
 
-class CAConfig {
+class Config {
 public:
     QString name;
     QString openssl;
@@ -70,7 +70,7 @@ public:
     bool isOk;
 };
 
-class CAcert {
+class CACert {
 public:
     QString file_name;
     QString file_key;
@@ -96,22 +96,21 @@ public:
     QString key_cert_file = "signing_cert.key";
 
     QString config_file = "config";
-    QString openssl_config_file = "openssl.cnf";
+    QString openssl_config = "openssl.cnf";
+
+    QString crlnumber;
+    QString index;
 };
 
 class WorkDir {
 public:
     WorkDir();
     WorkDir(QString work_path);
-    QString name;
     QString work_path;
-    QString crlnumber;
-    QString index;
-    CAConfig config;
-    CAcert ca_cert;
+    Config config;
+    CACert ca_cert;
     WorkDirFiles files;
     DataBase data_base;
-    QString openssl_config;
     bool isOpenMod;
     bool isOk;
     QString newWorkDir();
@@ -120,9 +119,9 @@ public:
     QString initialiseDatabase();
     QStringList parsingContainers(QString info);
     QStringList checkContainers();
-    CAConfig loadConfig(QString file_name);
-    void saveConfig(CAConfig config);
-    CAcert loadCaCert(CAConfig config);
+    Config loadConfig(QString file_name);
+    void saveConfig(Config config);
+    CACert loadCaCert(Config config);
     DbTable exportCert(QString CN, QString file_name);
     DbTable importCert(QString file_name);
 };

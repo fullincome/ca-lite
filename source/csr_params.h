@@ -17,19 +17,20 @@ public:
     explicit CsrParams(QWidget *parent = 0);
     ~CsrParams();
 
-    Program prog;
-    WorkDir work_dir;
+    DbTable table;
+    QStringList conts_info;
+
     void initialise();
     void setParams();
 signals:
-    void readyRunProgram(Program prog, DbTable table);
-
+    void readyToCheck(DbTable table);
 private slots:
     void on_cancelBtn_clicked();
     void on_creatBtn_clicked();
     void on_nameCsrEdit_textChanged();
     void on_containersBox_currentIndexChanged(const QString &arg1);
-    void getData(WorkDir work_dir);
+    void getData(QStringList conts_info);
+    void closeWindow(QString rc);
 
 private:
     Ui::CsrParams *ui_cp;

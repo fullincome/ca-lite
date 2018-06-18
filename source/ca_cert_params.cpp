@@ -19,16 +19,12 @@ CertParams::~CertParams()
 //------------------------------------------------------
 //Инициализация детерменированных параметров
 void CertParams::initialise() {
-    QStringList data_list = work_dir.checkContainers();
-    for (int i = 0; i < data_list.size(); ++i) {
-        ui_cp->containersBox->addItem(data_list[i]);
+    for (int i = 0; i < conts_info.size(); ++i) {
+        ui_cp->containersBox->addItem(conts_info[i]);
     }
-    prog = Program("openssl", "cert", work_dir.work_path);
 }
 //Установка выбранных параметров
 void CertParams::setParams() {
-    DbTable &table = work_dir.data_base.table;
-
     table.CN = ui_cp->nameCertEdit->toPlainText();
     table.O = ui_cp->organizationEdit->toPlainText();
     table.subj = "/CN=" + table.CN;
@@ -42,30 +38,12 @@ void CertParams::setParams() {
     table.revoke = "no";
     table.issuer = "CA";
     table.condition = "CN = '" + table.CN + "'";
-
-    prog.mod = "ca";
-    prog.file_out = work_dir.work_path + work_dir.files.ca_cert_file;
-    prog.key_in = table.key;
-
-    QStringList args_cur;
-    //RSA MOD
-    //args_cur = QString("req -x509 -newkey rsa:2048").split(" ");
-    //args_cur += QString("-keyout " + prog.key_out + " -nodes -out " + prog.file_out).split(" ");
-    //args_cur += QString("-subj " + cert.subj).split(" ");
-    //args_cur = QString("req -x509 -newkey rsa:2048").split(" ");
-
-    //GOST MOD
-    args_cur = QString("req -engine gostengy -x509 -keyform ENGINE -key c:" + table.key).split(" ");
-    args_cur += QString("-nodes -out " + prog.file_out).split(" ");
-    args_cur += QString("-subj " + table.subj).split(" ");
-    prog.args = args_cur;
 }
 //Кнопка: Создать CSR
 void CertParams::on_creatBtn_clicked()
 {
     setParams();
-    this->close();
-    emit readyRunProgram(prog, work_dir.data_base.table);
+    emit readyToCheck(table);
 }
 //Кнопка: Отмена
 void CertParams::on_cancelBtn_clicked()
@@ -86,9 +64,12 @@ void CertParams::on_cancelBtn_clicked()
 //---------------СЛОТЫ ПРИЕМА ДАННЫХ--------------------
 //------------------------------------------------------
 //Прием work_dir
-void CertParams::getData(WorkDir work_dir) {
-    this->work_dir = work_dir;
-    initialise();
+//Прием результата WorkDir::checkContainers()
+void CertParams::getData(QStringList conts_info) {
+    this->conts_info = conts_info;
+}
+void CertParams::closeWindow(QString rc) {
+    this->close();
 }
 //------------------------------------------------------
 //------------------------------------------------------

@@ -29,21 +29,26 @@ QString DbTable::getPemFromFile(QString file_name) {
 }
 
 QString DbTable::getTextFromCsr(QString file_in) {
-    Program prog = Program("openssl", "ca_cert");
+    Program prog = Program("openssl", "csr");
     prog.args = QString("req -in " + file_in + " -noout -text").split(" ");
     prog.run();
     return prog.output;
 }
 
 QString DbTable::getTextFromCert(QString file_in) {
-    Program prog = Program("openssl", "ca_cert");
+    Program prog = Program("openssl", "ca");
     prog.args = QString("x509 -in " + file_in + " -noout -text").split(" ");
     prog.run();
-    return prog.output;
+    if (prog.isError) {
+        setErrorString(prog.output);
+        return "error";
+    } else {
+        return prog.output;
+    }
 }
 
 QString DbTable::getTextFromAny(QString file_in) {
-    Program prog = Program("openssl", "ca_cert");
+    Program prog = Program("openssl", "ca");
     prog.args = QString("x509 -in " + file_in + " -noout -text").split(" ");
     prog.run();
     if (prog.isError) {
@@ -231,7 +236,7 @@ DbTable DataBase::loadFromDb(QString table_name, QString table_condition, QSqlQu
 }
 
 
-QString CAConfig::writeToConfigFile(QString file_name, QString data) {
+QString Config::writeToConfigFile(QString file_name, QString data) {
     QFile file_config(file_name);
     if (!file_config.open(QIODevice::WriteOnly | QIODevice::Text)) {
         return "error";
@@ -241,7 +246,7 @@ QString CAConfig::writeToConfigFile(QString file_name, QString data) {
     file_config.close();
     return "ok";
 }
-QString CAConfig::readAllFromConfigFile(QString file_name) {
+QString Config::readAllFromConfigFile(QString file_name) {
     QString config_data;
     QFile file_config(file_name);
     if (!file_config.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -269,9 +274,9 @@ WorkDir::WorkDir (QString work_path) {
     //work_path = ui_dl->textEdit->toPlainText() + "/";
     data_base.name = work_path + "ca_db";
     config.name = work_path + "config";
-    index = work_path + "index.txt";
-    crlnumber = work_path + "crlnumber";
-    openssl_config = work_path + "openssl.cnf";
+    files.index = work_path + "index.txt";
+    files.crlnumber = work_path + "crlnumber";
+    files.openssl_config = work_path + "openssl.cnf";
 }
 
 //------------------------------------------------------
@@ -281,7 +286,7 @@ WorkDir::WorkDir (QString work_path) {
 QString WorkDir::newWorkDir() {
 
     //creat crlnumber file
-    QFile file_crlnumber(crlnumber);
+    QFile file_crlnumber(files.crlnumber);
     if (!file_crlnumber.open(QIODevice::WriteOnly | QIODevice::Text)) {
         return "error";
     }
@@ -299,15 +304,15 @@ QString WorkDir::newWorkDir() {
     file_serial.close();
 
     //creat index file
-    QFile file_index(index);
+    QFile file_index(files.index);
     if (!file_index.open(QIODevice::WriteOnly | QIODevice::Text)) {
         return "error";
     }
     file_index.close();
 
     //creat openssl.cnf file
-    QFile::copy("/var/opt/cprocsp/cp-openssl-1.1.0/openssl.cnf", openssl_config);
-    QFile file_openssl_config(openssl_config);
+    QFile::copy("/var/opt/cprocsp/cp-openssl-1.1.0/openssl.cnf", files.openssl_config);
+    QFile file_openssl_config(files.openssl_config);
     if (!file_openssl_config.open(QIODevice::ReadOnly | QIODevice::Text )) {
         return "error";
     }
@@ -349,16 +354,15 @@ QString WorkDir::initialiseWorkDir() {
     data_base.isOk = false;
     isOpenMod = false;
     data_base.table.table_name = "cert";
-    //work_path = ui_dl->textEdit->toPlainText() + "/";
     data_base.name = work_path + "ca_db";
     config.name = work_path + "config";
-    index = work_path + "index.txt";
-    crlnumber = work_path + "crlnumber";
-    openssl_config = work_path + "openssl.cnf";
+    files.index = work_path + "index.txt";
+    files.crlnumber = work_path + "crlnumber";
+    files.openssl_config = work_path + "openssl.cnf";
     QDir dir;
     if (!dir.exists(work_path)) dir.mkpath(work_path);
-    if (!QFile::exists(config.name) || !QFile::exists(openssl_config) ||
-        !QFile::exists(data_base.name) || !QFile::exists(crlnumber) || !QFile::exists(index)) {
+    if (!QFile::exists(config.name) || !QFile::exists(files.openssl_config) ||
+        !QFile::exists(data_base.name) || !QFile::exists(files.crlnumber) || !QFile::exists(files.index)) {
         return "error";
     } else {
         isOk = true;
@@ -418,7 +422,7 @@ QStringList WorkDir::checkContainers() {
 }
 
 
-CAConfig WorkDir::loadConfig(QString file_name) {
+Config WorkDir::loadConfig(QString file_name) {
     config.name = file_name;
     config.isOk = true;
     QFile file_config(config.name);
@@ -483,7 +487,7 @@ CAConfig WorkDir::loadConfig(QString file_name) {
     return config;
 }
 
-void WorkDir::saveConfig(CAConfig config) {
+void WorkDir::saveConfig(Config config) {
     QFile file_config(config.name);
     if (!file_config.open(QIODevice::WriteOnly | QIODevice::Text)) {
      return;
@@ -496,8 +500,8 @@ void WorkDir::saveConfig(CAConfig config) {
     file_config.close();
  }
 
-CAcert WorkDir::loadCaCert(CAConfig config) {
-    CAcert ca_cert;
+CACert WorkDir::loadCaCert(Config config) {
+    CACert ca_cert;
     ca_cert.file_name = config.CAcert;
     ca_cert.file_key = config.CAkey;
     ca_cert.key = config.CAkey;

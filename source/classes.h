@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QStack>
 #include <QDir>
 #include <QFile>
 #include <QRegExp>
@@ -17,6 +18,27 @@
 #include <QTableView>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QtGlobal>
+
+
+extern class ErrorStr {
+    QStack<QString> stack;
+public:
+    void setError(QString str) {
+        stack.push_back(str);
+    }
+    QString getLastError() {
+        return stack.pop();
+    }
+} errorStr;
+
+extern void setErrorString(QString str);
+extern QString getLastErrorString();
+
+//extern void setErrorStringasdf(QString str) {
+//    errorStr.setError(str);
+//}
+
 
 
 class Program {

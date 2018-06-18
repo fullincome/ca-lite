@@ -33,6 +33,7 @@ public:
 
     Program program;
     WorkDir work_dir;
+    void initWindow();
     void disableBtn();
     void enableBtn();
     bool prepareSaveToDb(Program prog);
@@ -50,9 +51,12 @@ signals:
     void sendData(QStringList data_list);
     void sendData(WorkDir work_dir);
     void sendData(QString data);
+    void sendData(QString data1, QString data2);
+    void closeCertParam(QString rc);
 private slots:
     void generateCert(Program prog, DbTable table);
     void checkWorkDir(WorkDir work_dir);
+    void checkCertParam(DbTable table);
     void saveConfig(QString data);
     void getData(QString data);
 

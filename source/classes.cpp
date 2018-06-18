@@ -1,5 +1,15 @@
 #include "classes.h"
 
+ErrorStr errorStr;
+
+void setErrorString(QString str) {
+    return errorStr.setError(str);
+}
+
+QString getLastErrorString() {
+    return errorStr.getLastError();
+}
+
 Program::Program () {}
 Program::Program (QString prog_name, QString mod, QString work_path) {
     if (prog_name == "openssl") {
@@ -16,10 +26,10 @@ Program::Program (QString prog_name, QString mod, QString work_path) {
             file_out = work_path + csr_filename;
             key_out = work_path + key_csr_filename;
             this->mod = "csr";
-        } else if (mod == "ca_cert") {
+        } else if (mod == "ca") {
             file_out = work_path + ca_cert_filename;
             key_out = work_path + key_ca_cert_filename;
-            this->mod = "ca_cert";
+            this->mod = "ca";
         } else if (mod == "signing_cert") {
             file_in = work_path + csr_filename;
             file_out = work_path + signing_filename;
@@ -47,10 +57,10 @@ Program::Program (QString prog_name, QString mod) {
             file_out = work_path + csr_filename;
             key_out = work_path + key_csr_filename;
             this->mod = "csr";
-        } else if (mod == "ca_cert") {
+        } else if (mod == "ca") {
             file_out = work_path + ca_cert_filename;
             key_out = work_path + key_ca_cert_filename;
-            this->mod = "ca_cert";
+            this->mod = "ca";
         } else if (mod == "signing_cert") {
             file_in = work_path + csr_filename;
             file_out = work_path + signing_filename;

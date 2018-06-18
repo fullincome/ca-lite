@@ -20,16 +20,12 @@ CsrParams::~CsrParams()
 //------------------------------------------------------
 //Инициализация детерменированных параметров
 void CsrParams::initialise() {
-    QStringList data_list = work_dir.checkContainers();
-    for (int i = 0; i < data_list.size(); ++i) {
-        ui_cp->containersBox->addItem(data_list[i]);
+    for (int i = 0; i < conts_info.size(); ++i) {
+        ui_cp->containersBox->addItem(conts_info[i]);
     }
-    prog = Program("openssl", "cert", work_dir.work_path);
 }
 //Установка выбранных параметров
 void CsrParams::setParams() {
-    DbTable &table = work_dir.data_base.table;
-
     table.CN = ui_cp->nameCsrEdit->toPlainText();
     table.O = ui_cp->organizationEdit->toPlainText();
     table.subj = "/CN=" + table.CN;
@@ -43,22 +39,12 @@ void CsrParams::setParams() {
     table.revoke = "no";
     table.issuer = "no";
     table.condition = "CN = '" + table.CN + "'";
-
-    prog.mod = "csr";
-    prog.file_out = work_dir.work_path + work_dir.files.csr_file;
-
-    QStringList args_cur;
-    args_cur = QString("req -engine gostengy -new -keyform ENGINE -key c:" + table.key).split(" ");
-    args_cur += QString("-subj " + table.subj).split(" ");
-    args_cur += QString("-out " + prog.file_out).split(" ");
-    prog.args = args_cur;
 }
 //Кнопка: Создать CSR
 void CsrParams::on_creatBtn_clicked()
 {
     setParams();
-    this->close();
-    emit readyRunProgram(prog, work_dir.data_base.table);
+    emit readyToCheck(table);
 }
 //Кнопка: Отмена
 void CsrParams::on_cancelBtn_clicked()
@@ -81,9 +67,12 @@ void CsrParams::on_cancelBtn_clicked()
 //---------------СЛОТЫ ПРИЕМА ДАННЫХ--------------------
 //------------------------------------------------------
 //Прием work_dir
-void CsrParams::getData(WorkDir work_dir) {
-    this->work_dir = work_dir;
-    initialise();
+void CsrParams::getData(QStringList conts_info) {
+    this->conts_info = conts_info;
+}
+void CsrParams::closeWindow(QString rc)
+{
+    this->close();
 }
 //------------------------------------------------------
 //------------------------------------------------------

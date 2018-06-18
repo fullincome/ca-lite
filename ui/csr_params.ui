@@ -26,7 +26,7 @@
     <item>
      <widget class="QLabel" name="nameCsrLabel">
       <property name="text">
-       <string>CN</string>
+       <string>CN (*)</string>
       </property>
      </widget>
     </item>

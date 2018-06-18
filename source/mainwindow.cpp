@@ -6,11 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui_mw(new Ui::MainWindow)
 {
     ui_mw->setupUi(this);
-    disableBtn();
-    ui_mw->caLabel->setStyleSheet("color: rgb(230,0,0)");
-    ui_mw->creatCaCertBtn->setStyleSheet("color: rgb(230,0,0)");
-    ui_mw->signCsrBtn->setVisible(false);
-    ui_mw->revokeCertBtn->setVisible(false);
+    initWindow();
     if (isRelease) {
         ui_mw->debugLogEdit->close();
         ui_mw->debugLogLabel->close();
@@ -38,9 +34,11 @@ MainWindow::~MainWindow()
 void MainWindow::on_creatCaCertBtn_clicked()
 {
     CertParams certParams;
-    connect(&certParams, SIGNAL(readyRunProgram(Program, DbTable)), this, SLOT(generateCert(Program, DbTable)));
-    connect(this, SIGNAL(sendData(WorkDir)), &certParams, SLOT(getData(WorkDir)));
-    emit sendData(work_dir);
+    connect(this, SIGNAL(sendData(QStringList)), &certParams, SLOT(getData(QStringList)));
+    connect(this, SIGNAL(closeCertParam(QString)), &certParams, SLOT(closeWindow(QString)));
+    connect(&certParams, SIGNAL(readyToCheck(DbTable)), this, SLOT(checkCertParam(DbTable)));
+    emit sendData(work_dir.checkContainers());
+    certParams.initialise();
     certParams.exec();
 }
 // Кнопка: Править файл конфигурации
@@ -51,7 +49,7 @@ void MainWindow::on_editConfigBtn_clicked()
     connect(this, SIGNAL(sendData(QString)), &db_dialog, SLOT(getData(QString)));
     db_dialog.setDialogMod("set_config", work_dir.work_path);
     QString config_data = work_dir.config.readAllFromConfigFile(work_dir.config.name);
-    if (config_data == "errer") {
+    if (config_data == "error") {
         messageError(this, "Не обнаружен файл конфигурации");
     } else {
         emit sendData(config_data);
@@ -82,19 +80,23 @@ void MainWindow::on_openWorkDirBtn_clicked()
 void MainWindow::checkWorkDir(WorkDir work_dir) {
     if (work_dir.isOk && work_dir.config.isOk && work_dir.data_base.isOk) {
         work_dir.ca_cert = work_dir.loadCaCert(work_dir.config);
-        work_dir.data_base.table.table_name = "cert";
-        updateView(work_dir.data_base);
-        enableBtn();
-        ui_mw->creatCaCertBtn->setDisabled(true);
-        //ui_mw->creatCaCertBtn->close();
-        ui_mw->openWorkDirBtn->setDisabled(true);
-        ui_mw->openWorkDirBtn->close();
-        ui_mw->creatCaCertBtn->setStyleSheet("color: rgb(0,150,0)");
-        ui_mw->caLabel->setText("CA: " + work_dir.ca_cert.CN);
-        ui_mw->caLabel->setStyleSheet("color: rgb(0,150,0)");
-        ui_mw->dirLabel->setText("Dir: " + work_dir.work_path);
-        ui_mw->dirLabel->setStyleSheet("color: rgb(0,150,0)");
-        messageSuccess(this, tr("Сертификат УЦ загружен \n\n") + DbTable::getTextFromCert(work_dir.ca_cert.file_name));
+        QString cert_info = DbTable::getTextFromCert(work_dir.ca_cert.file_name);
+        if (cert_info != "error") {
+            work_dir.data_base.table.table_name = "cert";
+            updateView(work_dir.data_base);
+            enableBtn();
+            ui_mw->creatCaCertBtn->setDisabled(true);
+            ui_mw->exportBtn->setVisible(false);
+            //ui_mw->creatCaCertBtn->close();
+            ui_mw->creatCaCertBtn->setStyleSheet("color: rgb(0,150,0)");
+            ui_mw->caLabel->setText("CA: " + work_dir.ca_cert.CN);
+            ui_mw->caLabel->setStyleSheet("color: rgb(0,150,0)");
+            ui_mw->dirLabel->setText("Dir: " + work_dir.work_path);
+            ui_mw->dirLabel->setStyleSheet("color: rgb(0,150,0)");
+            messageSuccess(this, tr("Сертификат УЦ загружен \n\n") + cert_info);
+        } else {
+            messageError(this, tr("Файл сертификата УЦ поврежден \n\n") + getLastErrorString());
+        }
     } else {
         disableBtn();
         ui_mw->caLabel->setText("CA: no certificate");
@@ -105,6 +107,13 @@ void MainWindow::checkWorkDir(WorkDir work_dir) {
             ui_mw->openWorkDirBtn->close();
             ui_mw->creatCaCertBtn->setEnabled(true);
             if (isDebug) ui_mw->debugCheckContainersBtn->setEnabled(true);
+        }
+        if (!work_dir.isOk) {
+            messageError(this, tr("Ошибка в инициализации work_dir"));
+        } else if (!work_dir.config.isOk) {
+            messageWarning(this, tr("Требуется настройка файла конфигурации или генерация сертификата УЦ"));
+        } else {
+            messageError(this, tr("Ошибка в инициализации data_base"));
         }
     }
     this->work_dir = work_dir;
@@ -126,9 +135,11 @@ void MainWindow::checkWorkDir(WorkDir work_dir) {
 void MainWindow::on_creatCsrBtn_clicked()
 {
     CsrParams csrParams;
-    connect(&csrParams, SIGNAL(readyRunProgram(Program, DbTable)), this, SLOT(generateCert(Program,DbTable)));
-    connect(this, SIGNAL(sendData(WorkDir)), &csrParams, SLOT(getData(WorkDir)));
-    emit sendData(work_dir);
+    connect(this, SIGNAL(sendData(QStringList)), &csrParams, SLOT(getData(QStringList)));
+    connect(this, SIGNAL(closeCertParam(QString)), &csrParams, SLOT(closeWindow(QString)));
+    connect(&csrParams, SIGNAL(readyToCheck(DbTable)), this, SLOT(checkCertParam(DbTable)));
+    emit sendData(work_dir.checkContainers());
+    csrParams.initialise();
     csrParams.exec();
 }
 //Кнопка: Подписать CSR сертификатом УЦ
@@ -286,9 +297,9 @@ void MainWindow::on_importBtn_clicked()
 // Кнопка: Проверка контейнеров
 void MainWindow::on_debugCheckContainersBtn_clicked()
 {
-    QStringList containers = work_dir.checkContainers();
-    if (containers.size() > 0) {
-        messageDebug((containers.join("\n")));
+    QStringList conts = work_dir.checkContainers();
+    if (conts.size() > 0) {
+        messageDebug((conts.join("\n")));
     }
 }
 //------------------------------------------------------
@@ -443,7 +454,7 @@ void MainWindow::generateCert(Program prog, DbTable table) {
                 checkWorkDir(work_dir);
             }
             else {
-                messageDebug("Config is wrong");
+                messageError(this, "Config is wrong");
             }
         }
     }
@@ -497,14 +508,54 @@ void MainWindow::messageSuccess(QWidget *window, QString message)
 //------------------------------------------------------
 //---------ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ И СЛОТЫ--------------
 //------------------------------------------------------
+// Настройки окна при инициализации
+void MainWindow::initWindow() {
+    ui_mw->openWorkDirBtn->setDisabled(true);
+    ui_mw->openWorkDirBtn->close();
+    disableBtn();
+    ui_mw->caLabel->setStyleSheet("color: rgb(230,0,0)");
+    ui_mw->creatCaCertBtn->setStyleSheet("color: rgb(230,0,0)");
+    ui_mw->signCsrBtn->setVisible(false);
+    ui_mw->revokeCertBtn->setVisible(false);
+}
 // Слот, принимающий конфиг
 void MainWindow::saveConfig(QString data) {
     if (work_dir.config.writeToConfigFile(work_dir.config.name, data) == "error") {
         messageError(this, "Не удалось записать в файл конфигурации");
     } else {
-        if (!work_dir.isOk || !work_dir.config.isOk || !work_dir.data_base.isOk)
-            on_openWorkDirBtn_clicked();
+        on_openWorkDirBtn_clicked();
     }
+}
+// Проверяем поля из ca_cert и пробуем генерировать сертификат
+void MainWindow::checkCertParam(DbTable table) {
+    Program prog;
+    QStringList args_cur;
+    prog.file_out = work_dir.work_path + work_dir.files.ca_cert_file;
+    prog.key_in = table.key;
+    if (table.table_name == "ca") {
+        prog = Program("openssl", "ca", work_dir.work_path);
+    } else {
+        prog = Program("openssl", "csr", work_dir.work_path);
+    }
+    //RSA MOD
+    //args_cur = QString("req -x509 -newkey rsa:2048").split(" ");
+    //args_cur += QString("-keyout " + prog.key_out + " -nodes -out " + prog.file_out).split(" ");
+    //args_cur += QString("-subj " + cert.subj).split(" ");
+    //args_cur = QString("req -x509 -newkey rsa:2048").split(" ");
+
+    //GOST MOD
+    if (prog.mod == "ca") {
+        args_cur = QString("req -engine gostengy -x509 -keyform ENGINE -key c:" + table.key).split(" ");
+        args_cur += QString("-nodes -out " + prog.file_out).split(" ");
+        args_cur += QString("-subj " + table.subj).split(" ");
+    } else {
+        args_cur = QString("req -engine gostengy -new -keyform ENGINE -key c:" + table.key).split(" ");
+        args_cur += QString("-subj " + table.subj).split(" ");
+        args_cur += QString("-out " + prog.file_out).split(" ");
+    }
+    prog.args = args_cur;
+    generateCert(prog, table);
+    emit closeCertParam("ok");
 }
 // Слот, принимающие данные от сигналов
 void MainWindow::getData(QString data) {
@@ -548,6 +599,7 @@ void MainWindow::on_certTableView_selectionChanged(const QItemSelection &selecte
         QString revoked = selected.indexes()[3].data().toString();
         QString issuer = selected.indexes()[4].data().toString();
 
+        ui_mw->exportBtn->setVisible(true);
         if (serial == "no") ui_mw->signCsrBtn->setVisible(true);
         else ui_mw->signCsrBtn->setVisible(false);
         if (revoked == "no" && issuer != "no") ui_mw->revokeCertBtn->setVisible(true);
