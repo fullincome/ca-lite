@@ -10,6 +10,9 @@
 #include "work_dir.h"
 
 
+#define TERMINAL_MOD 0
+#define WINDOW_MOD 1
+
 namespace Ui {
 class MainWindow;
 }
@@ -22,7 +25,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-
 #ifdef QT_DEBUG
     bool isDebug = true;
     bool isRelease = false;
@@ -30,6 +32,10 @@ public:
     bool isDebug = false;
     bool isRelease = true;
 #endif
+
+    bool initialize();
+    int getWMod();
+    bool setWMod(int mod);
 
     Program program;
     WorkDir work_dir;
@@ -80,6 +86,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui_mw;
+    int w_mod;
 };
 
 #endif // MAINWINDOW_H

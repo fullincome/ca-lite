@@ -21,6 +21,10 @@
 #include <QtGlobal>
 
 
+#define CRT_GOST 0
+#define CRT_RSA 1
+
+
 extern class ErrorStr {
     QStack<QString> stack;
 public:
@@ -38,7 +42,6 @@ extern QString getLastErrorString();
 //extern void setErrorStringasdf(QString str) {
 //    errorStr.setError(str);
 //}
-
 
 
 class Program {

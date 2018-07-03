@@ -6,15 +6,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui_mw(new Ui::MainWindow)
 {
     ui_mw->setupUi(this);
-    initWindow();
-    if (isRelease) {
-        ui_mw->debugLogEdit->close();
-        ui_mw->debugLogLabel->close();
-        ui_mw->debugCheckContainersBtn->close();
-    }
+
     program = Program("openssl", "ca_cert");
     work_dir = WorkDir(QCoreApplication::applicationDirPath() + "/");
-    on_openWorkDirBtn_clicked();
 }
 
 MainWindow::~MainWindow()
@@ -22,8 +16,28 @@ MainWindow::~MainWindow()
     delete ui_mw;
 }
 
-
-
+bool MainWindow::initialize() {
+    QStringList args = QCoreApplication::arguments();
+    if (args.count() > 1 && args[1] == "-q") {
+        setWMod(TERMINAL_MOD);
+    } else {
+        setWMod(WINDOW_MOD);
+        initWindow();
+        if (isRelease) {
+            ui_mw->debugLogEdit->close();
+            ui_mw->debugLogLabel->close();
+            ui_mw->debugCheckContainersBtn->close();
+        }
+        on_openWorkDirBtn_clicked();
+    }
+    return 0;
+}
+int MainWindow::getWMod() {
+    return w_mod;
+}
+bool MainWindow::setWMod(int mod) {
+    w_mod = mod;
+}
 
 
 //------------------------------------------------------
@@ -73,6 +87,13 @@ void MainWindow::on_openWorkDirBtn_clicked()
     if (work_dir.initialiseConfig() == "error") {
         // пробуем создать сертификат уц
     }
+
+    if (work_dir.config.csptest == "no") {
+        ui_mw->debugCheckContainersBtn->setEnabled(false);
+    } else {
+        ui_mw->debugCheckContainersBtn->setEnabled(true);
+    }
+
     checkWorkDir(work_dir);
 
 }

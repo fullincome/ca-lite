@@ -37,12 +37,14 @@ void DbDialog::setDialogMod(QString dialog_mod, QString path) {
         ui_dl->creatBtn->setText("Открыть");
     } else if (dialog_mod == "import_cert") {
         this->dialog_mod = "import_cert";
+        this->setWindowTitle("Импорт сертификата");
         ui_dl->label->setText("Путь к импортируемому сертификату");
         ui_dl->textEdit->setPlainText(work_path + "/import_cert.cer");
         ui_dl->creatBtn->setText("Импортировать");
     } else if (dialog_mod == "set_config") {
         // В случае редактирования конфига используются только кнопки OK/Cancel
         this->dialog_mod = "set_config";
+        this->setWindowTitle("Настройка файла конфигурации");
         ui_dl->label->setText("Файл конфигурации");
         ui_dl->fileDialogBtn->close();
         ui_dl->creatBtn->setText("Применить");

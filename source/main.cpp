@@ -13,8 +13,11 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication a(argc, argv);
+
     MainWindow w;
-    w.show();
+    w.initialize();
+    if (w.getWMod() == WINDOW_MOD)
+        w.show();
 
     return a.exec();
 }
