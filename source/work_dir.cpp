@@ -283,12 +283,12 @@ WorkDir::WorkDir (QString work_path) {
 //-----------ЗАГРУЗКА РАБОЧЕЙ ДИРЕКТОРИИ----------------
 //------------------------------------------------------
 //Создание новой рабочей директории
-QString WorkDir::newWorkDir() {
+BOOL_ERR WorkDir::newWorkDir() {
 
     //creat crlnumber file
     QFile file_crlnumber(files.crlnumber);
     if (!file_crlnumber.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return "error";
+        return FAIL;
     }
     QTextStream stream_crlnumber(&file_crlnumber);
     stream_crlnumber << "01";
@@ -297,7 +297,7 @@ QString WorkDir::newWorkDir() {
     //creat serial file
     QFile file_serial(files.srl_ca_cert_file);
     if (!file_serial.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return "error";
+        return FAIL;
     }
     QTextStream stream_serial(&file_serial);
     stream_serial << "00";
@@ -306,15 +306,15 @@ QString WorkDir::newWorkDir() {
     //creat index file
     QFile file_index(files.index);
     if (!file_index.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return "error";
+        return FAIL;
     }
     file_index.close();
 
     //creat openssl.cnf file
-    QFile::copy("/var/opt/cprocsp/cp-openssl-1.1.0/openssl.cnf", files.openssl_config);
+    QFile::copy(OPENSSL_CONFIG_PATH, files.openssl_config);
     QFile file_openssl_config(files.openssl_config);
     if (!file_openssl_config.open(QIODevice::ReadOnly | QIODevice::Text )) {
-        return "error";
+        return FAIL;
     }
     QString file_text = file_openssl_config.readAll();
     file_openssl_config.close();
@@ -322,32 +322,32 @@ QString WorkDir::newWorkDir() {
     int pos = 0;
     if ((pos = regexp_dir.indexIn(file_text, 0)) != -1) {
         if (!file_openssl_config.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-            return "error";
+            return FAIL;
         }
         file_text.remove(pos + regexp_dir.cap(1).length(), regexp_dir.cap(2).length());
         file_text.insert(pos + regexp_dir.cap(1).length(), work_path);
         file_openssl_config.write(file_text.toLocal8Bit());
     } else {
-        return "error";
+        return FAIL;
     }
     file_openssl_config.close();
 
     //creat config file
     QFile file_config(config.name);
     if (!file_config.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return "error";
+        return FAIL;
     }
     QTextStream stream_config(&file_config);
-    stream_config << "csptest = /opt/cprocsp/bin/amd64/csptest\n";
-    stream_config << "openssl = /opt/cprocsp/cp-openssl-1.1.0/bin/amd64/openssl\n";
+    stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << "/csptest\n";
+    stream_config << "openssl = " << OPENSSL_DIR_PATH << "/openssl\n";
     stream_config << "CAcert = \n";
     stream_config << "CAkey = \n";
     file_config.close();
     isOk = true;
-    return "ok";
+    return OK;
 }
 //Инициализация рабочей дериктории
-QString WorkDir::initialiseWorkDir() {
+BOOL_ERR WorkDir::initialiseWorkDir() {
     isOpenMod = false;
     isOk = false;
     config.isOk = false;
@@ -363,21 +363,21 @@ QString WorkDir::initialiseWorkDir() {
     if (!dir.exists(work_path)) dir.mkpath(work_path);
     if (!QFile::exists(config.name) || !QFile::exists(files.openssl_config) ||
         !QFile::exists(data_base.name) || !QFile::exists(files.crlnumber) || !QFile::exists(files.index)) {
-        return "error";
+        return FAIL;
     } else {
         isOk = true;
         isOpenMod = true;
     }
-    return "ok";
+    return OK;
 }
-QString WorkDir::initialiseConfig() {
+BOOL_ERR WorkDir::initialiseConfig() {
     config = loadConfig(config.name);
-    if (!config.isOk) return "error";
-    return "ok";
+    if (!config.isOk) return FAIL;
+    return OK;
 }
-QString WorkDir::initialiseDatabase() {
+BOOL_ERR WorkDir::initialiseDatabase() {
     if (!data_base.load_db(data_base.name)) {
-        return "error";
+        return FAIL;
     } else {
         data_base.isOk = true;
         data_base.query = new QSqlQuery(data_base.sql_db);
@@ -388,7 +388,7 @@ QString WorkDir::initialiseDatabase() {
             isOk = true;
         }
     }
-    return "ok";
+    return OK;
 }
 
 //------------------------------------------------------

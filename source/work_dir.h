@@ -113,10 +113,10 @@ public:
     DataBase data_base;
     bool isOpenMod;
     bool isOk;
-    QString newWorkDir();
-    QString initialiseWorkDir();
-    QString initialiseConfig();
-    QString initialiseDatabase();
+    BOOL_ERR newWorkDir();
+    BOOL_ERR initialiseWorkDir();
+    BOOL_ERR initialiseConfig();
+    BOOL_ERR initialiseDatabase();
     QStringList parsingContainers(QString info);
     QStringList checkContainers();
     Config loadConfig(QString file_name);

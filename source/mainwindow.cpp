@@ -74,17 +74,22 @@ void MainWindow::on_editConfigBtn_clicked()
 // Выбран путь инициализации ТЕКУЩЕЙ ДИРЕКТОРИИ
 void MainWindow::on_openWorkDirBtn_clicked()
 {
-    if (work_dir.initialiseWorkDir() == "error") {
-        if (work_dir.newWorkDir() == "error") {
+    BOOL_ERR rc = FALSE; //FALSE = FAIL
+    rc = work_dir.initialiseWorkDir();
+    if (!rc) {
+        rc = work_dir.newWorkDir();
+        if (!rc) {
             messageError(this, "Не удалось инициализировать директорию");
             return;
         }
     }
-    if (work_dir.initialiseDatabase() == "error") {
+    rc = work_dir.initialiseDatabase();
+    if (!rc) {
         messageError(this, "Не удалось открыть базу данных");
         return;
     }
-    if (work_dir.initialiseConfig() == "error") {
+    rc = work_dir.initialiseConfig();
+    if (!rc) {
         // пробуем создать сертификат уц
     }
 
@@ -95,7 +100,6 @@ void MainWindow::on_openWorkDirBtn_clicked()
     }
 
     checkWorkDir(work_dir);
-
 }
 // Проверить рабочую директорию
 void MainWindow::checkWorkDir(WorkDir work_dir) {

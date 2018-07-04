@@ -20,15 +20,23 @@
 #include <QMessageBox>
 #include <QtGlobal>
 
+#define FALSE false
+#define FAIL false
+#define OK true
+#define BOOL_ERR bool
 
 #define CRT_GOST 0
 #define CRT_RSA 1
 
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
-#define OPENSSL_DIR_PATH "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/";
+#define OPENSSL_DIR_PATH "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/"
+#define OPENSSL_CONFIG_PATH "/var/opt/cprocsp/cp-openssl-1.1.0/openssl.cnf"
+#define CRYPTOPRO_DIR_PATH "/opt/cprocsp/bin/amd64/csptest"
 #else
 #ifdef Q_OS_WIN32
-#define OPENSSL_DIR_PATH "c:\OpenSSL-Win32\bin\openssl.exe";
+#define OPENSSL_DIR_PATH "c:\OpenSSL-Win32\bin\openssl.exe???"
+#define OPENSSL_CONFIG_PATH "c:/openssl.cnf???"
+#define CRYPTOPRO_DIR_PATH "c:/opt/cprocsp/bin/amd64/csptest???"
 #endif
 #endif
 
