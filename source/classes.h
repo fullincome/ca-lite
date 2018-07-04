@@ -24,6 +24,13 @@
 #define CRT_GOST 0
 #define CRT_RSA 1
 
+#if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
+#define OPENSSL_DIR_PATH "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/";
+#else
+#ifdef Q_OS_WIN32
+#define OPENSSL_DIR_PATH "c:\OpenSSL-Win32\bin\openssl.exe";
+#endif
+#endif
 
 extern class ErrorStr {
     QStack<QString> stack;

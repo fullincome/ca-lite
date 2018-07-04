@@ -13,7 +13,7 @@ QString getLastErrorString() {
 Program::Program () {}
 Program::Program (QString prog_name, QString mod, QString work_path) {
     if (prog_name == "openssl") {
-        program_path = "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/";
+        program_path = OPENSSL_DIR_PATH;
         program_name = "openssl";
         this->work_path = work_path;
         file_in = "no";
