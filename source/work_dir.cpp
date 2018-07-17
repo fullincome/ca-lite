@@ -35,15 +35,16 @@ QString DbTable::getTextFromCsr(QString file_in) {
     return prog.output;
 }
 
-QString DbTable::getTextFromCert(QString file_in) {
+BOOL_ERR DbTable::getTextFromCert(QString file_in, QString &cert_info) {
     Program prog = Program("openssl", "ca");
     prog.args = QString("x509 -in " + file_in + " -noout -text").split(" ");
     prog.run();
     if (prog.isError) {
         setErrorString(prog.output);
-        return "error";
+        return FAIL;
     } else {
-        return prog.output;
+        cert_info = prog.output;
+        return OK;
     }
 }
 
@@ -71,9 +72,11 @@ QString DbTable::getCNFromCsr(QString file_in) {
 }
 QString DbTable::getCNFromCert(QString file_in) {
     QString CN;
+    QString textCert;
     QRegExp regexp(RegexpPatternWorkDir::CN);
 
-    if (regexp.indexIn(getTextFromCert(file_in), 0) == -1) {
+    getTextFromCert(file_in, textCert);
+    if (regexp.indexIn(textCert, 0) == -1) {
         return "error";
     } else {
         CN = regexp.cap(1);
@@ -82,9 +85,11 @@ QString DbTable::getCNFromCert(QString file_in) {
 }
 QString DbTable::getIssuerFromCert(QString file_in) {
     QString issuer;
+    QString textCert;
     QRegExp regexp(RegexpPatternWorkDir::Issuer);
 
-    if (regexp.indexIn(getTextFromCert(file_in), 0) == -1) {
+    getTextFromCert(file_in, textCert);
+    if (regexp.indexIn(textCert, 0) == -1) {
         return "error";
     } else {
         issuer = regexp.cap(1);
@@ -114,9 +119,11 @@ QString DbTable::getSerialFromFile(QString file_name) {
 }
 QString DbTable::getSerialFromCert(QString file_name) {
     QString serial;
+    QString textCert;
     QRegExp regexp(RegexpPatternWorkDir::Serial);
 
-    if (regexp.indexIn(getTextFromCert(file_name), 0) == -1) {
+    getTextFromCert(file_name, textCert);
+    if (regexp.indexIn(textCert, 0) == -1) {
         return "error";
     } else {
         serial = regexp.cap(1);
@@ -311,7 +318,7 @@ BOOL_ERR WorkDir::newWorkDir() {
     file_index.close();
 
     //creat openssl.cnf file
-    QFile::copy(OPENSSL_CONFIG_PATH, files.openssl_config);
+    QFile::copy(QString(OPENSSL_CONFIG_PATH) + "openssl.cnf", files.openssl_config);
     QFile file_openssl_config(files.openssl_config);
     if (!file_openssl_config.open(QIODevice::ReadOnly | QIODevice::Text )) {
         return FAIL;
@@ -338,8 +345,8 @@ BOOL_ERR WorkDir::newWorkDir() {
         return FAIL;
     }
     QTextStream stream_config(&file_config);
-    stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << "/csptest\n";
-    stream_config << "openssl = " << OPENSSL_DIR_PATH << "/openssl\n";
+    stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << "csptest\n";
+    stream_config << "openssl = " << OPENSSL_DIR_PATH << "openssl\n";
     stream_config << "CAcert = \n";
     stream_config << "CAkey = \n";
     file_config.close();
@@ -348,6 +355,7 @@ BOOL_ERR WorkDir::newWorkDir() {
 }
 //Инициализация рабочей дериктории
 BOOL_ERR WorkDir::initialiseWorkDir() {
+    QDir dir;
     isOpenMod = false;
     isOk = false;
     config.isOk = false;
@@ -359,32 +367,52 @@ BOOL_ERR WorkDir::initialiseWorkDir() {
     files.index = work_path + "index.txt";
     files.crlnumber = work_path + "crlnumber";
     files.openssl_config = work_path + "openssl.cnf";
-    QDir dir;
-    if (!dir.exists(work_path)) dir.mkpath(work_path);
+
+    if (!dir.exists(work_path))
+    {
+        dir.mkpath(work_path);
+    }
+
     if (!QFile::exists(config.name) || !QFile::exists(files.openssl_config) ||
-        !QFile::exists(data_base.name) || !QFile::exists(files.crlnumber) || !QFile::exists(files.index)) {
+        !QFile::exists(data_base.name) || !QFile::exists(files.crlnumber) ||
+        !QFile::exists(files.index))
+    {
         return FAIL;
-    } else {
+    }
+    else
+    {
         isOk = true;
         isOpenMod = true;
     }
+
     return OK;
 }
 BOOL_ERR WorkDir::initialiseConfig() {
     config = loadConfig(config.name);
-    if (!config.isOk) return FAIL;
-    return OK;
+    if (!config.isOk)
+    {
+        return FAIL;
+    }
+    else
+    {
+        return OK;
+    }
 }
 BOOL_ERR WorkDir::initialiseDatabase() {
-    if (!data_base.load_db(data_base.name)) {
+    if (!data_base.load_db(data_base.name))
+    {
         return FAIL;
-    } else {
+    }
+    else
+    {
         data_base.isOk = true;
         data_base.query = new QSqlQuery(data_base.sql_db);
-        if (!isOpenMod) {
+        if (!isOpenMod)
+        {
             data_base.newTables(data_base.query);
         }
-        if (data_base.isOk && config.isOk) {
+        if (data_base.isOk && config.isOk)
+        {
             isOk = true;
         }
     }
@@ -427,6 +455,7 @@ Config WorkDir::loadConfig(QString file_name) {
     config.isOk = true;
     QFile file_config(config.name);
     if (!file_config.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        setErrorString("Open failed: " + config.name);
         config.isOk = false;
         return config;
     }
@@ -439,18 +468,21 @@ Config WorkDir::loadConfig(QString file_name) {
         QString term = regexp.cap(1);
         QString define = regexp.cap(2);
         if (define.isEmpty()) {
+            setErrorString("Пустое определение при параметре:" + term);
             config.isOk = false;
             break;
         }
         if (term == "openssl") {
             config.openssl = define;
             if (!QFile::exists(config.openssl)) {
+                setErrorString("Не найден файл: " + config.openssl);
                 config.isOk = false;
                 break;
             }
         } else if (term == "csptest") {
             config.csptest = define;
             if (!QFile::exists(config.csptest)) {
+                setErrorString("Не найден файл: " + config.csptest);
                 config.isOk = false;
                 break;
             }
@@ -468,6 +500,7 @@ Config WorkDir::loadConfig(QString file_name) {
                     }
                 }
                 if (!isOk) {
+                    setErrorString("Ключ сертификата УЦ не найден: " + config.CAkey);
                     config.isOk = false;
                     break;
                 }
@@ -475,6 +508,7 @@ Config WorkDir::loadConfig(QString file_name) {
         } else if (term == "CAcert") {
             config.CAcert = define;
             if (!QFile::exists(config.CAcert)) {
+                setErrorString("Не найден файл: " + config.CAcert);
                 config.isOk = false;
                 break;
             }

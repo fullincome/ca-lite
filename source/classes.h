@@ -30,8 +30,8 @@
 
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
 #define OPENSSL_DIR_PATH "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/"
-#define OPENSSL_CONFIG_PATH "/var/opt/cprocsp/cp-openssl-1.1.0/openssl.cnf"
-#define CRYPTOPRO_DIR_PATH "/opt/cprocsp/bin/amd64/csptest"
+#define OPENSSL_CONFIG_PATH "/var/opt/cprocsp/cp-openssl-1.1.0/"
+#define CRYPTOPRO_DIR_PATH "/opt/cprocsp/bin/amd64/"
 #else
 #ifdef Q_OS_WIN32
 #define OPENSSL_DIR_PATH "c:\OpenSSL-Win32\bin\openssl.exe???"

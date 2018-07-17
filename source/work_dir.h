@@ -34,7 +34,7 @@ public:
     QStringList checkErrorFields();
     static QString getPemFromFile(QString file_name);
     static QString getTextFromCsr(QString file_in);
-    static QString getTextFromCert(QString file_in);
+    static BOOL_ERR getTextFromCert(QString file_in, QString &cert_info);
     static QString getTextFromAny(QString file_in);
     static QString getCNFromCsr(QString file);
     static QString getCNFromCert(QString file);

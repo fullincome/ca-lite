@@ -22,6 +22,8 @@ bool MainWindow::initialize() {
         setWMod(TERMINAL_MOD);
     } else {
         setWMod(WINDOW_MOD);
+    }
+    if (getWMod() == WINDOW_MOD) {
         initWindow();
         if (isRelease) {
             ui_mw->debugLogEdit->close();
@@ -74,7 +76,7 @@ void MainWindow::on_editConfigBtn_clicked()
 // Выбран путь инициализации ТЕКУЩЕЙ ДИРЕКТОРИИ
 void MainWindow::on_openWorkDirBtn_clicked()
 {
-    BOOL_ERR rc = FALSE; //FALSE = FAIL
+    BOOL_ERR rc = FAIL; //FALSE = FAIL
     rc = work_dir.initialiseWorkDir();
     if (!rc) {
         rc = work_dir.newWorkDir();
@@ -103,10 +105,18 @@ void MainWindow::on_openWorkDirBtn_clicked()
 }
 // Проверить рабочую директорию
 void MainWindow::checkWorkDir(WorkDir work_dir) {
-    if (work_dir.isOk && work_dir.config.isOk && work_dir.data_base.isOk) {
+    BOOL_ERR rc = FAIL;
+    if (work_dir.isOk && work_dir.config.isOk && work_dir.data_base.isOk)
+    {
         work_dir.ca_cert = work_dir.loadCaCert(work_dir.config);
-        QString cert_info = DbTable::getTextFromCert(work_dir.ca_cert.file_name);
-        if (cert_info != "error") {
+        QString cert_info;
+        rc = DbTable::getTextFromCert(work_dir.ca_cert.file_name, cert_info);
+        if (rc == FAIL)
+        {
+            messageError(this, tr("Файл сертификата УЦ поврежден \n\n") + getLastErrorString());
+        }
+        else
+        {
             work_dir.data_base.table.table_name = "cert";
             updateView(work_dir.data_base);
             enableBtn();
@@ -119,10 +129,10 @@ void MainWindow::checkWorkDir(WorkDir work_dir) {
             ui_mw->dirLabel->setText("Dir: " + work_dir.work_path);
             ui_mw->dirLabel->setStyleSheet("color: rgb(0,150,0)");
             messageSuccess(this, tr("Сертификат УЦ загружен \n\n") + cert_info);
-        } else {
-            messageError(this, tr("Файл сертификата УЦ поврежден \n\n") + getLastErrorString());
         }
-    } else {
+    }
+    else
+    {
         disableBtn();
         ui_mw->caLabel->setText("CA: no certificate");
         ui_mw->caLabel->setStyleSheet("color: rgb(230,0,0)");
@@ -556,13 +566,14 @@ void MainWindow::saveConfig(QString data) {
 void MainWindow::checkCertParam(DbTable table) {
     Program prog;
     QStringList args_cur;
-    prog.file_out = work_dir.work_path + work_dir.files.ca_cert_file;
-    prog.key_in = table.key;
     if (table.table_name == "ca") {
         prog = Program("openssl", "ca", work_dir.work_path);
     } else {
         prog = Program("openssl", "csr", work_dir.work_path);
     }
+
+    prog.key_in = table.key;
+
     //RSA MOD
     //args_cur = QString("req -x509 -newkey rsa:2048").split(" ");
     //args_cur += QString("-keyout " + prog.key_out + " -nodes -out " + prog.file_out).split(" ");

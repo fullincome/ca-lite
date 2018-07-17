@@ -20,7 +20,8 @@ before_deploy:
   chmod +x ca-lite;
   chmod +x install_dependencies.sh; 
   chmod +x gen_key.sh;
-  tar -cvzf ${TRAVIS_TAG}-${RELEASE_NAME}_linux-amd64.tar.gz ca-lite install_dependencies.sh gen_key.sh;
+  chmod +x allow_keys2001.sh;
+  tar -cvzf ${TRAVIS_TAG}-${RELEASE_NAME}_linux-amd64.tar.gz ca-lite install_dependencies.sh gen_key.sh allow_keys2001.sh;
   fi
 deploy:
   provider: releases

@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.initialize();
     if (w.getWMod() == WINDOW_MOD)
+    {
         w.show();
-
+    }
     return a.exec();
 }
