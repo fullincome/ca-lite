@@ -12,3 +12,7 @@ Ubuntu-16.04
 3. If need test keys - **gen_key.sh**
 
 Easy way to build ca: **./configure && make**.
+
+##Warning
+
+To obtain the permission to generate keys GOST R 34.10-2001 use by root (sudo) **allow_keys2001.sh** before installation.
