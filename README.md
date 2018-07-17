@@ -13,6 +13,6 @@ Ubuntu-16.04
 
 Easy way to build ca: **./configure && make**.
 
-##Warning
+## Warning:
 
 To obtain the permission to generate keys GOST R 34.10-2001 use by root (sudo) **allow_keys2001.sh** before installation.
