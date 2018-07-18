@@ -180,6 +180,7 @@ void MainWindow::on_creatCsrBtn_clicked()
 //Кнопка: Подписать CSR сертификатом УЦ
 void MainWindow::on_signCsrBtn_clicked()
 {
+    BOOL_ERR rc = FAIL;
     //GOST MOD
     Program prog = Program("openssl", "signing_cert", work_dir.work_path);
     QString csr_CN;
@@ -197,6 +198,7 @@ void MainWindow::on_signCsrBtn_clicked()
     prog.args += QString("-CAkeyform ENGINE -CAkey c:" + work_dir.ca_cert.key).split(" ");
     prog.args += QString("-CAserial " + work_dir.files.srl_ca_cert_file).split(" ");
     prog.args += QString("-in " + prog.file_in + " -out " + prog.file_out).split(" ");
+    prog.args += QString("-days " + table_cert.days_valid).split(" ");
     prog.mod = "cert";
     prog.run();
     //--------------------------------------------------
@@ -206,7 +208,11 @@ void MainWindow::on_signCsrBtn_clicked()
         table_cert.pem = table_cert.getPemFromFile(prog.file_out);
         table_cert.serial = table_cert.getSerialFromCert(prog.file_out);
         table_cert.issuer = table_cert.getCNFromCert(work_dir.ca_cert.file_name);
-        work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
+        rc = work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
+        if (rc == FAIL)
+        {
+            messageError(this, getLastErrorString());
+        }
         updateView(work_dir.data_base);
     } else {
         messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
@@ -360,7 +366,7 @@ void MainWindow::updateView(DataBase data_base) {
     QSortFilterProxyModel *sqlproxy_model_cert = new QSortFilterProxyModel();
     //model_csr->
     if (table.table_name == "cert") {
-        query->prepare("SELECT CN, pem, serial, revoke, issuer FROM cert");
+        query->prepare("SELECT CN, pem, serial, revoke, issuer, days_valid FROM cert");
         if (query->exec()) {
             model_cert->setQuery(*query);
             // прокси модель - в данном случае обертка для sqlQueryModel,
@@ -407,6 +413,7 @@ bool MainWindow::prepareSaveToDb(Program prog, DbTable table) {
         if (table.suite == "gost" ) {
             if (table.key == "need") ;
         }
+        if (table.days_valid == "need");
         QStringList errorField = table.checkErrorFields();
         if (!errorField.isEmpty()) {
             QString message = "Ошибки в полях: \n" + errorField.join("\n");
@@ -440,6 +447,7 @@ bool MainWindow::prepareSaveToDb(Program prog, DbTable table) {
         if (table.suite == "gost" ) {
             if (table.key == "need") ;
         }
+        if (table.days_valid == "need");
         QStringList errorField = table.checkErrorFields();
         if (!errorField.isEmpty()) {
             QString message = "Ошибки в полях: \n" + errorField.join("\n");
@@ -562,7 +570,7 @@ void MainWindow::saveConfig(QString data) {
         on_openWorkDirBtn_clicked();
     }
 }
-// Проверяем поля из ca_cert и пробуем генерировать сертификат
+// Проверяем поля из ca_cert (csr) и пробуем генерировать сертификат
 void MainWindow::checkCertParam(DbTable table) {
     Program prog;
     QStringList args_cur;
@@ -584,11 +592,11 @@ void MainWindow::checkCertParam(DbTable table) {
     if (prog.mod == "ca") {
         args_cur = QString("req -engine gostengy -x509 -keyform ENGINE -key c:" + table.key).split(" ");
         args_cur += QString("-nodes -out " + prog.file_out).split(" ");
-        args_cur += QString("-subj " + table.subj).split(" ");
+        args_cur += QString("-subj " + table.subj + " -days " + table.days_valid).split(" ");
     } else {
         args_cur = QString("req -engine gostengy -new -keyform ENGINE -key c:" + table.key).split(" ");
         args_cur += QString("-subj " + table.subj).split(" ");
-        args_cur += QString("-out " + prog.file_out).split(" ");
+        args_cur += QString("-out " + prog.file_out + " -days " + table.days_valid).split(" ");
     }
     prog.args = args_cur;
     generateCert(prog, table);
@@ -629,12 +637,13 @@ void MainWindow::enableBtn() {
 }
 // Реакция на выбор нескольких строк
 void MainWindow::on_certTableView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) {
-    if (selected.indexes().count() == 5) {
+    if (selected.indexes().count() == 6) {
         QString CN = selected.indexes()[0].data().toString();
         QString pem = selected.indexes()[1].data().toString();
         QString serial = selected.indexes()[2].data().toString();
         QString revoked = selected.indexes()[3].data().toString();
         QString issuer = selected.indexes()[4].data().toString();
+        QString days_valid = selected.indexes()[5].data().toString();
 
         ui_mw->exportBtn->setVisible(true);
         if (serial == "no") ui_mw->signCsrBtn->setVisible(true);
@@ -651,7 +660,7 @@ void MainWindow::on_certTableView_selectionChanged(const QItemSelection &selecte
 void MainWindow::on_certTableView_activated(const QModelIndex &index)
 {
     work_dir.exportCert(index.sibling(index.row(), 0).data().toString(), work_dir.files.cert_file);
-    QMessageBox::information(this, tr("Информация о сертификате"), DbTable::getTextFromAny(work_dir.files.cert_file));
+    QMessageBox::information(this, tr("Информация о сертификате"), DbTable::getTextFromAny(work_dir.files.cert_file, work_dir.work_path));
     program.clearResult();
 }
 //------------------------------------------------------

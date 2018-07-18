@@ -48,8 +48,8 @@ BOOL_ERR DbTable::getTextFromCert(QString file_in, QString &cert_info) {
     }
 }
 
-QString DbTable::getTextFromAny(QString file_in) {
-    Program prog = Program("openssl", "ca");
+QString DbTable::getTextFromAny(QString file_in, QString work_path) {
+    Program prog = Program("openssl", "ca", work_path);
     prog.args = QString("x509 -in " + file_in + " -noout -text").split(" ");
     prog.run();
     if (prog.isError) {
@@ -152,7 +152,8 @@ void DataBase::newTables(QSqlQuery *query)
         "`suite`    TEXT,"
         "`serial`   TEXT,"
         "`revoke`   TEXT,"
-        "`issuer`    TEXT)");
+        "`issuer`   TEXT,"
+        "`days_valid`   TEXT)");
     query->exec("CREATE TABLE cert ("
         "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
         "`CN`       TEXT,"
@@ -161,19 +162,24 @@ void DataBase::newTables(QSqlQuery *query)
         "`suite`    TEXT,"
         "`serial`   TEXT,"
         "`revoke`   TEXT,"
-        "`issuer`    TEXT)");
+        "`issuer`   TEXT,"
+        "`days_valid`   TEXT)");
     query->exec("CREATE TABLE crl ("
         "`id`       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
         "`index`	TEXT,"
         "`crl`      TEXT)");
 }
-void DataBase::saveToDb(DbTable table, QSqlQuery *query) {
+BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
     if (table.table_name == "cert") {
         table.condition = "CN = '" + table.CN + "'";
         DbTable tmp_table = loadFromDb(table.table_name, table.condition, query);
         if (tmp_table.pem.isEmpty()) {
-            query->prepare("INSERT INTO cert (CN, pem, key, suite, serial, revoke, issuer) "
-                           "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer)");
+            if (!query->prepare("INSERT INTO cert (CN, pem, key, suite, serial, revoke, issuer, days_valid) "
+                           "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid)"))
+            {
+                setErrorString("query->prepare() fail with: " + query->lastError().text());
+                return FAIL;
+            }
             query->bindValue(":CN", table.CN);
             query->bindValue(":pem", table.pem);
             query->bindValue(":key", table.key);
@@ -181,28 +187,42 @@ void DataBase::saveToDb(DbTable table, QSqlQuery *query) {
             query->bindValue(":serial", table.serial);
             query->bindValue(":revoke", table.revoke);
             query->bindValue(":issuer", table.issuer);
+            query->bindValue(":days_valid", table.days_valid);
         } else {
-            query->prepare("UPDATE cert SET "
+            if (!query->prepare("UPDATE cert SET "
                            "CN = '" + table.CN + "', "
                            "pem = '" + table.pem + "', "
                            "key = '" + table.key + "', "
                            "suite = '" + table.suite + "', "
                            "serial = '" + table.serial + "', "
                            "revoke = '" + table.revoke + "', "
-                           "issuer = '" + table.issuer + "' "
-                           "WHERE " + table.condition);
+                           "issuer = '" + table.issuer + "', "
+                           "days_valid = '" + table.days_valid + "' "
+                           "WHERE " + table.condition))
+            {
+                setErrorString("query->prepare() fail with: " + query->lastError().text());
+                return FAIL;
+            }
         }
     } else if (table.table_name == "crl") {
-        query->prepare("INSERT INTO crl (CN, pem, key, suite, serial) "
-                   "VALUES (:CN, :pem, :key, :suite, :serial)");
+        if (!query->prepare("INSERT INTO crl (CN, pem, key, suite, serial) "
+                   "VALUES (:CN, :pem, :key, :suite, :serial)"))
+        {
+            setErrorString("query->prepare() fail with: " + query->lastError().text());
+            return FAIL;
+        }
         query->bindValue(":CN", table.CN);
         query->bindValue(":pem", table.pem);
         query->bindValue(":key", table.key);
         query->bindValue(":suite", table.suite);
         query->bindValue(":serial", table.serial);
     } else if (table.table_name == "ca") {
-        query->prepare("INSERT INTO ca (CN, pem, key, suite, serial, revoke, issuer) "
-                       "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer)");
+        if (!query->prepare("INSERT INTO ca (CN, pem, key, suite, serial, revoke, issuer, days_valid) "
+                       "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid)"))
+        {
+            setErrorString("query->prepare() fail with: " + query->lastError().text());
+            return FAIL;
+        }
         query->bindValue(":CN", table.CN);
         query->bindValue(":pem", table.pem);
         query->bindValue(":key", table.key);
@@ -210,15 +230,20 @@ void DataBase::saveToDb(DbTable table, QSqlQuery *query) {
         query->bindValue(":serial", table.serial);
         query->bindValue(":revoke", table.revoke);
         query->bindValue(":issuer", table.issuer);
+        query->bindValue(":days_valid", table.days_valid);
     }
-    query->exec();
-    query->finish();
+    if (!query->exec())
+    {
+        setErrorString("query->exec() fail with: " + query->lastError().text());
+        return FAIL;
+    }
+    return OK;
 }
 
 DbTable DataBase::loadFromDb(QString table_name, QString table_condition, QSqlQuery *query) {
     DbTable table;
     if (table_name == "cert") {
-        if (!query->prepare("SELECT CN, pem, key, suite, serial, revoke, issuer "
+        if (!query->prepare("SELECT CN, pem, key, suite, serial, revoke, issuer, days_valid "
                             "FROM cert "
                             "WHERE " + table_condition)) {
             return table;
@@ -238,6 +263,7 @@ DbTable DataBase::loadFromDb(QString table_name, QString table_condition, QSqlQu
     table.serial = query->value(4).toString();
     table.revoke = query->value(5).toString();
     table.issuer = query->value(6).toString();
+    table.days_valid = query->value(7).toString();
     query->finish();
     return table;
 }
@@ -327,6 +353,7 @@ BOOL_ERR WorkDir::newWorkDir() {
     file_openssl_config.close();
     QRegExp regexp_dir(RegexpPatternWorkDir::OpensslConfCADir);
     int pos = 0;
+    // меняем переменную dir в файле openssl.cnf на текущую work_path
     if ((pos = regexp_dir.indexIn(file_text, 0)) != -1) {
         if (!file_openssl_config.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
             return FAIL;
@@ -367,6 +394,7 @@ BOOL_ERR WorkDir::initialiseWorkDir() {
     files.index = work_path + "index.txt";
     files.crlnumber = work_path + "crlnumber";
     files.openssl_config = work_path + "openssl.cnf";
+    files.srl_ca_cert_file = work_path + "ca_cert.srl";
 
     if (!dir.exists(work_path))
     {
@@ -589,6 +617,7 @@ DbTable WorkDir::importCert(QString file_name) {
     }
     table_cert.pem = table_cert.getPemFromFile(file_name);
     table_cert.table_name = "cert";
+    table_cert.days_valid = "no info";
     if (table_cert.serial == "error" || table_cert.issuer == "error" ||
         table_cert.pem == "error" || table_cert.revoke == "error") {
         table_cert.isOk = false;

@@ -21,6 +21,7 @@ public:
     QString CN;
     QString O;
     QString subj;
+    QString days_valid;
     QString key;
     QString pem;
     QString table_name;
@@ -35,7 +36,7 @@ public:
     static QString getPemFromFile(QString file_name);
     static QString getTextFromCsr(QString file_in);
     static BOOL_ERR getTextFromCert(QString file_in, QString &cert_info);
-    static QString getTextFromAny(QString file_in);
+    static QString getTextFromAny(QString file_in, QString work_path);
     static QString getCNFromCsr(QString file);
     static QString getCNFromCert(QString file);
     static QString getIssuerFromCert(QString file);
@@ -55,7 +56,7 @@ public:
     bool load_db(QString name);
     void newTables(QSqlQuery *query);
     DbTable loadFromDb(QString table_name, QString table_condition, QSqlQuery *query);
-    void saveToDb(DbTable table, QSqlQuery *query);
+    BOOL_ERR saveToDb(DbTable table, QSqlQuery *query);
 };
 
 class Config {

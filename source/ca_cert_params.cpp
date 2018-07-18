@@ -28,6 +28,8 @@ void CertParams::setParams() {
     table.CN = ui_cp->nameCertEdit->toPlainText();
     table.O = ui_cp->organizationEdit->toPlainText();
     table.subj = "/CN=" + table.CN;
+    table.days_valid = ui_cp->daysValidEdit->toPlainText();
+    if (table.days_valid.isEmpty()) table.days_valid = "365";
     if (!table.O.isEmpty()) table.subj += "/O=" + table.O;
 
     table.key = ui_cp->keycontCertEdit->toPlainText();

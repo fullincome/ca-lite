@@ -47,7 +47,7 @@
     <item>
      <widget class="QLabel" name="label_5">
       <property name="text">
-       <string>Не рабочее поле</string>
+       <string>Срок действия (дни)</string>
       </property>
      </widget>
     </item>
@@ -147,7 +147,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPlainTextEdit" name="keycontCSREdit_3">
+  <widget class="QPlainTextEdit" name="daysValidEdit">
    <property name="geometry">
     <rect>
      <x>190</x>
