@@ -5,9 +5,7 @@ based on openssl and cryptopro CSP.
 Ubuntu-16.04
 
 ## For use ca: 
-1. **Download** last version **ca-lite** (or build from source):  
-[Release (linux-x64)](https://github.com/fullincome/ca-lite/releases/download/ca-lite-1.01/ca-lite-1.01-release_linux-amd64.tar.gz)  
-[Debug (linux-x64)](https://github.com/fullincome/ca-lite/releases/download/ca-lite-1.01/ca-lite-1.01-debug_linux-amd64.tar.gz)  
+1. [Download](https://github.com/fullincome/ca-lite/releases/latest) latest version **ca-lite** (or build from source):  
 2. Run (by root) - **./install.sh**
 3. If need test keys (by user) - **./scripts/gen_key.sh**
 
