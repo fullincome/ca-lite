@@ -19,10 +19,10 @@ before_deploy:
   cp ./${BUILD_DIR}/ca-lite ./;
   chmod +x ca-lite;
   chmod +x ./scripts/install_dependencies.sh; 
-  chmod +x ./scripts/gen_key.sh;
+  chmod +x ./scripts/gen_keys.sh;
   chmod +x ./scripts/allow_keys2001.sh;
   chmod +x install.sh
-  tar -cvzf ${TRAVIS_TAG}-${RELEASE_NAME}_linux-amd64.tar.gz scripts ca-lite install.sh;
+  tar -cvzf ${TRAVIS_TAG}-${RELEASE_NAME}_linux-amd64.tar.gz scripts openssl_calite.cnf ca-lite install.sh;
   fi
 deploy:
   provider: releases
