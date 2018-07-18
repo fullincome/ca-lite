@@ -1,7 +1,7 @@
 #ifndef DB_H
 #define DB_H
 
-#include "classes.h"
+#include "program.h"
 
 // Регулярки
 namespace RegexpPatternWorkDir {
@@ -20,6 +20,9 @@ class DbTable {
 public:
     QString CN;
     QString O;
+    QString C;
+    QString email;
+    QString sun;
     QString subj;
     QString days_valid;
     QString key;
@@ -97,10 +100,11 @@ public:
     QString key_cert_file = "signing_cert.key";
 
     QString config_file = "config";
-    QString openssl_config = "openssl.cnf";
+    QString openssl_config = "openssl_calite.cnf";
+    QString cert_config = "openssl_cert.cnf";
 
-    QString crlnumber;
-    QString index;
+    QString crlnumber = "crlnumber";
+    QString index = "index.txt";
 };
 
 class WorkDir {
@@ -125,6 +129,8 @@ public:
     CACert loadCaCert(Config config);
     DbTable exportCert(QString CN, QString file_name);
     DbTable importCert(QString file_name);
+    BOOL_ERR genCertConfig(DbTable table);
+    BOOL_ERR delCertConfig();
 };
 
 

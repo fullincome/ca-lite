@@ -476,7 +476,9 @@ bool MainWindow::prepareSaveToDb(Program prog, DbTable table) {
 }
 // Основная функция генерации сертификатов
 void MainWindow::generateCert(Program prog, DbTable table) {
+    work_dir.genCertConfig(table);
     prog.run();
+    work_dir.delCertConfig();
     messageDebug(prog.output);
     if (prog.mod == "cert" || prog.mod == "csr") {
         if (prog.isError) {
@@ -589,11 +591,16 @@ void MainWindow::checkCertParam(DbTable table) {
     //args_cur = QString("req -x509 -newkey rsa:2048").split(" ");
 
     //GOST MOD
-    if (prog.mod == "ca") {
+    // prepare to generate CA certificate
+    if (prog.mod == "ca")
+    {
         args_cur = QString("req -engine gostengy -x509 -keyform ENGINE -key c:" + table.key).split(" ");
         args_cur += QString("-nodes -out " + prog.file_out).split(" ");
         args_cur += QString("-subj " + table.subj + " -days " + table.days_valid).split(" ");
-    } else {
+    }
+    // prepare to generate CSR
+    else
+    {
         args_cur = QString("req -engine gostengy -new -keyform ENGINE -key c:" + table.key).split(" ");
         args_cur += QString("-subj " + table.subj).split(" ");
         args_cur += QString("-out " + prog.file_out + " -days " + table.days_valid).split(" ");

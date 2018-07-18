@@ -309,7 +309,7 @@ WorkDir::WorkDir (QString work_path) {
     config.name = work_path + "config";
     files.index = work_path + "index.txt";
     files.crlnumber = work_path + "crlnumber";
-    files.openssl_config = work_path + "openssl.cnf";
+    files.openssl_config = work_path + "openssl_calite.cnf";
 }
 
 //------------------------------------------------------
@@ -627,5 +627,39 @@ DbTable WorkDir::importCert(QString file_name) {
     data_base.saveToDb(table_cert, data_base.query);
     return table_cert;
 }
+// Генерация шаблона сертификата в конфиг
+BOOL_ERR WorkDir::genCertConfig(DbTable table) {
+    QFile file(files.cert_config);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return FAIL;
+    }
+    QTextStream stream_file(&file);
+    stream_file << "oid_section = OIDs" << endl;
 
+    stream_file << "[ req ]" << endl;
+    stream_file << "prompt = no" << endl;
+    stream_file << "encrypt_key = no" << endl;
+    stream_file << "distinguished_name = dn" << endl;
+    stream_file << "req_extensions = req_ext" << endl;
+
+    stream_file << "[ OIDs ]" << endl;
+    stream_file << "MySensationalOID=1.2.3.45" << endl;
+    stream_file << "MyOutstandingOID=2.3.4.56" << endl;
+
+    stream_file << "[ dn ]" << endl;
+    stream_file << "CN = " << table.CN << endl;
+    stream_file << "emailAddress = " << table.email << endl;
+    stream_file << "O = " << table.O << endl;
+    stream_file << "C = " << table.C << endl;
+    stream_file << "MySensationalOID = Support Department" << endl;
+
+    stream_file << "[ req_ext ]" << endl;
+    stream_file << "subjectAltName = " << table.sun << endl;
+    file.close();
+    return OK;
+}
+// Удаление шаблона сертификата (конфига)
+BOOL_ERR WorkDir::delCertConfig() {
+    Program::removeFile(files.cert_config);
+}
 

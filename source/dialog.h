@@ -2,7 +2,7 @@
 #define NEWDB_H
 
 #include <QDialog>
-#include "classes.h"
+#include "program.h"
 #include "work_dir.h"
 
 namespace Ui {

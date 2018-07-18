@@ -1,5 +1,5 @@
-#ifndef CLASSES_H
-#define CLASSES_H
+#ifndef PROGRAM_H
+#define PROGRAM_H
 
 #include <QString>
 #include <QStringList>
@@ -87,7 +87,7 @@ public:
     void run();
     void clearResult(QStringList file_to_delete);
     void clearResult();
-    void removeFile(QString file);
+    static void removeFile(QString file);
 };
 
-#endif // CLASSES_H
+#endif // PROGRAM_H
