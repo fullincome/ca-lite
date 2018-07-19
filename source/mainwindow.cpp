@@ -602,7 +602,7 @@ void MainWindow::checkCertParam(DbTable table) {
     else
     {
         args_cur = QString("req -engine gostengy -new -keyform ENGINE -key c:" + table.key).split(" ");
-        args_cur += QString("-subj " + table.subj).split(" ");
+        args_cur += QString("-config " + work_dir.files.cert_config).split(" ");
         args_cur += QString("-out " + prog.file_out + " -days " + table.days_valid).split(" ");
     }
     prog.args = args_cur;

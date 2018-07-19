@@ -35,6 +35,7 @@ public:
     QString condition;
     QString status;
     bool isOk;
+    DbTable();
     QStringList checkErrorFields();
     static QString getPemFromFile(QString file_name);
     static QString getTextFromCsr(QString file_in);

@@ -26,21 +26,23 @@ void CsrParams::initialise() {
 }
 //Установка выбранных параметров
 void CsrParams::setParams() {
-    table.CN = ui_cp->nameCsrEdit->toPlainText();
-    table.O = ui_cp->organizationEdit->toPlainText();
-    table.subj = "/CN=" + table.CN;
-    table.days_valid = ui_cp->daysValidEdit->toPlainText();
-    if (table.days_valid.isEmpty()) table.days_valid = "365";
-    if (!table.O.isEmpty()) table.subj += "/O=" + table.O;
+    QString str_field;
 
-    table.key = ui_cp->keycontCsrEdit->toPlainText();
-    table.suite = "gost";
-    table.pem = "need";
-    table.table_name = "cert";
-    table.serial = "no";
-    table.revoke = "no";
-    table.issuer = "no";
-    table.condition = "CN = '" + table.CN + "'";
+    str_field = ui_cp->nameCsrEdit->toPlainText();
+    if (!str_field.isEmpty()) table.CN = str_field;
+
+    str_field = ui_cp->organizationEdit->toPlainText();
+    if (!str_field.isEmpty()) table.O = str_field;
+
+    str_field = ui_cp->daysValidEdit->toPlainText();
+    if (!str_field.isEmpty()) table.days_valid = str_field;
+
+    str_field = ui_cp->keycontCsrEdit->toPlainText();
+    if (!str_field.isEmpty()) table.key = str_field;
+
+    str_field = "CN = '" + table.CN + "'";
+    if (!str_field.isEmpty()) table.condition = str_field;
+
 }
 //Кнопка: Создать CSR
 void CsrParams::on_creatBtn_clicked()

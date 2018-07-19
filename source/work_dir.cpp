@@ -1,5 +1,25 @@
 #include "work_dir.h"
 
+DbTable::DbTable()
+{
+    CN = "CN_calite";
+    O = "O_calite";
+    C = "RU";
+    email = "calite@calite.ru";
+    sun = "email:calite@calite.ru";
+    subj = "/CN=CN_calite/O=O_calite/C=C_calite";
+    days_valid = "356";
+    key = "need";
+    pem = "need";
+    table_name = "cert";
+    suite = "gost";
+    serial = "no";
+    revoke = "no";
+    issuer = "no";
+    condition = "CN = CN_calite";
+    status = "ok";
+}
+
 QStringList DbTable::checkErrorFields() {
     QStringList errorFild;
     if (CN == "error" || CN == "need") errorFild << "CN = " + CN;
