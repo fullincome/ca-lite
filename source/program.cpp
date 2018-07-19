@@ -45,7 +45,7 @@ Program::Program (QString prog_name, QString mod) {
     if (prog_name == "openssl") {
         program_path = "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/";
         program_name = "openssl";
-        work_path = "no";
+        work_path = QCoreApplication::applicationDirPath() + "/";
         file_in = "no";
         file_out = "no";
         key_in = "no";

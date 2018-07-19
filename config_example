@@ -1,4 +1,0 @@
-csptest = /path_to_csptest
-openssl = /path_to_openssl
-CAcert = /path_to_ca_cert 
-CAkey = container_ca_cert 

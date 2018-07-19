@@ -25,21 +25,25 @@ void CertParams::initialise() {
 }
 //Установка выбранных параметров
 void CertParams::setParams() {
-    table.CN = ui_cp->nameCertEdit->toPlainText();
-    table.O = ui_cp->organizationEdit->toPlainText();
-    table.subj = "/CN=" + table.CN;
-    table.days_valid = ui_cp->daysValidEdit->toPlainText();
-    if (table.days_valid.isEmpty()) table.days_valid = "365";
-    if (!table.O.isEmpty()) table.subj += "/O=" + table.O;
-
-    table.key = ui_cp->keycontCertEdit->toPlainText();
-    table.suite = "gost";
-    table.pem = "need";
+    QString str_field;
     table.table_name = "ca";
-    table.serial = "no";
-    table.revoke = "no";
-    table.issuer = "CA";
-    table.condition = "CN = '" + table.CN + "'";
+    str_field = ui_cp->nameCertEdit->toPlainText();
+    if (!str_field.isEmpty()) table.CN = str_field;
+
+    str_field = ui_cp->organizationEdit->toPlainText();
+    if (!str_field.isEmpty()) table.O = str_field;
+
+    str_field = ui_cp->daysValidEdit->toPlainText();
+    if (!str_field.isEmpty()) table.days_valid = str_field;
+
+    str_field = ui_cp->keycontCertEdit->toPlainText();
+    if (!str_field.isEmpty()) table.key = str_field;
+
+    str_field = "1.3.6.1.5.5.7.3.1";
+    if (!str_field.isEmpty()) table.eku = str_field;
+
+    str_field = "CN = '" + table.CN + "'";
+    if (!str_field.isEmpty()) table.condition = str_field;
 }
 //Кнопка: Создать CSR
 void CertParams::on_creatBtn_clicked()

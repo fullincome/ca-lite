@@ -32,6 +32,8 @@ default_algorithms = CIPHERS, DIGESTS, PKEY, PKEY_CRYPTO, PKEY_ASN1
 tsa_policy1 = 1.2.3.4.1
 tsa_policy2 = 1.2.3.4.5.6
 tsa_policy3 = 1.2.3.4.5.7
+# Client auth: 1.3.6.1.5.5.7.3.2
+# Server auth: 1.3.6.1.5.5.7.3.1
 ####################################################################
 
 

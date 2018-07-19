@@ -60,7 +60,7 @@ signals:
     void sendData(QString data1, QString data2);
     void closeCertParam(QString rc);
 private slots:
-    void generateCert(Program prog, DbTable table);
+    BOOL_ERR generateCert(Program prog, DbTable table);
     void checkWorkDir(WorkDir work_dir);
     void checkCertParam(DbTable table);
     void saveConfig(QString data);

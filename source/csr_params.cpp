@@ -27,6 +27,7 @@ void CsrParams::initialise() {
 //Установка выбранных параметров
 void CsrParams::setParams() {
     QString str_field;
+    table.table_name = "cert";
 
     str_field = ui_cp->nameCsrEdit->toPlainText();
     if (!str_field.isEmpty()) table.CN = str_field;
@@ -39,6 +40,9 @@ void CsrParams::setParams() {
 
     str_field = ui_cp->keycontCsrEdit->toPlainText();
     if (!str_field.isEmpty()) table.key = str_field;
+
+    str_field = "1.3.6.1.5.5.7.3.2";
+    if (!str_field.isEmpty()) table.eku = str_field;
 
     str_field = "CN = '" + table.CN + "'";
     if (!str_field.isEmpty()) table.condition = str_field;

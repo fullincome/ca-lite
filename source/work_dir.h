@@ -5,8 +5,8 @@
 
 // Регулярки
 namespace RegexpPatternWorkDir {
-    const QString CN = "Subject: CN = (\\w+)\n";
-    const QString Issuer = "Issuer: CN = (\\w+)\n";
+    const QString CN = "Subject: CN = (\\w+)";
+    const QString Issuer = "Issuer: CN = (\\w+)";
     const QString Serial = "Serial Number:[\n ]+([\\w: \\(\\)]+)\n";
     const QString OpensslConfCADir = "(\\[ CA_default \\]\\s+dir\\s+=\\s+)([^\\t\\n]+)";
     const QString ContainerLine = "\n +(\\d+) +(\\w+)\n";
@@ -23,6 +23,7 @@ public:
     QString C;
     QString email;
     QString sun;
+    QString eku;
     QString subj;
     QString days_valid;
     QString key;
@@ -128,7 +129,7 @@ public:
     Config loadConfig(QString file_name);
     void saveConfig(Config config);
     CACert loadCaCert(Config config);
-    DbTable exportCert(QString CN, QString file_name);
+    BOOL_ERR exportCert(QString CN, QString file_name);
     DbTable importCert(QString file_name);
     BOOL_ERR genCertConfig(DbTable table);
     BOOL_ERR delCertConfig();

@@ -7,6 +7,7 @@ DbTable::DbTable()
     C = "RU";
     email = "calite@calite.ru";
     sun = "email:calite@calite.ru";
+    eku = "no";
     subj = "/CN=CN_calite/O=O_calite/C=C_calite";
     days_valid = "356";
     key = "need";
@@ -173,7 +174,9 @@ void DataBase::newTables(QSqlQuery *query)
         "`serial`   TEXT,"
         "`revoke`   TEXT,"
         "`issuer`   TEXT,"
-        "`days_valid`   TEXT)");
+        "`days_valid`   TEXT,"
+        "`sun`   TEXT,"
+        "`eku`   TEXT)");
     query->exec("CREATE TABLE cert ("
         "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
         "`CN`       TEXT,"
@@ -183,19 +186,21 @@ void DataBase::newTables(QSqlQuery *query)
         "`serial`   TEXT,"
         "`revoke`   TEXT,"
         "`issuer`   TEXT,"
-        "`days_valid`   TEXT)");
+        "`days_valid`   TEXT,"
+        "`sun`   TEXT,"
+        "`eku`   TEXT)");
     query->exec("CREATE TABLE crl ("
         "`id`       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
         "`index`	TEXT,"
         "`crl`      TEXT)");
 }
 BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
-    if (table.table_name == "cert") {
+    if (table.table_name == "cert" || table.table_name == "csr") {
         table.condition = "CN = '" + table.CN + "'";
         DbTable tmp_table = loadFromDb(table.table_name, table.condition, query);
         if (tmp_table.pem.isEmpty()) {
-            if (!query->prepare("INSERT INTO cert (CN, pem, key, suite, serial, revoke, issuer, days_valid) "
-                           "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid)"))
+            if (!query->prepare("INSERT INTO cert (CN, pem, key, suite, serial, revoke, issuer, days_valid, sun, eku) "
+                           "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid, :sun, :eku)"))
             {
                 setErrorString("query->prepare() fail with: " + query->lastError().text());
                 return FAIL;
@@ -208,6 +213,8 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
             query->bindValue(":revoke", table.revoke);
             query->bindValue(":issuer", table.issuer);
             query->bindValue(":days_valid", table.days_valid);
+            query->bindValue(":sun", table.sun);
+            query->bindValue(":eku", table.eku);
         } else {
             if (!query->prepare("UPDATE cert SET "
                            "CN = '" + table.CN + "', "
@@ -217,7 +224,9 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
                            "serial = '" + table.serial + "', "
                            "revoke = '" + table.revoke + "', "
                            "issuer = '" + table.issuer + "', "
-                           "days_valid = '" + table.days_valid + "' "
+                           "days_valid = '" + table.days_valid + "', "
+                           "sun = '" + table.sun + "', "
+                           "eku = '" + table.eku + "' "
                            "WHERE " + table.condition))
             {
                 setErrorString("query->prepare() fail with: " + query->lastError().text());
@@ -251,6 +260,8 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
         query->bindValue(":revoke", table.revoke);
         query->bindValue(":issuer", table.issuer);
         query->bindValue(":days_valid", table.days_valid);
+        query->bindValue(":sun", table.days_valid);
+        query->bindValue(":eku", table.days_valid);
     }
     if (!query->exec())
     {
@@ -262,8 +273,8 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
 
 DbTable DataBase::loadFromDb(QString table_name, QString table_condition, QSqlQuery *query) {
     DbTable table;
-    if (table_name == "cert") {
-        if (!query->prepare("SELECT CN, pem, key, suite, serial, revoke, issuer, days_valid "
+    if (table_name == "cert" || table_name == "csr") {
+        if (!query->prepare("SELECT CN, pem, key, suite, serial, revoke, issuer, days_valid, sun, eku "
                             "FROM cert "
                             "WHERE " + table_condition)) {
             return table;
@@ -284,6 +295,8 @@ DbTable DataBase::loadFromDb(QString table_name, QString table_condition, QSqlQu
     table.revoke = query->value(5).toString();
     table.issuer = query->value(6).toString();
     table.days_valid = query->value(7).toString();
+    table.sun = query->value(8).toString();
+    table.eku = query->value(9).toString();
     query->finish();
     return table;
 }
@@ -591,11 +604,11 @@ CACert WorkDir::loadCaCert(Config config) {
     return ca_cert;
  }
 
-DbTable WorkDir::exportCert(QString CN, QString file_name) {
+BOOL_ERR WorkDir::exportCert(QString CN, QString file_name) {
     DbTable table_cert;
     QFile file_cert(file_name);
     if (!file_cert.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return table_cert;
+        return FAIL;
     }
     QTextStream stream_cert(&file_cert);
 
@@ -604,7 +617,6 @@ DbTable WorkDir::exportCert(QString CN, QString file_name) {
     table_cert = data_base.loadFromDb(table_cert.table_name, table_cert.condition, data_base.query);
     stream_cert << table_cert.pem;
     file_cert.close();
-    return table_cert;
 }
 
 DbTable WorkDir::importCert(QString file_name) {
@@ -660,21 +672,29 @@ BOOL_ERR WorkDir::genCertConfig(DbTable table) {
     stream_file << "prompt = no" << endl;
     stream_file << "encrypt_key = no" << endl;
     stream_file << "distinguished_name = dn" << endl;
-    stream_file << "req_extensions = req_ext" << endl;
+    if (table.table_name == "csr" || table.table_name == "cert")
+    {
+        stream_file << "req_extensions = req_ext" << endl;
+    }
+    else
+    {
+        stream_file << "x509_extensions = req_ext" << endl;
+    }
 
     stream_file << "[ OIDs ]" << endl;
-    stream_file << "MySensationalOID=1.2.3.45" << endl;
-    stream_file << "MyOutstandingOID=2.3.4.56" << endl;
+    stream_file << "# MySensationalOID=1.2.3.45" << endl;
+    stream_file << "# MyOutstandingOID=2.3.4.56" << endl;
 
     stream_file << "[ dn ]" << endl;
     stream_file << "CN = " << table.CN << endl;
     stream_file << "emailAddress = " << table.email << endl;
     stream_file << "O = " << table.O << endl;
     stream_file << "C = " << table.C << endl;
-    stream_file << "MySensationalOID = Support Department" << endl;
+    stream_file << "# MySensationalOID = Support Department" << endl;
 
     stream_file << "[ req_ext ]" << endl;
     stream_file << "subjectAltName = " << table.sun << endl;
+    stream_file << "extendedKeyUsage = " << table.eku << endl;
     file.close();
     return OK;
 }

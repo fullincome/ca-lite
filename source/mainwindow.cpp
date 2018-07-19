@@ -186,7 +186,8 @@ void MainWindow::on_signCsrBtn_clicked()
     QString csr_CN;
     setSelectedName(csr_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
-    table_cert = work_dir.exportCert(csr_CN, work_dir.work_path + prog.csr_filename);
+    work_dir.exportCert(csr_CN, work_dir.work_path + prog.csr_filename);
+    table_cert = work_dir.data_base.loadFromDb("cert",  "CN = '" + csr_CN + "'", work_dir.data_base.query);
     if (table_cert.suite == "gost") prog.suite = "gost";
     //table_cert.creatSerialToFile(work_dir.files.srl_ca_cert_file);
     //Заполнение параметров программы
@@ -199,8 +200,11 @@ void MainWindow::on_signCsrBtn_clicked()
     prog.args += QString("-CAserial " + work_dir.files.srl_ca_cert_file).split(" ");
     prog.args += QString("-in " + prog.file_in + " -out " + prog.file_out).split(" ");
     prog.args += QString("-days " + table_cert.days_valid).split(" ");
+    prog.args += QString("-extensions req_ext -extfile " + work_dir.files.cert_config).split(" ");
     prog.mod = "cert";
+    work_dir.genCertConfig(table_cert);
     prog.run();
+    work_dir.delCertConfig();
     //--------------------------------------------------
     messageDebug(prog.output);
     if (!prog.isError) {
@@ -240,7 +244,8 @@ void MainWindow::on_revokeCertBtn_clicked()
     QString cert_CN;
     setSelectedName(cert_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
-    table_cert = work_dir.exportCert(cert_CN, work_dir.work_path + prog.cert_filename);
+    work_dir.exportCert(cert_CN, work_dir.work_path + prog.cert_filename);
+    table_cert = work_dir.data_base.loadFromDb("cert",  "CN = '" + cert_CN + "'", work_dir.data_base.query);
     if (table_cert.suite == "gost") prog.suite = "gost";
     //Заполнение параметров программы
     prog.file_in = work_dir.work_path + prog.cert_filename;
@@ -302,6 +307,7 @@ void MainWindow::on_creatCrlBtn_clicked()
 //Кнопка: Экспорт сертификата
 void MainWindow::on_exportBtn_clicked()
 {
+    BOOL_ERR rc = FAIL;
     QString CN;
     setSelectedName(CN, ui_mw->certTableView);
     if (!CN.isEmpty()) {
@@ -365,7 +371,7 @@ void MainWindow::updateView(DataBase data_base) {
     QSqlQueryModel *model_crl = new QSqlQueryModel();
     QSortFilterProxyModel *sqlproxy_model_cert = new QSortFilterProxyModel();
     //model_csr->
-    if (table.table_name == "cert") {
+    if (table.table_name == "cert" || table.table_name == "csr") {
         query->prepare("SELECT CN, pem, serial, revoke, issuer, days_valid FROM cert");
         if (query->exec()) {
             model_cert->setQuery(*query);
@@ -475,7 +481,8 @@ bool MainWindow::prepareSaveToDb(Program prog, DbTable table) {
     return 1;
 }
 // Основная функция генерации сертификатов
-void MainWindow::generateCert(Program prog, DbTable table) {
+BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
+    BOOL_ERR rc = FAIL;
     work_dir.genCertConfig(table);
     prog.run();
     work_dir.delCertConfig();
@@ -485,7 +492,12 @@ void MainWindow::generateCert(Program prog, DbTable table) {
             messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
         }
         if (prepareSaveToDb(prog, table)) {
-            work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
+            rc = work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
+            if (!rc)
+            {
+                messageError(this, "work_dir.data_base.saveToDb error: " + getLastErrorString());
+                return FAIL;
+            }
             updateView(work_dir.data_base);
         }
     }
@@ -595,8 +607,8 @@ void MainWindow::checkCertParam(DbTable table) {
     if (prog.mod == "ca")
     {
         args_cur = QString("req -engine gostengy -x509 -keyform ENGINE -key c:" + table.key).split(" ");
-        args_cur += QString("-nodes -out " + prog.file_out).split(" ");
-        args_cur += QString("-subj " + table.subj + " -days " + table.days_valid).split(" ");
+        args_cur += QString("-config " + work_dir.files.cert_config).split(" ");
+        args_cur += QString("-out " + prog.file_out + " -days " + table.days_valid).split(" ");
     }
     // prepare to generate CSR
     else

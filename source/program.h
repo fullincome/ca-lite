@@ -6,6 +6,7 @@
 #include <QStack>
 #include <QDir>
 #include <QFile>
+#include <QCoreApplication>
 #include <QRegExp>
 #include <QProcess>
 #include <QtSql/QSqlDatabase>
@@ -43,11 +44,21 @@
 extern class ErrorStr {
     QStack<QString> stack;
 public:
+    bool empty() {
+        return stack.empty();
+    }
     void setError(QString str) {
         stack.push_back(str);
     }
     QString getLastError() {
-        return stack.pop();
+        if (empty())
+        {
+            return "getLastError() is emty";
+        }
+        else
+        {
+            return stack.pop();
+        }
     }
 } errorStr;
 
