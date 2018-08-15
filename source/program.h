@@ -53,7 +53,7 @@ public:
     QString getLastError() {
         if (empty())
         {
-            return "getLastError() is emty";
+            return "getLastErrorString() is empty";
         }
         else
         {
