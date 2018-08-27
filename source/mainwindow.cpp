@@ -39,6 +39,7 @@ int MainWindow::getWMod() {
 }
 bool MainWindow::setWMod(int mod) {
     w_mod = mod;
+    return OK;
 }
 
 
@@ -76,7 +77,7 @@ void MainWindow::on_editConfigBtn_clicked()
 // Выбран путь инициализации ТЕКУЩЕЙ ДИРЕКТОРИИ
 void MainWindow::on_openWorkDirBtn_clicked()
 {
-    BOOL_ERR rc = FAIL; //FALSE = FAIL
+    BOOL_ERR rc = FAIL;
     rc = work_dir.initialiseWorkDir();
     if (!rc) {
         rc = work_dir.newWorkDir();
@@ -87,7 +88,7 @@ void MainWindow::on_openWorkDirBtn_clicked()
     }
     rc = work_dir.initialiseDatabase();
     if (!rc) {
-        messageError(this, "Не удалось открыть базу данных");
+        messageError(this, "Не удалось открыть базу данных:\n" + getLastErrorString());
         return;
     }
     rc = work_dir.initialiseConfig();
@@ -184,7 +185,7 @@ void MainWindow::on_signCsrBtn_clicked()
     //GOST MOD
     Program prog = Program("openssl", "signing_cert", work_dir.work_path);
     QString csr_CN;
-    setSelectedName(csr_CN, ui_mw->certTableView);
+    setSelectedName("cn", csr_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
     work_dir.exportCert(csr_CN, work_dir.work_path + prog.csr_filename);
     table_cert = work_dir.data_base.loadFromDb("cert",  "CN = '" + csr_CN + "'", work_dir.data_base.query);
@@ -240,9 +241,10 @@ void MainWindow::on_signCsrBtn_clicked()
 //Кнопка: Отзыв сертификата
 void MainWindow::on_revokeCertBtn_clicked()
 {
+    BOOL_ERR rc = FAIL;
     Program prog = Program("openssl", "revoke_cert", work_dir.work_path);
     QString cert_CN;
-    setSelectedName(cert_CN, ui_mw->certTableView);
+    setSelectedName("cn", cert_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
     work_dir.exportCert(cert_CN, work_dir.work_path + prog.cert_filename);
     table_cert = work_dir.data_base.loadFromDb("cert",  "CN = '" + cert_CN + "'", work_dir.data_base.query);
@@ -307,9 +309,8 @@ void MainWindow::on_creatCrlBtn_clicked()
 //Кнопка: Экспорт сертификата
 void MainWindow::on_exportBtn_clicked()
 {
-    BOOL_ERR rc = FAIL;
     QString CN;
-    setSelectedName(CN, ui_mw->certTableView);
+    setSelectedName("cn", CN, ui_mw->certTableView);
     if (!CN.isEmpty()) {
         work_dir.exportCert(CN, work_dir.work_path + work_dir.files.export_cert_file);
         if (CN != work_dir.data_base.table.getCNFromCert(work_dir.work_path + work_dir.files.export_cert_file) &&
@@ -399,7 +400,7 @@ void MainWindow::updateView(DataBase data_base) {
     }
 }
 // Подготовка к сохранению в бд, выполняет проверки полей
-bool MainWindow::prepareSaveToDb(Program prog, DbTable table) {
+BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table) {
     QStringList file_to_delete;
     // работаем с фалом csr/cert
 
@@ -424,7 +425,7 @@ bool MainWindow::prepareSaveToDb(Program prog, DbTable table) {
         if (!errorField.isEmpty()) {
             QString message = "Ошибки в полях: \n" + errorField.join("\n");
             messageError(this, message);
-            return 0;
+            return FAIL;
         }
         work_dir.config.CAcert = prog.file_out;
         work_dir.config.CAkey = prog.key_in;
@@ -458,7 +459,7 @@ bool MainWindow::prepareSaveToDb(Program prog, DbTable table) {
         if (!errorField.isEmpty()) {
             QString message = "Ошибки в полях: \n" + errorField.join("\n");
             messageError(this, message);
-            return 0;
+            return FAIL;
         }
 
 //    //NEEDFIX
@@ -478,7 +479,7 @@ bool MainWindow::prepareSaveToDb(Program prog, DbTable table) {
 //    }
     prog.clearResult(file_to_delete);
     work_dir.data_base.table = table;
-    return 1;
+    return OK;
 }
 // Основная функция генерации сертификатов
 BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
@@ -487,11 +488,21 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
     prog.run();
     work_dir.delCertConfig();
     messageDebug(prog.output);
+
     if (prog.mod == "cert" || prog.mod == "csr") {
-        if (prog.isError) {
+        if (prog.isError)
+        {
             messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
         }
-        if (prepareSaveToDb(prog, table)) {
+
+        rc = prepareSaveToDb(prog, table);
+        if (!rc)
+        {
+            messageError(this, "error: prepareSaveToDb: " + getLastErrorString());
+            return FAIL;
+        }
+        else
+        {
             rc = work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
             if (!rc)
             {
@@ -501,21 +512,38 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
             updateView(work_dir.data_base);
         }
     }
+
     if (prog.mod == "ca") {
         if (prog.isError) {
             messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
         }
-        if (prepareSaveToDb(prog, table)) {
-            if (work_dir.isOk) {
-                work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
+        rc = prepareSaveToDb(prog, table);
+
+        if (!rc)
+        {
+            messageError(this, "error: prepareSaveToDb: " + getLastErrorString());
+            return FAIL;
+        }
+        else
+        {
+            if (!work_dir.isOk) {
+                messageError(this, "Config is wrong");
+                return FAIL;
+            }
+            else
+            {
+                rc = work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
+                if (!rc)
+                {
+                    messageError(this, "work_dir.data_base.saveToDb error: " + getLastErrorString());
+                    return FAIL;
+                }
                 updateView(work_dir.data_base);
                 checkWorkDir(work_dir);
             }
-            else {
-                messageError(this, "Config is wrong");
-            }
         }
     }
+
 }
 //------------------------------------------------------
 //------------------------------------------------------
@@ -625,12 +653,19 @@ void MainWindow::checkCertParam(DbTable table) {
 void MainWindow::getData(QString data) {
     program.file_in = data;
 }
-// Получение данных CN по выбранному в таблице сертификату
-void MainWindow::setSelectedName(QString &select_name, QTableView *table_view) {
+// Получение данных поля по выбранному в таблице сертификату
+void MainWindow::setSelectedName(QString field, QString &select_name, QTableView *table_view) {
     const QModelIndex &index = table_view->selectionModel()->currentIndex();
     //QString selectedData = table_view->model()->data(index).toString();
     //select_name = table_view->model()->data(index, 0).toString();
-     select_name = index.sibling(index.row(), 0).data().toString();
+    if (field == "CN" || field == "cn")
+    {
+        select_name = index.sibling(index.row(), 0).data().toString();
+    }
+    else if (field == "serial")
+    {
+        select_name = index.sibling(index.row(), 0).data().toString();
+    }
 }
 // Отключение всех кнопок
 void MainWindow::disableBtn() {

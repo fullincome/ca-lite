@@ -43,9 +43,9 @@ public:
     void disableBtn();
     void enableBtn();
     bool prepareSaveToDb(Program prog);
-    bool prepareSaveToDb(Program prog, DbTable table);
+    BOOL_ERR prepareSaveToDb(Program prog, DbTable table);
     void updateView(DataBase data_base);
-    void setSelectedName(QString &select_name, QTableView *list_view);
+    void setSelectedName(QString field, QString &select_name, QTableView *list_view);
     bool checkConfig(QString file_name);
 
     void messageDebug(QString message);
