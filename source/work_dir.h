@@ -16,14 +16,28 @@ namespace RegexpPatternWorkDir {
     const QString Container = "Name: (\\w+) \\(len = \\d+\\)";
 }
 
+class CertExt {
+public:
+    QString config;
+    QString basicConstraints;
+    QString authorityKeyIdentifier;
+    QString subjectKeyIdentifier;
+    QString keyUsage;
+    QString nsCertType;
+    QString subjectAltName;
+    QString extendedKeyUsage;
+    CertExt();
+    QString readAllFromFile(QString file_name);
+    BOOL_ERR writeAllToFile(QString file_name, QString text);
+};
+
 class DbTable {
 public:
+    QString id;
     QString CN;
     QString O;
     QString C;
     QString email;
-    QString sun;
-    QString eku;
     QString subj;
     QString days_valid;
     QString key;
@@ -35,6 +49,7 @@ public:
     QString issuer;
     QString condition;
     QString status;
+    CertExt cert_extension;
     bool isOk;
     DbTable();
     QStringList checkErrorFields();
@@ -59,8 +74,8 @@ public:
     bool isOk;
 
     bool load_db(QString name);
-    void newTables(QSqlQuery *query);
-    DbTable loadFromDb(QString table_name, QString table_condition, QSqlQuery *query);
+    BOOL_ERR newTables(QSqlQuery *query);
+    BOOL_ERR loadFromDb(QString table_name, QString table_condition, QSqlQuery *query, DbTable &table);
     BOOL_ERR saveToDb(DbTable table, QSqlQuery *query);
 };
 

@@ -6,196 +6,739 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>842</width>
-    <height>595</height>
+    <width>673</width>
+    <height>613</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>19</x>
-     <y>20</y>
-     <width>199</width>
-     <height>421</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QLabel" name="nameCsrLabel">
-      <property name="text">
-       <string>CN (*)</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="keycontCsrLabel">
-      <property name="text">
-       <string>Контейнер с ключём</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="organizationLabel">
-      <property name="text">
-       <string>Организация</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>Срок действия (дни)</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Не рабочее поле</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Не рабочее поле</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_324">
-      <property name="text">
-       <string>Не рабочее поле</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_8">
-      <property name="text">
-       <string>Не рабочее поле</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QPushButton" name="creatBtn">
    <property name="geometry">
     <rect>
-     <x>550</x>
-     <y>530</y>
+     <x>540</x>
+     <y>550</y>
      <width>111</width>
      <height>41</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Создать</string>
    </property>
   </widget>
-  <widget class="QPlainTextEdit" name="nameCsrEdit">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>30</y>
-     <width>281</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QPushButton" name="cancelBtn">
    <property name="geometry">
     <rect>
-     <x>430</x>
-     <y>530</y>
+     <x>410</x>
+     <y>550</y>
      <width>111</width>
      <height>41</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Отмена</string>
    </property>
   </widget>
-  <widget class="QPlainTextEdit" name="keycontCsrEdit">
+  <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>80</y>
-     <width>281</width>
-     <height>31</height>
+     <x>0</x>
+     <y>0</y>
+     <width>681</width>
+     <height>541</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QComboBox" name="containersBox">
-   <property name="geometry">
-    <rect>
-     <x>500</x>
-     <y>80</y>
-     <width>231</width>
-     <height>33</height>
-    </rect>
+   <property name="currentIndex">
+    <number>1</number>
    </property>
-  </widget>
-  <widget class="QPlainTextEdit" name="organizationEdit">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>130</y>
-     <width>281</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPlainTextEdit" name="daysValidEdit">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>180</y>
-     <width>281</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPlainTextEdit" name="keycontCSREdit_4">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>240</y>
-     <width>281</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPlainTextEdit" name="keycontCSREdit_5">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>290</y>
-     <width>281</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPlainTextEdit" name="keycontCSREdit_6">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>350</y>
-     <width>281</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPlainTextEdit" name="keycontCSREdit_7">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>400</y>
-     <width>281</width>
-     <height>31</height>
-    </rect>
-   </property>
+   <widget class="QWidget" name="tabMain">
+    <attribute name="title">
+     <string>Основное</string>
+    </attribute>
+    <widget class="QPlainTextEdit" name="keycontCSREdit_4">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>180</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="containersBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>60</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>300</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Не рабочее поле</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="keycontCSREdit_7">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>300</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>220</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Не рабочее поле</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Срок действия (дни)</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="daysValidEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>140</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>180</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Не рабочее поле</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="keycontCsrEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>60</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="organizationLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Организация</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="keycontCSREdit_6">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>260</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="keycontCSREdit_5">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>220</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_324">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>260</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Не рабочее поле</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="organizationEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>100</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="nameCsrLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>CN (*)</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="nameCsrEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>20</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="keycontCsrLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Контейнер с ключём (*)</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tabExtension">
+    <attribute name="title">
+     <string>Расширение</string>
+    </attribute>
+    <widget class="QLabel" name="noWorking1Label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>300</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Не рабочее поле</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="authorityKeyIdentifierContBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>60</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="noWorking1Edit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>300</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="subjectAltNameLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>220</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>subjectAltName</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="keyUsageLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>keyUsage</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="nsCertTypeEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>180</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="nsCertTypeLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>180</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>nsCertType</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="authorityKeyIdentifierEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>60</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="keyUsageEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>140</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="subjectKeyIdentifierLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>subjectKeyIdentifier</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="extendedKeyUsageEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>260</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="extendedKeyUsageLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>260</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>extendedKeyUsage</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="subjectAltNameEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>220</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="basicConstraintsLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>basicConstraints</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="subjectKeyIdentifierEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>100</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="basicConstraintsEdit">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>20</y>
+       <width>250</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="authorityKeyIdentifierLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>171</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>authorityKeyIdentifier</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="extendedKeyUsageContBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>260</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="basicConstraintsContBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>20</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="subjectKeyIdentifierContBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>100</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="keyUsageContBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>140</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="nsCertTypeContBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>180</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="subjectAltNameContBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>220</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="noWorking1ContBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>300</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+   </widget>
   </widget>
  </widget>
  <resources/>

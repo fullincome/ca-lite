@@ -32,6 +32,20 @@ private slots:
     void getData(QStringList conts_info);
     void closeWindow(QString rc);
 
+    void on_authorityKeyIdentifierContBox_activated(const QString &arg1);
+
+    void on_extendedKeyUsageContBox_activated(const QString &arg1);
+
+    void on_basicConstraintsContBox_activated(const QString &arg1);
+
+    void on_subjectKeyIdentifierContBox_activated(const QString &arg1);
+
+    void on_keyUsageContBox_activated(const QString &arg1);
+
+    void on_nsCertTypeContBox_activated(const QString &arg1);
+
+    void on_subjectAltNameContBox_activated(const QString &arg1);
+
 private:
     Ui::CsrParams *ui_cp;
 };

@@ -1,13 +1,16 @@
 #include "work_dir.h"
 
+CertExt::CertExt()
+{
+
+}
+
 DbTable::DbTable()
 {
     CN = "CN_calite";
     O = "O_calite";
     C = "RU";
     email = "calite@calite.ru";
-    sun = "email:calite@calite.ru";
-    eku = "no";
     subj = "/CN=CN_calite/O=O_calite/C=C_calite";
     days_valid = "356";
     key = "need";
@@ -35,6 +38,33 @@ QStringList DbTable::checkErrorFields() {
     if (condition == "error" || condition == "need") errorFild << "condition = " + condition;
     return errorFild;
 }
+
+QString CertExt::readAllFromFile(QString file_name) {
+    QString config_data;
+    QFile file_config(file_name);
+    if (!file_config.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return "error";
+    }
+    QTextStream in(&file_config);
+    if (!in.atEnd()) {
+         config_data = in.readAll();
+    }
+    file_config.close();
+    return config_data;
+}
+
+BOOL_ERR CertExt::writeAllToFile(QString file_name, QString text) {
+    QString config_data;
+    QFile file_config(file_name);
+    if (!file_config.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return FAIL;
+    }
+    QTextStream out(&file_config);
+    out << text;
+    file_config.close();
+    return OK;
+}
+
 QString DbTable::getPemFromFile(QString file_name) {
     QString pem;
     QFile file(file_name);
@@ -163,48 +193,91 @@ bool DataBase::load_db(QString name) {
     sql_db.setDatabaseName(name);
     return sql_db.open() ? true : false;
 }
-void DataBase::newTables(QSqlQuery *query)
+BOOL_ERR DataBase::newTables(QSqlQuery *query)
 {
-    query->exec("CREATE TABLE ca ("
-        "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-        "`CN`       TEXT,"
-        "`pem`      TEXT,"
-        "`key`      TEXT,"
-        "`suite`    TEXT,"
-        "`serial`   TEXT,"
-        "`revoke`   TEXT,"
-        "`issuer`   TEXT,"
-        "`days_valid`   TEXT,"
-        "`sun`   TEXT,"
-        "`eku`   TEXT)");
-    query->exec("CREATE TABLE cert ("
-        "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-        "`CN`       TEXT,"
-        "`pem`      TEXT,"
-        "`key`      TEXT,"
-        "`suite`    TEXT,"
-        "`serial`   TEXT,"
-        "`revoke`   TEXT,"
-        "`issuer`   TEXT,"
-        "`days_valid`   TEXT,"
-        "`sun`   TEXT,"
-        "`eku`   TEXT)");
-    query->exec("CREATE TABLE crl ("
+    if (!query->exec("CREATE TABLE ca ("
+        "`id`           INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
+        "`CN`           TEXT NOT NULL,"
+        "`pem`          TEXT NOT NULL,"
+        "`key`          TEXT,"
+        "`suite`        TEXT,"
+        "`serial`       TEXT,"
+        "`revoke`       TEXT,"
+        "`issuer`       TEXT,"
+        "`days_valid`   TEXT)"))
+    {
+        setErrorString("query->exec() fail with: " + query->lastError().text());
+        return FAIL;
+    }
+    if (!query->exec("CREATE TABLE cert ("
+        "`id`           INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
+        "`CN`           TEXT NOT NULL,"
+        "`pem`          TEXT NOT NULL,"
+        "`key`          TEXT,"
+        "`suite`        TEXT,"
+        "`serial`       TEXT,"
+        "`revoke`       TEXT,"
+        "`issuer`       TEXT,"
+        "`days_valid`   TEXT)"))
+    {
+        setErrorString("query->exec() fail with: " + query->lastError().text());
+        return FAIL;
+    }
+    if (!query->exec("CREATE TABLE ca_extension ("
+        "`id`     INTEGER PRIMARY KEY REFERENCES cert(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+        "`config` TEXT NOT NULL,"
+        "`basicConstraints`    TEXT,"
+        "`authorityKeyIdentifier`    TEXT,"
+        "`subjectKeyIdentifier`    TEXT,"
+        "`keyUsage`    TEXT,"
+        "`nsCertType`    TEXT,"
+        "`subjectAltName`    TEXT,"
+        "`extendedKeyUsage`    TEXT)"))
+    {
+        setErrorString("query->exec() fail with: " + query->lastError().text());
+        return FAIL;
+    }
+    if (!query->exec("CREATE TABLE cert_extension ("
+        "`id`     INTEGER PRIMARY KEY REFERENCES cert(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+        "`config` TEXT NOT NULL,"
+        "`basicConstraints`    TEXT,"
+        "`authorityKeyIdentifier`    TEXT,"
+        "`subjectKeyIdentifier`    TEXT,"
+        "`keyUsage`    TEXT,"
+        "`nsCertType`    TEXT,"
+        "`subjectAltName`    TEXT,"
+        "`extendedKeyUsage`    TEXT)"))
+    {
+        setErrorString("query->exec() fail with: " + query->lastError().text());
+        return FAIL;
+    }
+    if (!query->exec("CREATE TABLE crl ("
         "`id`       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-        "`index`	TEXT,"
-        "`crl`      TEXT)");
+        "`index`	TEXT NOT NULL,"
+        "`crl`      TEXT NOT NULL)"))
+    {
+        setErrorString("query->exec() fail with: " + query->lastError().text());
+        return FAIL;
+    }
+    return OK;
 }
 BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
-    if (table.table_name == "cert" || table.table_name == "csr") {
+    BOOL_ERR rc = FAIL;
+    if (table.table_name == "cert" || table.table_name == "csr")
+    {
+        DbTable tmp_table;
         table.condition = "CN = '" + table.CN + "'";
-        DbTable tmp_table = loadFromDb(table.table_name, table.condition, query);
-        if (tmp_table.pem.isEmpty()) {
-            if (!query->prepare("INSERT INTO cert (CN, pem, key, suite, serial, revoke, issuer, days_valid, sun, eku) "
-                           "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid, :sun, :eku)"))
+        rc = loadFromDb(table.table_name, table.condition, query, tmp_table);
+        if (!rc)
+        {
+            rc = query->prepare("INSERT INTO cert (CN, pem, key, suite, serial, revoke, issuer, days_valid) "
+                           "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid)");
+            if (!rc)
             {
                 setErrorString("query->prepare() fail with: " + query->lastError().text());
                 return FAIL;
             }
+
             query->bindValue(":CN", table.CN);
             query->bindValue(":pem", table.pem);
             query->bindValue(":key", table.key);
@@ -213,10 +286,17 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
             query->bindValue(":revoke", table.revoke);
             query->bindValue(":issuer", table.issuer);
             query->bindValue(":days_valid", table.days_valid);
-            query->bindValue(":sun", table.sun);
-            query->bindValue(":eku", table.eku);
-        } else {
-            if (!query->prepare("UPDATE cert SET "
+
+            rc = query->exec();
+            if (!rc)
+            {
+                setErrorString("query->exec() fail with: " + query->lastError().text());
+                return FAIL;
+            }
+        }
+        else
+        {
+            rc = query->prepare("UPDATE cert SET "
                            "CN = '" + table.CN + "', "
                            "pem = '" + table.pem + "', "
                            "key = '" + table.key + "', "
@@ -224,34 +304,144 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
                            "serial = '" + table.serial + "', "
                            "revoke = '" + table.revoke + "', "
                            "issuer = '" + table.issuer + "', "
-                           "days_valid = '" + table.days_valid + "', "
-                           "sun = '" + table.sun + "', "
-                           "eku = '" + table.eku + "' "
-                           "WHERE " + table.condition))
+                           "days_valid = '" + table.days_valid + "' "
+                           "WHERE " + table.condition);
+            if (!rc)
             {
                 setErrorString("query->prepare() fail with: " + query->lastError().text());
                 return FAIL;
             }
+
+            rc = query->exec();
+            if (!rc)
+            {
+                setErrorString("query->exec() fail with: " + query->lastError().text());
+                return FAIL;
+            }
         }
-    } else if (table.table_name == "crl") {
-        if (!query->prepare("INSERT INTO crl (CN, pem, key, suite, serial) "
-                   "VALUES (:CN, :pem, :key, :suite, :serial)"))
+        //"CREATE TABLE cert_extension ("
+          //      "`id`     INTEGER PRIMARY KEY REFERENCES cert(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+            //    "`config` TEXT NOT NULL,"
+              //  "`sun`    TEXT,"
+               // "`eku`    TEXT)"
+
+        // Загружаем заново, чтобы узнать id
+        rc = loadFromDb(table.table_name, table.condition, query, tmp_table);
+        if (!rc)
+        {
+            setErrorString("loadFromDb fail with: " + query->lastError().text());
+            return FAIL;
+        }
+        table.condition = "id = '" + tmp_table.id + "'";
+        rc = loadFromDb("cert_extension", table.condition, query, tmp_table);
+        if (!rc)
+        {
+            rc = query->prepare("INSERT INTO cert_extension ("
+                                    "id, "
+                                    "config, "
+                                    "basicConstraints, "
+                                    "authorityKeyIdentifier, "
+                                    "subjectKeyIdentifier, "
+                                    "keyUsage, "
+                                    "nsCertType, "
+                                    "subjectAltName, "
+                                    "extendedKeyUsage"
+                                ") "
+                                "VALUES ("
+                                    ":id, "
+                                    ":config, "
+                                    ":basicConstraints, "
+                                    ":authorityKeyIdentifier, "
+                                    ":subjectKeyIdentifier, "
+                                    ":keyUsage, "
+                                    ":nsCertType, "
+                                    ":subjectAltName, "
+                                    ":extendedKeyUsage"
+                                ")"
+                                );
+            if (!rc)
+            {
+                setErrorString("query->prepare() fail with: " + query->lastError().text());
+                return FAIL;
+            }
+
+            query->bindValue(":id", tmp_table.id);
+            query->bindValue(":config", table.cert_extension.config);
+            query->bindValue(":basicConstraints", table.cert_extension.basicConstraints);
+            query->bindValue(":authorityKeyIdentifier", table.cert_extension.authorityKeyIdentifier);
+            query->bindValue(":subjectKeyIdentifier", table.cert_extension.subjectKeyIdentifier);
+            query->bindValue(":keyUsage", table.cert_extension.keyUsage);
+            query->bindValue(":nsCertType", table.cert_extension.nsCertType);
+            query->bindValue(":subjectAltName", table.cert_extension.subjectAltName);
+            query->bindValue(":extendedKeyUsage", table.cert_extension.extendedKeyUsage);
+
+            rc = query->exec();
+            if (!rc)
+            {
+                setErrorString("query->exec() fail with: " + query->lastError().text());
+                return FAIL;
+            }
+        }
+        else
+        {
+            rc = query->prepare("UPDATE cert_extension SET "
+                                "id = '" + tmp_table.id + "', "
+                                "config = '" + table.cert_extension.config + "', "
+                                "basicConstraints = '" + table.cert_extension.basicConstraints + "', "
+                                "authorityKeyIdentifier = '" + table.cert_extension.authorityKeyIdentifier + "', "
+                                "subjectKeyIdentifier = '" + table.cert_extension.subjectKeyIdentifier + "', "
+                                "keyUsage = '" + table.cert_extension.keyUsage + "', "
+                                "nsCertType = '" + table.cert_extension.nsCertType + "', "
+                                "subjectAltName = '" + table.cert_extension.subjectAltName + "', "
+                                "extendedKeyUsage = '" + table.cert_extension.extendedKeyUsage + "' "
+                                "WHERE " + table.condition);
+            if (!rc)
+            {
+                setErrorString("query->prepare() fail with: " + query->lastError().text());
+                return FAIL;
+            }
+
+            rc = query->exec();
+            if (!rc)
+            {
+                setErrorString("query->exec() fail with: " + query->lastError().text());
+                return FAIL;
+            }
+        }
+    }
+    else if (table.table_name == "crl")
+    {
+        rc = query->prepare("INSERT INTO crl (CN, pem, key, suite, serial) "
+                   "VALUES (:CN, :pem, :key, :suite, :serial)");
+        if (!rc)
         {
             setErrorString("query->prepare() fail with: " + query->lastError().text());
             return FAIL;
         }
+
         query->bindValue(":CN", table.CN);
         query->bindValue(":pem", table.pem);
         query->bindValue(":key", table.key);
         query->bindValue(":suite", table.suite);
         query->bindValue(":serial", table.serial);
-    } else if (table.table_name == "ca") {
-        if (!query->prepare("INSERT INTO ca (CN, pem, key, suite, serial, revoke, issuer, days_valid) "
-                       "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid)"))
+
+        rc = query->exec();
+        if (!rc)
+        {
+            setErrorString("query->exec() fail with: " + query->lastError().text());
+            return FAIL;
+        }
+    }
+    else if (table.table_name == "ca")
+    {
+        rc = query->prepare("INSERT INTO ca (CN, pem, key, suite, serial, revoke, issuer, days_valid) "
+                       "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid)");
+        if (!rc)
         {
             setErrorString("query->prepare() fail with: " + query->lastError().text());
             return FAIL;
         }
+
         query->bindValue(":CN", table.CN);
         query->bindValue(":pem", table.pem);
         query->bindValue(":key", table.key);
@@ -260,45 +450,139 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
         query->bindValue(":revoke", table.revoke);
         query->bindValue(":issuer", table.issuer);
         query->bindValue(":days_valid", table.days_valid);
-        query->bindValue(":sun", table.days_valid);
-        query->bindValue(":eku", table.days_valid);
+
+        rc = query->exec();
+        if (!rc)
+        {
+            setErrorString("query->exec() fail with: " + query->lastError().text());
+            return FAIL;
+        }
+
+        rc = query->prepare("INSERT INTO ca_extension ("
+                                "id, "
+                                "config, "
+                                "basicConstraints, "
+                                "authorityKeyIdentifier, "
+                                "subjectKeyIdentifier, "
+                                "keyUsage, "
+                                "nsCertType, "
+                                "subjectAltName, "
+                                "extendedKeyUsage"
+                            ") "
+                            "VALUES ("
+                                ":id, "
+                                ":config, "
+                                ":basicConstraints, "
+                                ":authorityKeyIdentifier, "
+                                ":subjectKeyIdentifier, "
+                                ":keyUsage, "
+                                ":nsCertType, "
+                                ":subjectAltName, "
+                                ":extendedKeyUsage"
+                            ")"
+                            );
+        if (!rc)
+        {
+            setErrorString("query->prepare() fail with: " + query->lastError().text());
+            return FAIL;
+        }
+
+        query->bindValue(":id", "1");
+        query->bindValue(":config", table.cert_extension.config);
+        query->bindValue(":basicConstraints", table.cert_extension.basicConstraints);
+        query->bindValue(":authorityKeyIdentifier", table.cert_extension.authorityKeyIdentifier);
+        query->bindValue(":subjectKeyIdentifier", table.cert_extension.subjectKeyIdentifier);
+        query->bindValue(":keyUsage", table.cert_extension.keyUsage);
+        query->bindValue(":nsCertType", table.cert_extension.nsCertType);
+        query->bindValue(":subjectAltName", table.cert_extension.subjectAltName);
+        query->bindValue(":extendedKeyUsage", table.cert_extension.extendedKeyUsage);
+
+        rc = query->exec();
+        if (!rc)
+        {
+            setErrorString("query->exec() fail with: " + query->lastError().text());
+            return FAIL;
+        }
     }
-    if (!query->exec())
-    {
-        setErrorString("query->exec() fail with: " + query->lastError().text());
-        return FAIL;
-    }
+
     return OK;
 }
 
-DbTable DataBase::loadFromDb(QString table_name, QString table_condition, QSqlQuery *query) {
-    DbTable table;
-    if (table_name == "cert" || table_name == "csr") {
-        if (!query->prepare("SELECT CN, pem, key, suite, serial, revoke, issuer, days_valid, sun, eku "
+BOOL_ERR DataBase::loadFromDb(QString table_name, QString table_condition, QSqlQuery *query, DbTable &table) {
+    if (table_name == "cert" || table_name == "csr")
+    {
+        if (!query->prepare("SELECT id, CN, pem, key, suite, serial, revoke, issuer, days_valid "
                             "FROM cert "
-                            "WHERE " + table_condition)) {
-            return table;
+                            "WHERE " + table_condition))
+        {
+            return FAIL;
         }
-    } else if (table_name == "crl") {
-        if (!query->prepare("SELECT CN, pem, key, suite "
-                            "FROM crl "
-                            "WHERE " + table_condition)) {
-            return table;
+
+        query->exec();
+        if (!query->next())
+        {
+            return FAIL;
+        }
+        else {
+            table.id = query->value(0).toString();
+            table.CN = query->value(1).toString();
+            table.pem = query->value(2).toString();
+            table.key = query->value(3).toString();
+            table.suite = query->value(4).toString();
+            table.serial = query->value(5).toString();
+            table.revoke = query->value(6).toString();
+            table.issuer = query->value(7).toString();
+            table.days_valid = query->value(8).toString();
+            query->finish();
+            return OK;
         }
     }
-    query->exec();
-    if (query->next()) table.CN = query->value(0).toString();
-    table.pem = query->value(1).toString();
-    table.key = query->value(2).toString();
-    table.suite = query->value(3).toString();
-    table.serial = query->value(4).toString();
-    table.revoke = query->value(5).toString();
-    table.issuer = query->value(6).toString();
-    table.days_valid = query->value(7).toString();
-    table.sun = query->value(8).toString();
-    table.eku = query->value(9).toString();
-    query->finish();
-    return table;
+    else if (table_name == "cert_extension")
+    {
+        if (!query->prepare("SELECT "
+                            "id, "
+                            "config, "
+                            "basicConstraints, "
+                            "authorityKeyIdentifier, "
+                            "subjectKeyIdentifier, "
+                            "keyUsage, "
+                            "nsCertType, "
+                            "subjectAltName, "
+                            "extendedKeyUsage "
+                            "FROM cert_extension "
+                            "WHERE " + table_condition))
+        {
+            return FAIL;
+        }
+
+        query->exec();
+        if (!query->next())
+        {
+            return FAIL;
+        }
+        else
+        {
+            table.id = query->value(0).toString();
+            table.cert_extension.config = query->value(1).toString();
+            table.cert_extension.basicConstraints = query->value(2).toString();
+            table.cert_extension.authorityKeyIdentifier = query->value(3).toString();
+            table.cert_extension.subjectKeyIdentifier = query->value(4).toString();
+            table.cert_extension.keyUsage = query->value(5).toString();
+            table.cert_extension.nsCertType = query->value(6).toString();
+            table.cert_extension.subjectAltName = query->value(7).toString();
+            table.cert_extension.extendedKeyUsage = query->value(8).toString();
+            return OK;
+        }
+    }
+    else if (table_name == "crl")
+    {
+        if (!query->prepare("SELECT id, CN, pem, key, suite "
+                            "FROM crl "
+                            "WHERE " + table_condition))
+        {
+            return FAIL;
+        }
+    }
 }
 
 
@@ -470,7 +754,10 @@ BOOL_ERR WorkDir::initialiseDatabase() {
         data_base.query = new QSqlQuery(data_base.sql_db);
         if (!isOpenMod)
         {
-            data_base.newTables(data_base.query);
+            if (!data_base.newTables(data_base.query))
+            {
+                return FAIL;
+            }
         }
         if (data_base.isOk && config.isOk)
         {
@@ -605,16 +892,23 @@ CACert WorkDir::loadCaCert(Config config) {
  }
 
 BOOL_ERR WorkDir::exportCert(QString CN, QString file_name) {
+    BOOL_ERR rc = FAIL;
     DbTable table_cert;
     QFile file_cert(file_name);
     if (!file_cert.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        setErrorString("Error open");
         return FAIL;
     }
     QTextStream stream_cert(&file_cert);
 
     table_cert.table_name = "cert";
     table_cert.condition = "CN = '" + CN + "'";
-    table_cert = data_base.loadFromDb(table_cert.table_name, table_cert.condition, data_base.query);
+    rc = data_base.loadFromDb(table_cert.table_name, table_cert.condition, data_base.query, table_cert);
+    if (!rc)
+    {
+        setErrorString("Error loadFromDb");
+        return FAIL;
+    }
     stream_cert << table_cert.pem;
     file_cert.close();
 }

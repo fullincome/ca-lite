@@ -40,7 +40,7 @@ void CertParams::setParams() {
     if (!str_field.isEmpty()) table.key = str_field;
 
     str_field = "1.3.6.1.5.5.7.3.1";
-    if (!str_field.isEmpty()) table.eku = str_field;
+    if (!str_field.isEmpty()) table.cert_extension.extendedKeyUsage = str_field;
 
     str_field = "CN = '" + table.CN + "'";
     if (!str_field.isEmpty()) table.condition = str_field;
