@@ -203,9 +203,10 @@ void MainWindow::on_signCsrBtn_clicked()
     prog.args += QString("-days " + table_cert.days_valid).split(" ");
     prog.args += QString("-extensions req_ext -extfile " + work_dir.files.cert_config).split(" ");
     prog.mod = "cert";
-    work_dir.genCertConfig(table_cert);
+
+    work_dir.saveCertConfigToFile(table_cert);
     prog.run();
-    work_dir.delCertConfig();
+    work_dir.delCertConfigFile();
     //--------------------------------------------------
     messageDebug(prog.output);
     if (!prog.isError) {
@@ -485,8 +486,9 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table) {
 BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
     BOOL_ERR rc = FAIL;
     work_dir.genCertConfig(table);
+    work_dir.saveCertConfigToFile(table);
     prog.run();
-    work_dir.delCertConfig();
+    work_dir.delCertConfigFile();
     messageDebug(prog.output);
 
     if (prog.mod == "cert" || prog.mod == "csr") {

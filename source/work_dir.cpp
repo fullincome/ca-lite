@@ -954,46 +954,86 @@ DbTable WorkDir::importCert(QString file_name) {
     return table_cert;
 }
 // Генерация шаблона сертификата в конфиг
-BOOL_ERR WorkDir::genCertConfig(DbTable table) {
-    QFile file(files.cert_config);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return FAIL;
-    }
-    QTextStream stream_file(&file);
-    stream_file << "oid_section = OIDs" << endl;
+BOOL_ERR WorkDir::genCertConfig(DbTable &table) {
 
-    stream_file << "[ req ]" << endl;
-    stream_file << "prompt = no" << endl;
-    stream_file << "encrypt_key = no" << endl;
-    stream_file << "distinguished_name = dn" << endl;
+    table.cert_extension.config = QString("oid_section = OIDs") + "\n"
+
+    + QString("[ req ]") + "\n"
+    + QString("prompt = no") + "\n"
+    + QString("encrypt_key = no") + "\n"
+    + QString("distinguished_name = dn") + "\n";
     if (table.table_name == "csr" || table.table_name == "cert")
     {
-        stream_file << "req_extensions = req_ext" << endl;
+        table.cert_extension.config += QString("req_extensions = req_ext") + "\n";
     }
     else
     {
-        stream_file << "x509_extensions = req_ext" << endl;
+        table.cert_extension.config += QString("x509_extensions = req_ext") + "\n";
     }
 
-    stream_file << "[ OIDs ]" << endl;
-    stream_file << "# MySensationalOID=1.2.3.45" << endl;
-    stream_file << "# MyOutstandingOID=2.3.4.56" << endl;
+    table.cert_extension.config += QString("[ OIDs ]") + "\n"
+    + QString("# MySensationalOID=1.2.3.45") + "\n"
+    + QString("# MyOutstandingOID=2.3.4.56") + "\n"
 
-    stream_file << "[ dn ]" << endl;
-    stream_file << "CN = " << table.CN << endl;
-    stream_file << "emailAddress = " << table.email << endl;
-    stream_file << "O = " << table.O << endl;
-    stream_file << "C = " << table.C << endl;
-    stream_file << "# MySensationalOID = Support Department" << endl;
+    + QString("[ dn ]") + "\n"
+    + QString("CN = " + table.CN) + "\n"
+    + QString("emailAddress = " + table.email) + "\n"
+    + QString("O = " + table.O) + "\n"
+    + QString("C = " + table.C) + "\n"
+    + QString("# MySensationalOID = Support Department") + "\n"
 
-    stream_file << "[ req_ext ]" << endl;
-    stream_file << "subjectAltName = " << table.sun << endl;
-    stream_file << "extendedKeyUsage = " << table.eku << endl;
-    file.close();
+    + QString("[ req_ext ]") + "\n";
+    if (!table.cert_extension.basicConstraints.isEmpty())
+    {
+        table.cert_extension.config +=
+            QString("basicConstraints = " + table.cert_extension.basicConstraints) + "\n";
+    }
+
+    if (!table.cert_extension.authorityKeyIdentifier.isEmpty())
+    {
+        table.cert_extension.config +=
+            QString("authorityKeyIdentifier = " + table.cert_extension.authorityKeyIdentifier) + "\n";
+    }
+
+    if (!table.cert_extension.subjectKeyIdentifier.isEmpty())
+    {
+        table.cert_extension.config +=
+            QString("subjectKeyIdentifier = " + table.cert_extension.subjectKeyIdentifier) + "\n";
+    }
+
+    if (!table.cert_extension.keyUsage.isEmpty())
+    {
+        table.cert_extension.config +=
+            QString("keyUsage = " + table.cert_extension.keyUsage) + "\n";
+    }
+
+    if (!table.cert_extension.nsCertType.isEmpty())
+    {
+        table.cert_extension.config +=
+            QString("nsCertType = " + table.cert_extension.nsCertType) + "\n";
+    }
+
+    if (!table.cert_extension.subjectAltName.isEmpty())
+    {
+        table.cert_extension.config +=
+            QString("subjectAltName = " + table.cert_extension.subjectAltName) + "\n";
+    }
+
+    if (!table.cert_extension.extendedKeyUsage.isEmpty())
+    {
+        table.cert_extension.config +=
+            QString("extendedKeyUsage = " + table.cert_extension.extendedKeyUsage) + "\n";
+    }
+
     return OK;
 }
+// Сохранине конфига в table
+BOOL_ERR WorkDir::saveCertConfigToFile(DbTable table) {
+    return table.cert_extension.writeAllToFile(files.cert_config, table.cert_extension.config);
+}
 // Удаление шаблона сертификата (конфига)
-BOOL_ERR WorkDir::delCertConfig() {
+BOOL_ERR WorkDir::delCertConfigFile() {
     Program::removeFile(files.cert_config);
+    return OK;
 }
 

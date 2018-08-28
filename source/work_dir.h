@@ -146,8 +146,9 @@ public:
     CACert loadCaCert(Config config);
     BOOL_ERR exportCert(QString CN, QString file_name);
     DbTable importCert(QString file_name);
-    BOOL_ERR genCertConfig(DbTable table);
-    BOOL_ERR delCertConfig();
+    BOOL_ERR genCertConfig(DbTable &table);
+    BOOL_ERR saveCertConfigToFile(DbTable table);
+    BOOL_ERR delCertConfigFile();
 };
 
 
