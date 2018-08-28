@@ -188,7 +188,7 @@ void MainWindow::on_signCsrBtn_clicked()
     setSelectedName("cn", csr_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
     work_dir.exportCert(csr_CN, work_dir.work_path + prog.csr_filename);
-    table_cert = work_dir.data_base.loadFromDb("cert",  "CN = '" + csr_CN + "'", work_dir.data_base.query);
+    rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + csr_CN + "'", work_dir.data_base.query, table_cert);
     if (table_cert.suite == "gost") prog.suite = "gost";
     //table_cert.creatSerialToFile(work_dir.files.srl_ca_cert_file);
     //Заполнение параметров программы
@@ -247,7 +247,7 @@ void MainWindow::on_revokeCertBtn_clicked()
     setSelectedName("cn", cert_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
     work_dir.exportCert(cert_CN, work_dir.work_path + prog.cert_filename);
-    table_cert = work_dir.data_base.loadFromDb("cert",  "CN = '" + cert_CN + "'", work_dir.data_base.query);
+    rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + cert_CN + "'", work_dir.data_base.query, table_cert);
     if (table_cert.suite == "gost") prog.suite = "gost";
     //Заполнение параметров программы
     prog.file_in = work_dir.work_path + prog.cert_filename;
