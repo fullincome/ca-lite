@@ -189,8 +189,18 @@ void MainWindow::on_signCsrBtn_clicked()
     DbTable &table_cert = work_dir.data_base.table;
     work_dir.exportCert(csr_CN, work_dir.work_path + prog.csr_filename);
     rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + csr_CN + "'", work_dir.data_base.query, table_cert);
+    if (!rc)
+    {
+        messageError(this, "Error in loadFromDb: " + getLastErrorString());
+    }
+    rc = work_dir.data_base.loadFromDb("cert_extension", "id = '" + table_cert.id + "'", work_dir.data_base.query, table_cert);
+    if (!rc)
+    {
+        messageError(this, "Error in loadFromDb: " + getLastErrorString());
+    }
     if (table_cert.suite == "gost") prog.suite = "gost";
     //table_cert.creatSerialToFile(work_dir.files.srl_ca_cert_file);
+
     //Заполнение параметров программы
     prog.key_in = work_dir.ca_cert.file_key;
     prog.key_out = table_cert.key;
@@ -249,6 +259,10 @@ void MainWindow::on_revokeCertBtn_clicked()
     DbTable &table_cert = work_dir.data_base.table;
     work_dir.exportCert(cert_CN, work_dir.work_path + prog.cert_filename);
     rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + cert_CN + "'", work_dir.data_base.query, table_cert);
+    if (!rc)
+    {
+        messageError(this, "Error in loadFromDb: " + getLastErrorString());
+    }
     if (table_cert.suite == "gost") prog.suite = "gost";
     //Заполнение параметров программы
     prog.file_in = work_dir.work_path + prog.cert_filename;
