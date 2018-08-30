@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -50,12 +50,12 @@ bool MainWindow::setWMod(int mod) {
 // Кнопка: Создать сертификат УЦ
 void MainWindow::on_creatCaCertBtn_clicked()
 {
-    CertParams certParams;
+    CsrParams certParams;
     connect(this, SIGNAL(sendData(QStringList)), &certParams, SLOT(getData(QStringList)));
     connect(this, SIGNAL(closeCertParam(QString)), &certParams, SLOT(closeWindow(QString)));
     connect(&certParams, SIGNAL(readyToCheck(DbTable)), this, SLOT(checkCertParam(DbTable)));
     emit sendData(work_dir.checkContainers());
-    certParams.initialise();
+    certParams.initialise("ca");
     certParams.exec();
 }
 // Кнопка: Править файл конфигурации
@@ -175,7 +175,7 @@ void MainWindow::on_creatCsrBtn_clicked()
     connect(this, SIGNAL(closeCertParam(QString)), &csrParams, SLOT(closeWindow(QString)));
     connect(&csrParams, SIGNAL(readyToCheck(DbTable)), this, SLOT(checkCertParam(DbTable)));
     emit sendData(work_dir.checkContainers());
-    csrParams.initialise();
+    csrParams.initialise("cert");
     csrParams.exec();
 }
 //Кнопка: Подписать CSR сертификатом УЦ
@@ -206,15 +206,23 @@ void MainWindow::on_signCsrBtn_clicked()
     prog.key_out = table_cert.key;
     prog.file_in = work_dir.work_path + prog.csr_filename;
     prog.file_out = work_dir.work_path + prog.cert_filename;
+    prog.mod = "cert";
+
+    work_dir.genCertConfig(table_cert, SIGN_CSR);
+    work_dir.saveCertConfigToFile(table_cert);
+
     prog.args = QString("x509 -engine gostengy -req -CA " + work_dir.ca_cert.file_name).split(" ");
     prog.args += QString("-CAkeyform ENGINE -CAkey c:" + work_dir.ca_cert.key).split(" ");
     prog.args += QString("-CAserial " + work_dir.files.srl_ca_cert_file).split(" ");
     prog.args += QString("-in " + prog.file_in + " -out " + prog.file_out).split(" ");
     prog.args += QString("-days " + table_cert.days_valid).split(" ");
-    prog.args += QString("-extensions req_ext -extfile " + work_dir.files.cert_config).split(" ");
-    prog.mod = "cert";
 
-    work_dir.saveCertConfigToFile(table_cert);
+    if (DbTable::existExtension(table_cert.cert_extension.config))
+    {
+        prog.args += QString("-extensions req_ext").split(" ");
+        prog.args += QString("-extfile " + work_dir.files.cert_config).split(" ");
+    }
+
     prog.run();
     work_dir.delCertConfigFile();
     //--------------------------------------------------
@@ -499,7 +507,15 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table) {
 // Основная функция генерации сертификатов
 BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
     BOOL_ERR rc = FAIL;
-    work_dir.genCertConfig(table);
+    if (table.table_name == "ca")
+    {
+        work_dir.genCertConfig(table, SELF_SIGNED);
+    }
+    else if (table.table_name == "csr" || table.table_name == "cert")
+    {
+        work_dir.genCertConfig(table, GEN_CSR);
+    }
+
     work_dir.saveCertConfigToFile(table);
     prog.run();
     work_dir.delCertConfigFile();

@@ -20,7 +20,7 @@ public:
     DbTable table;
     QStringList conts_info;
 
-    void initialise();
+    void initialise(QString table_name);
     void setParams();
 signals:
     void readyToCheck(DbTable table);

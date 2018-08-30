@@ -12,9 +12,14 @@ namespace RegexpPatternWorkDir {
     const QString ContainerLine = "\n +(\\d+) +(\\w+)\n";
     const QString SkipCsptestOutputWords = "___+\n";
     const QString ConfigLine = "(\\w+)\\s*=\\s*([^\\n\\s]+)";
+    const QString OpensslExtension = "(\\[ req_ext \\])";
     // Выбор из parsed контейнеров (by ContainerLine)
     const QString Container = "Name: (\\w+) \\(len = \\d+\\)";
 }
+
+#define SIGN_CSR 0
+#define GEN_CSR 1
+#define SELF_SIGNED 2
 
 class CertExt {
 public:
@@ -53,6 +58,7 @@ public:
     bool isOk;
     DbTable();
     QStringList checkErrorFields();
+    static BOOL existExtension(QString config);
     static QString getPemFromFile(QString file_name);
     static QString getTextFromCsr(QString file_in);
     static BOOL_ERR getTextFromCert(QString file_in, QString &cert_info);
@@ -146,7 +152,7 @@ public:
     CACert loadCaCert(Config config);
     BOOL_ERR exportCert(QString CN, QString file_name);
     DbTable importCert(QString file_name);
-    BOOL_ERR genCertConfig(DbTable &table);
+    BOOL_ERR genCertConfig(DbTable &table, BOOL mod);
     BOOL_ERR saveCertConfigToFile(DbTable table);
     BOOL_ERR delCertConfigFile();
 };

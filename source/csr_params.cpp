@@ -22,7 +22,8 @@ CsrParams::~CsrParams()
 //------------------СОЗДАНИЕ CSR------------------------
 //------------------------------------------------------
 //Инициализация детерменированных параметров
-void CsrParams::initialise() {
+void CsrParams::initialise(QString table_name) {
+    table.table_name = table_name;
     for (int i = 0; i < conts_info.size(); ++i) {
         ui_cp->containersBox->addItem(conts_info[i]);
     }
@@ -57,7 +58,6 @@ void CsrParams::initialise() {
 //Установка выбранных параметров
 void CsrParams::setParams() {
     QString str_field;
-    table.table_name = "cert";
 
     str_field = ui_cp->nameCsrEdit->toPlainText();
     if (!str_field.isEmpty()) table.CN = str_field;
@@ -75,25 +75,28 @@ void CsrParams::setParams() {
     if (!str_field.isEmpty()) table.condition = str_field;
 
     // Секция расширений
-    str_field =  ui_cp->basicConstraintsEdit->toPlainText();;
+    str_field = ui_cp->basicConstraintsEdit->toPlainText();
     if (!str_field.isEmpty()) table.cert_extension.basicConstraints = str_field;
 
-    str_field =  ui_cp->authorityKeyIdentifierEdit->toPlainText();;
-    if (!str_field.isEmpty()) table.cert_extension.authorityKeyIdentifier = str_field;
+    if (ui_cp->authorityKeyIdentifierEdit->isEnabled())
+    {
+        str_field = ui_cp->authorityKeyIdentifierEdit->toPlainText();
+        if (!str_field.isEmpty()) table.cert_extension.authorityKeyIdentifier = str_field;
+    }
 
-    str_field =  ui_cp->subjectKeyIdentifierEdit->toPlainText();;
+    str_field = ui_cp->subjectKeyIdentifierEdit->toPlainText();
     if (!str_field.isEmpty()) table.cert_extension.subjectKeyIdentifier = str_field;
 
-    str_field =  ui_cp->keyUsageEdit->toPlainText();;
+    str_field = ui_cp->keyUsageEdit->toPlainText();
     if (!str_field.isEmpty()) table.cert_extension.keyUsage = str_field;
 
-    str_field =  ui_cp->nsCertTypeEdit->toPlainText();;
+    str_field = ui_cp->nsCertTypeEdit->toPlainText();
     if (!str_field.isEmpty()) table.cert_extension.nsCertType = str_field;
 
-    str_field =  ui_cp->subjectAltNameEdit->toPlainText();;
+    str_field = ui_cp->subjectAltNameEdit->toPlainText();
     if (!str_field.isEmpty()) table.cert_extension.subjectAltName = str_field;
 
-    str_field =  ui_cp->extendedKeyUsageEdit->toPlainText();;
+    str_field = ui_cp->extendedKeyUsageEdit->toPlainText();
     if (!str_field.isEmpty()) table.cert_extension.extendedKeyUsage = str_field;
 
 

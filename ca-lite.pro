@@ -29,7 +29,6 @@ SOURCES += \
     source/mainwindow.cpp \
     source/csr_params.cpp \
     source/work_dir.cpp \
-    source/ca_cert_params.cpp \
     source/dialog.cpp \
     source/program.cpp
 
@@ -37,12 +36,10 @@ HEADERS += \
     source/mainwindow.h \
     source/csr_params.h \
     source/work_dir.h \
-    source/ca_cert_params.h \
     source/dialog.h \
     source/program.h
 
 FORMS += \
     ui/mainwindow.ui \
     ui/csr_params.ui \
-    ui/ca_cert_params.ui \
     ui/dialog.ui

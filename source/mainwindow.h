@@ -5,7 +5,6 @@
 #include <QWidget>
 #include "program.h"
 #include "dialog.h"
-#include "ca_cert_params.h"
 #include "csr_params.h"
 #include "work_dir.h"
 

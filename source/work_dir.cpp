@@ -65,6 +65,19 @@ BOOL_ERR CertExt::writeAllToFile(QString file_name, QString text) {
     return OK;
 }
 
+BOOL DbTable::existExtension(QString config)
+{
+    QRegExp regexp_dir(RegexpPatternWorkDir::OpensslExtension);
+    if (regexp_dir.indexIn(config) == -1)
+    {
+        return FALSE;
+    }
+    else
+    {
+        return TRUE;
+    }
+}
+
 QString DbTable::getPemFromFile(QString file_name) {
     QString pem;
     QFile file(file_name);
@@ -954,7 +967,59 @@ DbTable WorkDir::importCert(QString file_name) {
     return table_cert;
 }
 // Генерация шаблона сертификата в конфиг
-BOOL_ERR WorkDir::genCertConfig(DbTable &table) {
+BOOL_ERR WorkDir::genCertConfig(DbTable &table, BOOL mod) {
+    // Сначала проверим и заполним req_ext, а сам конфиг заполним в конце,
+    // основываясь на состоянии req_ext
+    QString req_ext = QString("[ req_ext ]") + "\n";
+    BOOL req_ext_exist = 0;
+    if (!table.cert_extension.basicConstraints.isEmpty())
+    {
+        req_ext +=
+            QString("basicConstraints = " + table.cert_extension.basicConstraints) + "\n";
+        req_ext_exist = 1;
+    }
+
+    if (!table.cert_extension.authorityKeyIdentifier.isEmpty())
+    {
+        req_ext +=
+            QString("authorityKeyIdentifier = " + table.cert_extension.authorityKeyIdentifier) + "\n";
+        req_ext_exist = 1;
+    }
+
+    if (!table.cert_extension.subjectKeyIdentifier.isEmpty())
+    {
+        req_ext +=
+            QString("subjectKeyIdentifier = " + table.cert_extension.subjectKeyIdentifier) + "\n";
+        req_ext_exist = 1;
+    }
+
+    if (!table.cert_extension.keyUsage.isEmpty())
+    {
+        req_ext +=
+            QString("keyUsage = " + table.cert_extension.keyUsage) + "\n";
+        req_ext_exist = 1;
+    }
+
+    if (!table.cert_extension.nsCertType.isEmpty())
+    {
+        req_ext +=
+            QString("nsCertType = " + table.cert_extension.nsCertType) + "\n";
+        req_ext_exist = 1;
+    }
+
+    if (!table.cert_extension.subjectAltName.isEmpty())
+    {
+        req_ext +=
+            QString("subjectAltName = " + table.cert_extension.subjectAltName) + "\n";
+        req_ext_exist = 1;
+    }
+
+    if (!table.cert_extension.extendedKeyUsage.isEmpty())
+    {
+        req_ext +=
+            QString("extendedKeyUsage = " + table.cert_extension.extendedKeyUsage) + "\n";
+        req_ext_exist = 1;
+    }
 
     table.cert_extension.config = QString("oid_section = OIDs") + "\n"
 
@@ -962,13 +1027,16 @@ BOOL_ERR WorkDir::genCertConfig(DbTable &table) {
     + QString("prompt = no") + "\n"
     + QString("encrypt_key = no") + "\n"
     + QString("distinguished_name = dn") + "\n";
-    if (table.table_name == "csr" || table.table_name == "cert")
+    if (req_ext_exist)
     {
-        table.cert_extension.config += QString("req_extensions = req_ext") + "\n";
-    }
-    else
-    {
-        table.cert_extension.config += QString("x509_extensions = req_ext") + "\n";
+        if (mod == GEN_CSR)
+        {
+            table.cert_extension.config += QString("req_extensions = req_ext") + "\n";
+        }
+        else if (mod == SIGN_CSR || mod == SELF_SIGNED)
+        {
+            table.cert_extension.config += QString("x509_extensions = req_ext") + "\n";
+        }
     }
 
     table.cert_extension.config += QString("[ OIDs ]") + "\n"
@@ -980,49 +1048,11 @@ BOOL_ERR WorkDir::genCertConfig(DbTable &table) {
     + QString("emailAddress = " + table.email) + "\n"
     + QString("O = " + table.O) + "\n"
     + QString("C = " + table.C) + "\n"
-    + QString("# MySensationalOID = Support Department") + "\n"
+    + QString("# MySensationalOID = Support Department") + "\n";
 
-    + QString("[ req_ext ]") + "\n";
-    if (!table.cert_extension.basicConstraints.isEmpty())
+    if (req_ext_exist)
     {
-        table.cert_extension.config +=
-            QString("basicConstraints = " + table.cert_extension.basicConstraints) + "\n";
-    }
-
-    if (!table.cert_extension.authorityKeyIdentifier.isEmpty())
-    {
-        table.cert_extension.config +=
-            QString("authorityKeyIdentifier = " + table.cert_extension.authorityKeyIdentifier) + "\n";
-    }
-
-    if (!table.cert_extension.subjectKeyIdentifier.isEmpty())
-    {
-        table.cert_extension.config +=
-            QString("subjectKeyIdentifier = " + table.cert_extension.subjectKeyIdentifier) + "\n";
-    }
-
-    if (!table.cert_extension.keyUsage.isEmpty())
-    {
-        table.cert_extension.config +=
-            QString("keyUsage = " + table.cert_extension.keyUsage) + "\n";
-    }
-
-    if (!table.cert_extension.nsCertType.isEmpty())
-    {
-        table.cert_extension.config +=
-            QString("nsCertType = " + table.cert_extension.nsCertType) + "\n";
-    }
-
-    if (!table.cert_extension.subjectAltName.isEmpty())
-    {
-        table.cert_extension.config +=
-            QString("subjectAltName = " + table.cert_extension.subjectAltName) + "\n";
-    }
-
-    if (!table.cert_extension.extendedKeyUsage.isEmpty())
-    {
-        table.cert_extension.config +=
-            QString("extendedKeyUsage = " + table.cert_extension.extendedKeyUsage) + "\n";
+        table.cert_extension.config += req_ext;
     }
 
     return OK;
