@@ -7,6 +7,9 @@ CsrParams::CsrParams(QWidget *parent) :
 {
     ui_cp->setupUi(this);
     ui_cp->creatBtn->setEnabled(false);
+    ui_cp->authorityKeyIdentifierEdit->setDisabled(true);
+    ui_cp->authorityKeyIdentifierEdit->setStyleSheet("color: rgb(100,100,100)");
+    ui_cp->authorityKeyIdentifierEdit->setPlainText("Field available only on sign");
 }
 
 CsrParams::~CsrParams()
