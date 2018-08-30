@@ -21,10 +21,10 @@
 #include <QMessageBox>
 #include <QtGlobal>
 
-#define FALSE false
-#define FAIL false
-#define OK true
-#define BOOL_ERR bool
+#define FALSE 0
+#define FAIL 0
+#define OK 1
+#define BOOL_ERR long long
 
 #define CRT_GOST 0
 #define CRT_RSA 1
@@ -57,7 +57,12 @@ public:
         }
         else
         {
-            return stack.pop();
+            QString str;
+            while (!empty())
+            {
+                str += stack.pop();
+            }
+            return str;
         }
     }
 } errorStr;
