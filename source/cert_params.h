@@ -1,21 +1,21 @@
-#ifndef CSR_PARAMS_H
-#define CSR_PARAMS_H
+#ifndef CERT_PARAMS_H
+#define CERT_PARAMS_H
 
 #include <QDialog>
 #include "program.h"
 #include "work_dir.h"
 
 namespace Ui {
-class CsrParams;
+class CertParams;
 }
 
-class CsrParams : public QDialog
+class CertParams : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit CsrParams(QWidget *parent = 0);
-    ~CsrParams();
+    explicit CertParams(QWidget *parent = 0);
+    ~CertParams();
 
     DbTable table;
     QStringList conts_info;
@@ -27,7 +27,7 @@ signals:
 private slots:
     void on_cancelBtn_clicked();
     void on_creatBtn_clicked();
-    void on_nameCsrEdit_textChanged();
+    void on_nameCertEdit_textChanged();
     void on_containersBox_currentIndexChanged(const QString &arg1);
     void getData(QStringList conts_info);
     void closeWindow(QString rc);
@@ -47,7 +47,7 @@ private slots:
     void on_subjectAltNameContBox_activated(const QString &arg1);
 
 private:
-    Ui::CsrParams *ui_cp;
+    Ui::CertParams *ui_cp;
 };
 
-#endif // CSR_PARAMS_H
+#endif // CERT_PARAMS_H

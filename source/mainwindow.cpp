@@ -50,7 +50,7 @@ bool MainWindow::setWMod(int mod) {
 // Кнопка: Создать сертификат УЦ
 void MainWindow::on_creatCaCertBtn_clicked()
 {
-    CsrParams certParams;
+    CertParams certParams;
     connect(this, SIGNAL(sendData(QStringList)), &certParams, SLOT(getData(QStringList)));
     connect(this, SIGNAL(closeCertParam(QString)), &certParams, SLOT(closeWindow(QString)));
     connect(&certParams, SIGNAL(readyToCheck(DbTable)), this, SLOT(checkCertParam(DbTable)));
@@ -170,7 +170,7 @@ void MainWindow::checkWorkDir(WorkDir work_dir) {
 //Кнопка: Создать CSR
 void MainWindow::on_creatCsrBtn_clicked()
 {
-    CsrParams csrParams;
+    CertParams csrParams;
     connect(this, SIGNAL(sendData(QStringList)), &csrParams, SLOT(getData(QStringList)));
     connect(this, SIGNAL(closeCertParam(QString)), &csrParams, SLOT(closeWindow(QString)));
     connect(&csrParams, SIGNAL(readyToCheck(DbTable)), this, SLOT(checkCertParam(DbTable)));

@@ -1,9 +1,9 @@
-#include "csr_params.h"
-#include "ui_csr_params.h"
+#include "cert_params.h"
+#include "ui_cert_params.h"
 
-CsrParams::CsrParams(QWidget *parent) :
+CertParams::CertParams(QWidget *parent) :
     QDialog(parent),
-    ui_cp(new Ui::CsrParams)
+    ui_cp(new Ui::CertParams)
 {
     ui_cp->setupUi(this);
     ui_cp->creatBtn->setEnabled(false);
@@ -12,7 +12,7 @@ CsrParams::CsrParams(QWidget *parent) :
     ui_cp->authorityKeyIdentifierEdit->setPlainText("Field available only on sign");
 }
 
-CsrParams::~CsrParams()
+CertParams::~CertParams()
 {
     delete ui_cp;
 }
@@ -22,7 +22,7 @@ CsrParams::~CsrParams()
 //------------------СОЗДАНИЕ CSR------------------------
 //------------------------------------------------------
 //Инициализация детерменированных параметров
-void CsrParams::initialise(QString table_name) {
+void CertParams::initialise(QString table_name) {
     table.table_name = table_name;
     for (int i = 0; i < conts_info.size(); ++i) {
         ui_cp->containersBox->addItem(conts_info[i]);
@@ -56,10 +56,10 @@ void CsrParams::initialise(QString table_name) {
                               << "1.3.6.1.5.5.7.3.2");
 }
 //Установка выбранных параметров
-void CsrParams::setParams() {
+void CertParams::setParams() {
     QString str_field;
 
-    str_field = ui_cp->nameCsrEdit->toPlainText();
+    str_field = ui_cp->nameCertEdit->toPlainText();
     if (!str_field.isEmpty()) table.CN = str_field;
 
     str_field = ui_cp->organizationEdit->toPlainText();
@@ -68,7 +68,7 @@ void CsrParams::setParams() {
     str_field = ui_cp->daysValidEdit->toPlainText();
     if (!str_field.isEmpty()) table.days_valid = str_field;
 
-    str_field = ui_cp->keycontCsrEdit->toPlainText();
+    str_field = ui_cp->keycontCertEdit->toPlainText();
     if (!str_field.isEmpty()) table.key = str_field;
 
     str_field = "CN = '" + table.CN + "'";
@@ -102,13 +102,13 @@ void CsrParams::setParams() {
 
 }
 //Кнопка: Создать CSR
-void CsrParams::on_creatBtn_clicked()
+void CertParams::on_creatBtn_clicked()
 {
     setParams();
     emit readyToCheck(table);
 }
 //Кнопка: Отмена
-void CsrParams::on_cancelBtn_clicked()
+void CertParams::on_cancelBtn_clicked()
 {
     this->close();
 }
@@ -128,10 +128,10 @@ void CsrParams::on_cancelBtn_clicked()
 //---------------СЛОТЫ ПРИЕМА ДАННЫХ--------------------
 //------------------------------------------------------
 //Прием work_dir
-void CsrParams::getData(QStringList conts_info) {
+void CertParams::getData(QStringList conts_info) {
     this->conts_info = conts_info;
 }
-void CsrParams::closeWindow(QString rc)
+void CertParams::closeWindow(QString rc)
 {
     this->close();
 }
@@ -149,9 +149,9 @@ void CsrParams::closeWindow(QString rc)
 //---------ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ И СЛОТЫ--------------
 //------------------------------------------------------
 //Блокировка на ввод пустого текста
-void CsrParams::on_nameCsrEdit_textChanged()
+void CertParams::on_nameCertEdit_textChanged()
 {
-    if (ui_cp->nameCsrEdit->toPlainText().size() > 0) {
+    if (ui_cp->nameCertEdit->toPlainText().size() > 0) {
         ui_cp->creatBtn->setEnabled(true);
     }
     else {
@@ -159,18 +159,18 @@ void CsrParams::on_nameCsrEdit_textChanged()
     }
 }
 //Обработка выбранного контейнера в containersBox
-void CsrParams::on_containersBox_currentIndexChanged(const QString &arg1)
+void CertParams::on_containersBox_currentIndexChanged(const QString &arg1)
 {
     QRegExp regexp("Name: (\\w+) \\(len = \\d+\\)");
     if (regexp.indexIn(arg1, 0) == -1) {
         //ui_mw->debugLogEdit->setPlainText(ui_mw->debugLogEdit->toPlainText() + prog.output
         //                                    + "\n В " + prog.file_out + " не удалось определить CN");
     } else {
-        ui_cp->keycontCsrEdit->setPlainText(regexp.cap(1));
+        ui_cp->keycontCertEdit->setPlainText(regexp.cap(1));
     }
 }
 //Обработка выбранного поля в basicConstraintsContBox
-void CsrParams::on_basicConstraintsContBox_activated(const QString &arg1)
+void CertParams::on_basicConstraintsContBox_activated(const QString &arg1)
 {
     if (ui_cp->basicConstraintsEdit->toPlainText().isEmpty())
     {
@@ -184,7 +184,7 @@ void CsrParams::on_basicConstraintsContBox_activated(const QString &arg1)
 }
 
 //Обработка выбранного поля в authorityKeyIdentifierContBox
-void CsrParams::on_authorityKeyIdentifierContBox_activated(const QString &arg1)
+void CertParams::on_authorityKeyIdentifierContBox_activated(const QString &arg1)
 {
     if (ui_cp->authorityKeyIdentifierEdit->isEnabled())
         {
@@ -200,7 +200,7 @@ void CsrParams::on_authorityKeyIdentifierContBox_activated(const QString &arg1)
     }
 }
 //Обработка выбранного поля в subjectKeyIdentifierContBox
-void CsrParams::on_subjectKeyIdentifierContBox_activated(const QString &arg1)
+void CertParams::on_subjectKeyIdentifierContBox_activated(const QString &arg1)
 {
     if (ui_cp->subjectKeyIdentifierEdit->toPlainText().isEmpty())
     {
@@ -213,7 +213,7 @@ void CsrParams::on_subjectKeyIdentifierContBox_activated(const QString &arg1)
     }
 }
 //Обработка выбранного поля в keyUsageContBox
-void CsrParams::on_keyUsageContBox_activated(const QString &arg1)
+void CertParams::on_keyUsageContBox_activated(const QString &arg1)
 {
     if (ui_cp->keyUsageEdit->toPlainText().isEmpty())
     {
@@ -226,7 +226,7 @@ void CsrParams::on_keyUsageContBox_activated(const QString &arg1)
     }
 }
 //Обработка выбранного поля в nsCertTypeContBox
-void CsrParams::on_nsCertTypeContBox_activated(const QString &arg1)
+void CertParams::on_nsCertTypeContBox_activated(const QString &arg1)
 {
     if (ui_cp->nsCertTypeEdit->toPlainText().isEmpty())
     {
@@ -239,7 +239,7 @@ void CsrParams::on_nsCertTypeContBox_activated(const QString &arg1)
     }
 }
 //Обработка выбранного поля в subjectAltNameContBox
-void CsrParams::on_subjectAltNameContBox_activated(const QString &arg1)
+void CertParams::on_subjectAltNameContBox_activated(const QString &arg1)
 {
     if (ui_cp->subjectAltNameEdit->toPlainText().isEmpty())
     {
@@ -252,7 +252,7 @@ void CsrParams::on_subjectAltNameContBox_activated(const QString &arg1)
     }
 }
 //Обработка выбранного поля в extendedKeyUsageContBox
-void CsrParams::on_extendedKeyUsageContBox_activated(const QString &arg1)
+void CertParams::on_extendedKeyUsageContBox_activated(const QString &arg1)
 {
     if (ui_cp->extendedKeyUsageEdit->toPlainText().isEmpty())
     {

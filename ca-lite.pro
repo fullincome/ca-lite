@@ -27,19 +27,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     source/main.cpp \
     source/mainwindow.cpp \
-    source/csr_params.cpp \
     source/work_dir.cpp \
     source/dialog.cpp \
-    source/program.cpp
+    source/program.cpp \
+    source/cert_params.cpp
 
 HEADERS += \
     source/mainwindow.h \
-    source/csr_params.h \
     source/work_dir.h \
     source/dialog.h \
-    source/program.h
+    source/program.h \
+    source/cert_params.h
 
 FORMS += \
     ui/mainwindow.ui \
-    ui/csr_params.ui \
-    ui/dialog.ui
+    ui/dialog.ui \
+    ui/cert_params.ui

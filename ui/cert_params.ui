@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CsrParams</class>
- <widget class="QDialog" name="CsrParams">
+ <class>CertParams</class>
+ <widget class="QDialog" name="CertParams">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -64,13 +64,13 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tabMain">
     <attribute name="title">
      <string>Основное</string>
     </attribute>
-    <widget class="QPlainTextEdit" name="keycontCSREdit_4">
+    <widget class="QPlainTextEdit" name="keycontCertEdit_4">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -118,7 +118,7 @@
       <string>Не рабочее поле</string>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="keycontCSREdit_7">
+    <widget class="QPlainTextEdit" name="keycontCertEdit_7">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -202,7 +202,7 @@
       <string>Не рабочее поле</string>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="keycontCsrEdit">
+    <widget class="QPlainTextEdit" name="keycontCertEdit">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -235,7 +235,7 @@
       <string>Организация</string>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="keycontCSREdit_6">
+    <widget class="QPlainTextEdit" name="keycontCertEdit_6">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -250,7 +250,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="keycontCSREdit_5">
+    <widget class="QPlainTextEdit" name="keycontCertEdit_5">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -298,7 +298,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QLabel" name="nameCsrLabel">
+    <widget class="QLabel" name="nameCertLabel">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -316,7 +316,7 @@
       <string>CN (*)</string>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="nameCsrEdit">
+    <widget class="QPlainTextEdit" name="nameCertEdit">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -331,7 +331,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QLabel" name="keycontCsrLabel">
+    <widget class="QLabel" name="keycontCertLabel">
      <property name="geometry">
       <rect>
        <x>10</x>
