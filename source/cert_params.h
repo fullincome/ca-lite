@@ -46,6 +46,8 @@ private slots:
 
     void on_subjectAltNameContBox_activated(const QString &arg1);
 
+    void on_keycontCertEdit_textChanged();
+
 private:
     Ui::CertParams *ui_cp;
 };

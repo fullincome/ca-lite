@@ -70,7 +70,7 @@
     <attribute name="title">
      <string>Основное</string>
     </attribute>
-    <widget class="QPlainTextEdit" name="keycontCertEdit_4">
+    <widget class="QPlainTextEdit" name="countryEdit">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -133,7 +133,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="localityLabel">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -148,14 +148,14 @@
       </font>
      </property>
      <property name="text">
-      <string>Не рабочее поле</string>
+      <string>Местоположение (L)</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_5">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>140</y>
+       <y>100</y>
        <width>171</width>
        <height>28</height>
       </rect>
@@ -166,14 +166,14 @@
       </font>
      </property>
      <property name="text">
-      <string>Срок действия (дни)</string>
+      <string>Срок действия (days)</string>
      </property>
     </widget>
     <widget class="QPlainTextEdit" name="daysValidEdit">
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>140</y>
+       <y>100</y>
        <width>250</width>
        <height>28</height>
       </rect>
@@ -184,7 +184,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="countryLabel">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -199,7 +199,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Не рабочее поле</string>
+      <string>Страна (С)</string>
      </property>
     </widget>
     <widget class="QPlainTextEdit" name="keycontCertEdit">
@@ -221,7 +221,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>100</y>
+       <y>140</y>
        <width>171</width>
        <height>28</height>
       </rect>
@@ -232,7 +232,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Организация</string>
+      <string>Организация (O)</string>
      </property>
     </widget>
     <widget class="QPlainTextEdit" name="keycontCertEdit_6">
@@ -250,7 +250,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="keycontCertEdit_5">
+    <widget class="QPlainTextEdit" name="localityEdit">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -287,7 +287,7 @@
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>100</y>
+       <y>140</y>
        <width>250</width>
        <height>28</height>
       </rect>
@@ -303,7 +303,7 @@
       <rect>
        <x>10</x>
        <y>20</y>
-       <width>171</width>
+       <width>170</width>
        <height>28</height>
       </rect>
      </property>
@@ -313,7 +313,7 @@
       </font>
      </property>
      <property name="text">
-      <string>CN (*)</string>
+      <string>Имя сертификата (CN)</string>
      </property>
     </widget>
     <widget class="QPlainTextEdit" name="nameCertEdit">
@@ -346,7 +346,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Контейнер с ключём (*)</string>
+      <string>Контейнер с ключём</string>
      </property>
     </widget>
    </widget>

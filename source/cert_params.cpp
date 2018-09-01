@@ -7,9 +7,22 @@ CertParams::CertParams(QWidget *parent) :
 {
     ui_cp->setupUi(this);
     ui_cp->creatBtn->setEnabled(false);
+
     ui_cp->authorityKeyIdentifierEdit->setDisabled(true);
     ui_cp->authorityKeyIdentifierEdit->setStyleSheet("color: rgb(100,100,100)");
     ui_cp->authorityKeyIdentifierEdit->setPlainText("Field available only on sign");
+
+    ui_cp->nameCertLabel->setStyleSheet("color: rgb(230,0,0)");
+
+    // Если контейнеры есть, то сработает
+    // on_containersBox_currentIndexChanged
+    // и поле сразу заполнится, поэтому проверяем
+    if (ui_cp->keycontCertEdit->toPlainText().size() > 0) {
+        ui_cp->keycontCertLabel->setStyleSheet("color: rgb(0,150,0)");
+    }
+    else {
+        ui_cp->keycontCertLabel->setStyleSheet("color: rgb(230,0,0)");
+    }
 }
 
 CertParams::~CertParams()
@@ -64,6 +77,12 @@ void CertParams::setParams() {
 
     str_field = ui_cp->organizationEdit->toPlainText();
     if (!str_field.isEmpty()) table.O = str_field;
+
+    str_field = ui_cp->countryEdit->toPlainText();
+    if (!str_field.isEmpty()) table.C = str_field;
+
+    str_field = ui_cp->localityEdit->toPlainText();
+    if (!str_field.isEmpty()) table.L = str_field;
 
     str_field = ui_cp->daysValidEdit->toPlainText();
     if (!str_field.isEmpty()) table.days_valid = str_field;
@@ -152,10 +171,24 @@ void CertParams::closeWindow(QString rc)
 void CertParams::on_nameCertEdit_textChanged()
 {
     if (ui_cp->nameCertEdit->toPlainText().size() > 0) {
+        ui_cp->nameCertLabel->setStyleSheet("color: rgb(0,150,0)");
         ui_cp->creatBtn->setEnabled(true);
     }
     else {
-        ui_cp->creatBtn->setEnabled(false);
+        ui_cp->nameCertLabel->setStyleSheet("color: rgb(230,0,0)");
+        ui_cp->creatBtn->setDisabled(true);
+    }
+}
+//Блокировка на ввод пустого текста
+void CertParams::on_keycontCertEdit_textChanged()
+{
+    if (ui_cp->keycontCertEdit->toPlainText().size() > 0) {
+        ui_cp->keycontCertLabel->setStyleSheet("color: rgb(0,150,0)");
+        ui_cp->creatBtn->setEnabled(true);
+    }
+    else {
+        ui_cp->keycontCertLabel->setStyleSheet("color: rgb(230,0,0)");
+        ui_cp->creatBtn->setDisabled(true);
     }
 }
 //Обработка выбранного контейнера в containersBox
@@ -268,9 +301,6 @@ void CertParams::on_extendedKeyUsageContBox_activated(const QString &arg1)
 //------------------------------------------------------
 //------------------------------------------------------
 //------------------------------------------------------
-
-
-
 
 
 

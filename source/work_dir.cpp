@@ -8,6 +8,7 @@ CertExt::CertExt()
 DbTable::DbTable()
 {
     CN = "CN_calite";
+    L = "Moscow";
     O = "O_calite";
     C = "RU";
     email = "calite@calite.ru";
@@ -212,6 +213,9 @@ BOOL_ERR DataBase::newTables(QSqlQuery *query)
         "`id`           INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
         "`CN`           TEXT NOT NULL,"
         "`pem`          TEXT NOT NULL,"
+        "`L`            TEXT,"
+        "`C`            TEXT,"
+        "`O`            TEXT,"
         "`key`          TEXT,"
         "`suite`        TEXT,"
         "`serial`       TEXT,"
@@ -226,6 +230,9 @@ BOOL_ERR DataBase::newTables(QSqlQuery *query)
         "`id`           INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
         "`CN`           TEXT NOT NULL,"
         "`pem`          TEXT NOT NULL,"
+        "`L`            TEXT,"
+        "`C`            TEXT,"
+        "`O`            TEXT,"
         "`key`          TEXT,"
         "`suite`        TEXT,"
         "`serial`       TEXT,"
@@ -283,8 +290,8 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
         rc = loadFromDb(table.table_name, table.condition, query, tmp_table);
         if (!rc)
         {
-            rc = query->prepare("INSERT INTO cert (CN, pem, key, suite, serial, revoke, issuer, days_valid) "
-                           "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid)");
+            rc = query->prepare("INSERT INTO cert (CN, pem, L, C, O, key, suite, serial, revoke, issuer, days_valid) "
+                           "VALUES (:CN, :pem, :L, :C, :O, :key, :suite, :serial, :revoke, :issuer, :days_valid)");
             if (!rc)
             {
                 setErrorString("query->prepare() fail with: " + query->lastError().text());
@@ -294,6 +301,9 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
             query->bindValue(":CN", table.CN);
             query->bindValue(":pem", table.pem);
             query->bindValue(":key", table.key);
+            query->bindValue(":L", table.L);
+            query->bindValue(":C", table.C);
+            query->bindValue(":O", table.O);
             query->bindValue(":suite", table.suite);
             query->bindValue(":serial", table.serial);
             query->bindValue(":revoke", table.revoke);
@@ -313,6 +323,9 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
                            "CN = '" + table.CN + "', "
                            "pem = '" + table.pem + "', "
                            "key = '" + table.key + "', "
+                           "L = '" + table.L + "', "
+                           "C = '" + table.C + "', "
+                           "O = '" + table.O + "', "
                            "suite = '" + table.suite + "', "
                            "serial = '" + table.serial + "', "
                            "revoke = '" + table.revoke + "', "
@@ -447,8 +460,8 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
     }
     else if (table.table_name == "ca")
     {
-        rc = query->prepare("INSERT INTO ca (CN, pem, key, suite, serial, revoke, issuer, days_valid) "
-                       "VALUES (:CN, :pem, :key, :suite, :serial, :revoke, :issuer, :days_valid)");
+        rc = query->prepare("INSERT INTO ca (CN, pem, L, C, O, key, suite, serial, revoke, issuer, days_valid) "
+                       "VALUES (:CN, :pem, :L, :C, :O, :key, :suite, :serial, :revoke, :issuer, :days_valid)");
         if (!rc)
         {
             setErrorString("query->prepare() fail with: " + query->lastError().text());
@@ -457,6 +470,9 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
 
         query->bindValue(":CN", table.CN);
         query->bindValue(":pem", table.pem);
+        query->bindValue(":L", table.L);
+        query->bindValue(":C", table.C);
+        query->bindValue(":O", table.O);
         query->bindValue(":key", table.key);
         query->bindValue(":suite", table.suite);
         query->bindValue(":serial", table.serial);
@@ -524,7 +540,7 @@ BOOL_ERR DataBase::saveToDb(DbTable table, QSqlQuery *query) {
 BOOL_ERR DataBase::loadFromDb(QString table_name, QString table_condition, QSqlQuery *query, DbTable &table) {
     if (table_name == "cert" || table_name == "csr")
     {
-        if (!query->prepare("SELECT id, CN, pem, key, suite, serial, revoke, issuer, days_valid "
+        if (!query->prepare("SELECT id, CN, pem, L, C, O, key, suite, serial, revoke, issuer, days_valid "
                             "FROM cert "
                             "WHERE " + table_condition))
         {
@@ -540,12 +556,15 @@ BOOL_ERR DataBase::loadFromDb(QString table_name, QString table_condition, QSqlQ
             table.id = query->value(0).toString();
             table.CN = query->value(1).toString();
             table.pem = query->value(2).toString();
-            table.key = query->value(3).toString();
-            table.suite = query->value(4).toString();
-            table.serial = query->value(5).toString();
-            table.revoke = query->value(6).toString();
-            table.issuer = query->value(7).toString();
-            table.days_valid = query->value(8).toString();
+            table.L = query->value(3).toString();
+            table.C = query->value(4).toString();
+            table.O = query->value(5).toString();
+            table.key = query->value(6).toString();
+            table.suite = query->value(7).toString();
+            table.serial = query->value(8).toString();
+            table.revoke = query->value(9).toString();
+            table.issuer = query->value(10).toString();
+            table.days_valid = query->value(11).toString();
             query->finish();
             return OK;
         }
@@ -1046,6 +1065,7 @@ BOOL_ERR WorkDir::genCertConfig(DbTable &table, BOOL mod) {
     + QString("[ dn ]") + "\n"
     + QString("CN = " + table.CN) + "\n"
     + QString("emailAddress = " + table.email) + "\n"
+    + QString("L = " + table.L) + "\n"
     + QString("O = " + table.O) + "\n"
     + QString("C = " + table.C) + "\n"
     + QString("# MySensationalOID = Support Department") + "\n";

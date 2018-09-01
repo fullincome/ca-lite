@@ -40,6 +40,7 @@ class DbTable {
 public:
     QString id;
     QString CN;
+    QString L;
     QString O;
     QString C;
     QString email;
