@@ -21,12 +21,13 @@
 #include <QMessageBox>
 #include <QtGlobal>
 
+
+typedef long long BOOL_ERR;
+typedef BOOL_ERR BOOL;
 #define TRUE 1
 #define FALSE 0
-#define FAIL 0
 #define OK 1
-#define BOOL_ERR long long
-#define BOOL BOOL_ERR
+#define FAIL 0
 
 #define CRT_GOST 0
 #define CRT_RSA 1
