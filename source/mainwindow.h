@@ -81,7 +81,7 @@ private slots:
     void on_certTableView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_certTableView_activated(const QModelIndex &index);
 
-
+    void on_installOpensslBtn_clicked();
 
 private:
     Ui::MainWindow *ui_mw;

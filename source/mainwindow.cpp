@@ -79,27 +79,45 @@ void MainWindow::on_openWorkDirBtn_clicked()
 {
     BOOL_ERR rc = FAIL;
     rc = work_dir.initialiseWorkDir();
-    if (!rc) {
+    if (!rc)
+    {
         rc = work_dir.newWorkDir();
-        if (!rc) {
+        if (!rc)
+        {
             messageError(this, "Не удалось инициализировать директорию");
             return;
         }
     }
+
     rc = work_dir.initialiseDatabase();
-    if (!rc) {
+    if (!rc)
+    {
         messageError(this, "Не удалось открыть базу данных:\n" + getLastErrorString());
         return;
     }
+
     rc = work_dir.initialiseConfig();
-    if (!rc) {
+    if (!rc)
+    {
         // пробуем создать сертификат уц
     }
 
-    if (work_dir.config.csptest == "no") {
-        ui_mw->debugCheckContainersBtn->setEnabled(false);
-    } else {
+    if (work_dir.config.csptest == "no")
+    {
+        ui_mw->debugCheckContainersBtn->setDisabled(true);
+    }
+    else
+    {
         ui_mw->debugCheckContainersBtn->setEnabled(true);
+    }
+
+    if (work_dir.config.openssl == "no")
+    {
+        ui_mw->installOpensslBtn->setEnabled(true);
+    }
+    else
+    {
+        ui_mw->installOpensslBtn->setEnabled(true);
     }
 
     checkWorkDir(work_dir);
@@ -755,3 +773,36 @@ void MainWindow::on_certTableView_activated(const QModelIndex &index)
 
 
 
+
+
+
+//------------------------------------------------------
+//-------------УСТАНОВКА OPENSSL-1.1.0------------------
+//------------------------------------------------------
+void MainWindow::on_installOpensslBtn_clicked()
+{
+    Program prog = Program("curl");
+    QStringList files;
+    files << OPENSSL_BASE_DEB
+          << OPENSSL_X64_DEB
+          << OPENSSL_DEVEL_DEB
+          << OPENSSL_GOST_DEB;
+
+    prog.args.push_back(QString(OPENSSL_URL) + QString(OPENSSL_BASE_DEB));
+    prog.args.push_back(QString(OPENSSL_URL) + QString(OPENSSL_X64_DEB));
+    prog.args.push_back(QString(OPENSSL_URL) + QString(OPENSSL_DEVEL_DEB));
+    prog.args.push_back(QString(OPENSSL_URL) + QString(OPENSSL_GOST_DEB));
+
+    prog.run();
+
+    messageDebug("Загрузка openssl: \n\n" + prog.output);
+    if (prog.isError)
+    {
+        messageError(this, "Не удалось загрузить openssl: \n\n" + prog.output);
+        prog.clearResult(files);
+        return;
+    }
+}
+//------------------------------------------------------
+//------------------------------------------------------
+//------------------------------------------------------

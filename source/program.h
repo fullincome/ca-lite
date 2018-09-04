@@ -1,4 +1,4 @@
-#ifndef PROGRAM_H
+﻿#ifndef PROGRAM_H
 #define PROGRAM_H
 
 #include <QString>
@@ -35,6 +35,13 @@
 #define OPENSSL_DIR_PATH "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/"
 #define OPENSSL_CONFIG_PATH "/var/opt/cprocsp/cp-openssl-1.1.0/"
 #define CRYPTOPRO_DIR_PATH "/opt/cprocsp/bin/amd64/"
+
+#define OPENSSL_URL "https://update.cryptopro.ru/support/nginx-gost/bin/180423/"
+#define OPENSSL_X64_DEB "cprocsp-cpopenssl-110-64_5.0.11216-5_amd64.deb"
+#define OPENSSL_BASE_DEB "cprocsp-cpopenssl-110-base_5.0.11216-5_all.deb"
+#define OPENSSL_DEVEL_DEB "cprocsp-cpopenssl-110-devel_5.0.11216-5_all.deb"
+#define OPENSSL_GOST_DEB "cprocsp-cpopenssl-110-gost-64_5.0.11216-5_amd64.deb"
+
 #else
 #ifdef Q_OS_WIN32
 #define OPENSSL_DIR_PATH "c:\OpenSSL-Win32\bin\openssl.exe???"
@@ -81,6 +88,7 @@ class Program {
 public:
     Program(QString prog_name, QString mod, QString work_path);
     Program(QString prog_name, QString mod);
+    Program(QString prog_name);
     Program();
     QString ca_cert_filename = "ca_cert.cer";
     QString csr_filename = "csr.csr";

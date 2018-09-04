@@ -11,8 +11,10 @@ QString getLastErrorString() {
 }
 
 Program::Program () {}
-Program::Program (QString prog_name, QString mod, QString work_path) {
-    if (prog_name == "openssl") {
+Program::Program (QString prog_name, QString mod, QString work_path)
+{
+    if (prog_name == "openssl")
+    {
         program_path = OPENSSL_DIR_PATH;
         program_name = "openssl";
         this->work_path = work_path;
@@ -39,9 +41,18 @@ Program::Program (QString prog_name, QString mod, QString work_path) {
         } else if (mod == "revoke_cert") {
         }
     }
+    else if (prog_name == "curl")
+    {
+#if defined(Q_OS_UNIX)
+        program_path = "";
+        program_name = "wget";
+#endif
+        this->work_path = work_path;
+    }
 }
 
-Program::Program (QString prog_name, QString mod) {
+Program::Program (QString prog_name, QString mod)
+{
     if (prog_name == "openssl") {
         program_path = "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/";
         program_name = "openssl";
@@ -69,6 +80,25 @@ Program::Program (QString prog_name, QString mod) {
             this->mod = "signing_cert";
         } else if (mod == "revoke_cert") {
         }
+    }
+    else if (prog_name == "curl")
+    {
+#if defined(Q_OS_UNIX)
+        program_path = "";
+        program_name = "wget";
+#endif
+        this->work_path = work_path;
+    }
+}
+
+Program::Program (QString prog_name)
+{
+    if (prog_name == "curl")
+    {
+#if defined(Q_OS_UNIX)
+        program_path = "";
+        program_name = "wget";
+#endif
     }
 }
 

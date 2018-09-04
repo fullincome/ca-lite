@@ -934,7 +934,7 @@ Config WorkDir::loadConfig(QString file_name)
         if (term == "openssl")
         {
             config.openssl = define;
-            if (!QFile::exists(config.openssl))
+            if (!checkOpenssl())
             {
                 setErrorString("Не найден файл: " + config.openssl);
                 config.isOk = false;
@@ -1198,5 +1198,17 @@ BOOL_ERR WorkDir::delCertConfigFile()
 {
     Program::removeFile(files.cert_config);
     return OK;
+}
+
+BOOL_ERR WorkDir::checkOpenssl()
+{
+    if (QFile::exists(config.openssl))
+    {
+        return OK;
+    }
+    else
+    {
+        return FAIL;
+    }
 }
 

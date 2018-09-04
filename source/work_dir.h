@@ -156,6 +156,7 @@ public:
     BOOL_ERR genCertConfig(DbTable &table, BOOL mod);
     BOOL_ERR saveCertConfigToFile(DbTable table);
     BOOL_ERR delCertConfigFile();
+    BOOL_ERR checkOpenssl();
 };
 
 

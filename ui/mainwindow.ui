@@ -331,6 +331,19 @@
       <string>Файл конфигурации</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="installOpensslBtn">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>110</y>
+       <width>171</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Скачать openssl-1.1.0</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
