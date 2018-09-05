@@ -938,6 +938,7 @@ Config WorkDir::loadConfig(QString file_name)
             {
                 setErrorString("Не найден файл: " + config.openssl);
                 config.isOk = false;
+                config.openssl = "no";
                 break;
             }
         }

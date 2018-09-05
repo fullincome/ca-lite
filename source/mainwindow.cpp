@@ -130,7 +130,7 @@ void MainWindow::on_openWorkDirBtn_clicked()
     }
     else
     {
-        ui_mw->installOpensslBtn->setEnabled(true);
+        ui_mw->installOpensslBtn->setDisabled(true);
     }
 
     checkWorkDir(work_dir);
@@ -864,6 +864,7 @@ void MainWindow::on_certTableView_activated(const QModelIndex &index)
 //------------------------------------------------------
 void MainWindow::on_installOpensslBtn_clicked()
 {
+    // Download openssl pkgs
     Program prog = Program("curl");
     QStringList files;
     files << OPENSSL_BASE_DEB
@@ -885,6 +886,27 @@ void MainWindow::on_installOpensslBtn_clicked()
         prog.clearResult(files);
         return;
     }
+
+    // Install openssl pkgs
+    QString password = QInputDialog::getText(this, "Запрос root прав", "Введите пароль root:");
+    prog = Program("install", password);
+    prog.args.last() += QString(OPENSSL_BASE_DEB) + " ";
+    prog.args.last() += QString(OPENSSL_X64_DEB) + " ";
+    prog.args.last() += QString(OPENSSL_DEVEL_DEB) + " ";
+    prog.args.last() += QString(OPENSSL_GOST_DEB);
+
+    prog.run();
+
+    messageDebugUpdate("Установка openssl: \n\n" + prog.output);
+    if (prog.isError)
+    {
+        messageError(this, "Не удалось установить openssl: \n\n" + prog.output);
+        prog.clearResult(files);
+        return;
+    }
+
+    prog.clearResult(files);
+    on_openWorkDirBtn_clicked();
 }
 //------------------------------------------------------
 //------------------------------------------------------

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QWidget>
+#include <QInputDialog>
 #include "program.h"
 #include "dialog.h"
 #include "cert_params.h"

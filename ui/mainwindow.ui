@@ -334,14 +334,14 @@
     <widget class="QPushButton" name="installOpensslBtn">
      <property name="geometry">
       <rect>
-       <x>240</x>
+       <x>230</x>
        <y>110</y>
-       <width>171</width>
-       <height>25</height>
+       <width>190</width>
+       <height>35</height>
       </rect>
      </property>
      <property name="text">
-      <string>Скачать openssl-1.1.0</string>
+      <string>Установить openssl-1.1.0</string>
      </property>
     </widget>
    </widget>

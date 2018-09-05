@@ -114,7 +114,7 @@ public:
     QString suite;
     int isError;
     QString output;
-    void run();
+    BOOL_ERR run();
     void clearResult(QStringList file_to_delete);
     void clearResult();
     static void removeFile(QString file);

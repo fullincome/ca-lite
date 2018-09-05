@@ -106,6 +106,15 @@ Program::Program (QString prog_name, QString mod)
 #endif
         this->work_path = work_path;
     }
+    else if (prog_name == "install")
+    {
+#if defined(Q_OS_UNIX)
+        program_path = "";
+        program_name = "bash";
+        args.push_back("-c");
+        args.push_back("echo '" + mod + "' | sudo --user=root -S dpkg -i ");
+#endif
+    }
 }
 
 Program::Program (QString prog_name)
@@ -119,16 +128,29 @@ Program::Program (QString prog_name)
     }
 }
 
-void Program::run()
+BOOL_ERR Program::run()
 {
+   isError = 0;
    QProcess *proc = new QProcess();
    proc->setEnvironment(QString("OPENSSL_CONF=" + work_path + "openssl.cnf").split(" "));
    proc->start(program_path + program_name, args);
-   proc->waitForReadyRead();
+   if (!proc->waitForStarted())
+   {
+       //return FAIL;
+   }
+   if (!proc->waitForFinished())
+   {
+       //return FAIL;
+   }
    isError = proc->exitCode();
    output = QString(program_path + program_name + " " + args.join(" ") + ": " + "\n\n");
    //output += QString(proc->readAll());
-   output += QString(proc->readAllStandardOutput()) + QString(proc->readAllStandardError());
+   output += QString("\nAllStandardOutput:\n") + QString(proc->readAllStandardOutput());
+   output += QString("\nAllStandardError:\n") +QString(proc->readAllStandardError());
+   if (isError)
+   {
+       output += "\nProcess error:\n" + proc->errorString() + "\n";
+   }
 }
 
 void Program::removeFile(QString file_name)
