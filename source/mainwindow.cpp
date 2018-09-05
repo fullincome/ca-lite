@@ -16,16 +16,23 @@ MainWindow::~MainWindow()
     delete ui_mw;
 }
 
-bool MainWindow::initialize() {
+bool MainWindow::initialize()
+{
     QStringList args = QCoreApplication::arguments();
-    if (args.count() > 1 && args[1] == "-q") {
+    if (args.count() > 1 && args[1] == "-q")
+    {
         setWMod(TERMINAL_MOD);
-    } else {
+    }
+    else
+    {
         setWMod(WINDOW_MOD);
     }
-    if (getWMod() == WINDOW_MOD) {
+
+    if (getWMod() == WINDOW_MOD)
+    {
         initWindow();
-        if (isRelease) {
+        if (isRelease)
+        {
             ui_mw->debugLogEdit->close();
             ui_mw->debugLogLabel->close();
             ui_mw->debugCheckContainersBtn->close();
@@ -34,10 +41,12 @@ bool MainWindow::initialize() {
     }
     return 0;
 }
-int MainWindow::getWMod() {
+int MainWindow::getWMod()
+{
     return w_mod;
 }
-bool MainWindow::setWMod(int mod) {
+bool MainWindow::setWMod(int mod)
+{
     w_mod = mod;
     return OK;
 }
@@ -47,6 +56,7 @@ bool MainWindow::setWMod(int mod) {
 //-----------ЗАГРУЗКА РАБОЧЕЙ ДИРЕКТОРИИ----------------
 //------------И СОЗДАНИЕ СЕРТИФИКАТА УЦ-----------------
 //------------------------------------------------------
+
 // Кнопка: Создать сертификат УЦ
 void MainWindow::on_creatCaCertBtn_clicked()
 {
@@ -58,6 +68,7 @@ void MainWindow::on_creatCaCertBtn_clicked()
     certParams.initialise("ca");
     certParams.exec();
 }
+
 // Кнопка: Править файл конфигурации
 void MainWindow::on_editConfigBtn_clicked()
 {
@@ -66,13 +77,15 @@ void MainWindow::on_editConfigBtn_clicked()
     connect(this, SIGNAL(sendData(QString)), &db_dialog, SLOT(getData(QString)));
     db_dialog.setDialogMod("set_config", work_dir.work_path);
     QString config_data = work_dir.config.readAllFromConfigFile(work_dir.config.name);
-    if (config_data == "error") {
+    if (config_data == "error")
+    {
         messageError(this, "Не обнаружен файл конфигурации");
     } else {
         emit sendData(config_data);
         db_dialog.exec();
     }
 }
+
 // Кнопка: Создать или открыть рабочую директорию
 // Выбран путь инициализации ТЕКУЩЕЙ ДИРЕКТОРИИ
 void MainWindow::on_openWorkDirBtn_clicked()
@@ -122,8 +135,10 @@ void MainWindow::on_openWorkDirBtn_clicked()
 
     checkWorkDir(work_dir);
 }
+
 // Проверить рабочую директорию
-void MainWindow::checkWorkDir(WorkDir work_dir) {
+void MainWindow::checkWorkDir(WorkDir work_dir)
+{
     BOOL_ERR rc = FAIL;
     if (work_dir.isOk && work_dir.config.isOk && work_dir.data_base.isOk)
     {
@@ -162,11 +177,16 @@ void MainWindow::checkWorkDir(WorkDir work_dir) {
             ui_mw->creatCaCertBtn->setEnabled(true);
             if (isDebug) ui_mw->debugCheckContainersBtn->setEnabled(true);
         }
-        if (!work_dir.isOk) {
+        if (!work_dir.isOk)
+        {
             messageError(this, tr("Ошибка в инициализации work_dir"));
-        } else if (!work_dir.config.isOk) {
+        }
+        else if (!work_dir.config.isOk)
+        {
             messageWarning(this, tr("Требуется настройка файла конфигурации или генерация сертификата УЦ"));
-        } else {
+        }
+        else
+        {
             messageError(this, tr("Ошибка в инициализации data_base"));
         }
     }
@@ -185,6 +205,7 @@ void MainWindow::checkWorkDir(WorkDir work_dir) {
 //-------------------СОЗДАНИЕ CSR-----------------------
 //-----------И ПОДПИСЬ CSR СЕРТИФИКАТОМ УЦ--------------
 //------------------------------------------------------
+
 //Кнопка: Создать CSR
 void MainWindow::on_creatCsrBtn_clicked()
 {
@@ -245,7 +266,8 @@ void MainWindow::on_signCsrBtn_clicked()
     work_dir.delCertConfigFile();
     //--------------------------------------------------
     messageDebug(prog.output);
-    if (!prog.isError) {
+    if (!prog.isError)
+    {
         table_cert.table_name = "cert";
         table_cert.pem = table_cert.getPemFromFile(prog.file_out);
         table_cert.serial = table_cert.getSerialFromCert(prog.file_out);
@@ -256,7 +278,9 @@ void MainWindow::on_signCsrBtn_clicked()
             messageError(this, getLastErrorString());
         }
         updateView(work_dir.data_base);
-    } else {
+    }
+    else
+    {
         messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
     }
     prog.clearResult();
@@ -299,7 +323,8 @@ void MainWindow::on_revokeCertBtn_clicked()
     prog.args += QString("-keyfile c:" + work_dir.ca_cert.key + " -out " + prog.file_out).split(" ");
     prog.run();
     messageDebug(prog.output);
-    if (!prog.isError) {
+    if (!prog.isError)
+    {
         table_cert.table_name = "cert";
         table_cert.revoke = "revoked";
         table_cert.pem = table_cert.getPemFromFile(prog.file_out);
@@ -308,7 +333,9 @@ void MainWindow::on_revokeCertBtn_clicked()
         work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
         updateView(work_dir.data_base);
         ui_mw->revokeCertBtn->setVisible(false);
-    } else {
+    }
+    else
+    {
         messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
     }
     prog.clearResult();
@@ -325,9 +352,12 @@ void MainWindow::on_creatCrlBtn_clicked()
     prog.args += QString("-out " + prog.file_out).split(" ");
     prog.run();
     messageDebug(prog.output);
-    if (!prog.isError) {
+    if (!prog.isError)
+    {
         messageSuccess(this, prog.output);
-    } else {
+    }
+    else
+    {
         messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
     }
     prog.clearResult();
@@ -352,15 +382,21 @@ void MainWindow::on_exportBtn_clicked()
 {
     QString CN;
     setSelectedName("cn", CN, ui_mw->certTableView);
-    if (!CN.isEmpty()) {
+    if (!CN.isEmpty())
+    {
         work_dir.exportCert(CN, work_dir.work_path + work_dir.files.export_cert_file);
         if (CN != work_dir.data_base.table.getCNFromCert(work_dir.work_path + work_dir.files.export_cert_file) &&
-            CN != work_dir.data_base.table.getCNFromCsr(work_dir.work_path + work_dir.files.export_cert_file)) {
+            CN != work_dir.data_base.table.getCNFromCsr(work_dir.work_path + work_dir.files.export_cert_file))
+        {
             messageError(this, "Не удалось экспортировать сертификат");
-        } else {
+        }
+        else
+        {
             messageSuccess(this, "Сертификат экспортирован: \n\n" + work_dir.work_path + work_dir.files.export_cert_file);
         }
-    } else {
+    }
+    else
+    {
         messageWarning(this, "Выберете сертификат для экспорта");
     }
 }
@@ -373,11 +409,15 @@ void MainWindow::on_importBtn_clicked()
     connect(&db_dialog, SIGNAL(sendData(QString)), this, SLOT(getData(QString)));
     db_dialog.setDialogMod("import_cert", work_dir.work_path);
     db_dialog.exec();
-    if (!program.file_in.isEmpty()) {
+    if (!program.file_in.isEmpty())
+    {
         table = work_dir.importCert(program.file_in);
-        if (!table.isOk) {
+        if (!table.isOk)
+        {
             messageError(this, "Сертификат не импортирован: \n\n" + work_dir.data_base.table.status);
-        } else {
+        }
+        else
+        {
             work_dir.data_base.table = table;
             updateView(work_dir.data_base);
             messageSuccess(this, "Сертификат импортирован");
@@ -388,7 +428,8 @@ void MainWindow::on_importBtn_clicked()
 void MainWindow::on_debugCheckContainersBtn_clicked()
 {
     QStringList conts = work_dir.checkContainers();
-    if (conts.size() > 0) {
+    if (conts.size() > 0)
+    {
         messageDebug((conts.join("\n")));
     }
 }
@@ -404,18 +445,22 @@ void MainWindow::on_debugCheckContainersBtn_clicked()
 //------------------------------------------------------
 //------------ГЕНЕРАЦИЯ СЕРТИФИКАТОВ,-------------------
 //-------------ПРОВЕРКА И СОХРАНЕНИЕ--------------------
+
 // Сохранение в бд
 // TODO рассмотреть фозможность query().lastQuery()
-void MainWindow::updateView(DataBase data_base) {
+void MainWindow::updateView(DataBase data_base)
+{
     DbTable table = data_base.table;
     QSqlQuery *query = data_base.query;
     QSqlQueryModel *model_cert = new QSqlQueryModel();
     QSqlQueryModel *model_crl = new QSqlQueryModel();
     QSortFilterProxyModel *sqlproxy_model_cert = new QSortFilterProxyModel();
     //model_csr->
-    if (table.table_name == "cert" || table.table_name == "csr") {
+    if (table.table_name == "cert" || table.table_name == "csr")
+    {
         query->prepare("SELECT CN, pem, serial, revoke, issuer, days_valid FROM cert");
-        if (query->exec()) {
+        if (query->exec())
+        {
             model_cert->setQuery(*query);
             // прокси модель - в данном случае обертка для sqlQueryModel,
             // нужна, т.к. поддерживает сортировку
@@ -426,11 +471,14 @@ void MainWindow::updateView(DataBase data_base) {
             ui_mw->certTableView->setSelectionMode(QAbstractItemView::SingleSelection);
             ui_mw->certTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
             ui_mw->certTableView->setSortingEnabled(true);
-        } else {
+        }
+        else
+        {
             messageDebugUpdate("\n\n CAN NOT SELECT");
         }
     }
-    if (table.table_name == "crl") {
+    if (table.table_name == "crl")
+    {
 //        query->prepare("SELECT CN FROM crl");
 //        if (query->exec()) {
 //            model_crl->setQuery(*query);
@@ -441,16 +489,19 @@ void MainWindow::updateView(DataBase data_base) {
     }
 }
 // Подготовка к сохранению в бд, выполняет проверки полей
-BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table) {
+BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
+{
     QStringList file_to_delete;
     // работаем с фалом csr/cert
 
-    if (prog.mod == "ca") {
+    if (prog.mod == "ca")
+    {
         if (table.CN == "need") table.getCNFromCert(prog.file_out);
         if (table.subj == "need");
         if (table.suite == "need");
         if (table.table_name == "need");
-        if (table.serial == "need") {
+        if (table.serial == "need")
+        {
             table.serial = table.getSerialFromFile(work_dir.work_path + work_dir.files.srl_ca_cert_file);
             file_to_delete << work_dir.work_path + prog.srl_ca_cert_filename;
         }
@@ -458,12 +509,14 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table) {
         if (table.revoke == "need");
         if (table.issuer == "need");
         if (table.condition == "need");
-        if (table.suite == "gost" ) {
-            if (table.key == "need") ;
+        if (table.suite == "gost" )
+        {
+            if (table.key == "need");
         }
         if (table.days_valid == "need");
         QStringList errorField = table.checkErrorFields();
-        if (!errorField.isEmpty()) {
+        if (!errorField.isEmpty())
+        {
             QString message = "Ошибки в полях: \n" + errorField.join("\n");
             messageError(this, message);
             return FAIL;
@@ -472,19 +525,24 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table) {
         work_dir.config.CAkey = prog.key_in;
         work_dir.saveConfig(work_dir.config);
         work_dir.config = work_dir.loadConfig(work_dir.config.name);
-        if (work_dir.config.isOk) {
+        if (work_dir.config.isOk)
+        {
             work_dir.isOk = true;
         }
     }
-    if (prog.mod == "cert" || prog.mod == "csr") {
-        if (table.CN == "need") {
+
+    if (prog.mod == "cert" || prog.mod == "csr")
+    {
+        if (table.CN == "need")
+        {
             table.CN = table.getCNFromCsr(prog.file_out);
             if (table.CN == "error") table.CN = table.getCNFromCert(prog.file_out);
         }
         if (table.subj == "need");
         if (table.suite == "need");
         if (table.table_name == "need");
-        if (table.serial == "need") {
+        if (table.serial == "need")
+        {
             table.serial = table.getSerialFromFile(work_dir.work_path + prog.srl_ca_cert_filename);
             file_to_delete << work_dir.work_path + prog.srl_ca_cert_filename;
         }
@@ -492,12 +550,14 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table) {
         if (table.revoke == "need");
         if (table.issuer == "need");
         if (table.condition == "need");
-        if (table.suite == "gost" ) {
+        if (table.suite == "gost" )
+        {
             if (table.key == "need") ;
         }
         if (table.days_valid == "need");
         QStringList errorField = table.checkErrorFields();
-        if (!errorField.isEmpty()) {
+        if (!errorField.isEmpty())
+        {
             QString message = "Ошибки в полях: \n" + errorField.join("\n");
             messageError(this, message);
             return FAIL;
@@ -522,8 +582,10 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table) {
     work_dir.data_base.table = table;
     return OK;
 }
+
 // Основная функция генерации сертификатов
-BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
+BOOL_ERR MainWindow::generateCert(Program prog, DbTable table)
+{
     BOOL_ERR rc = FAIL;
     if (table.table_name == "ca")
     {
@@ -539,7 +601,8 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
     work_dir.delCertConfigFile();
     messageDebug(prog.output);
 
-    if (prog.mod == "cert" || prog.mod == "csr") {
+    if (prog.mod == "cert" || prog.mod == "csr")
+    {
         if (prog.isError)
         {
             messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
@@ -563,8 +626,10 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
         }
     }
 
-    if (prog.mod == "ca") {
-        if (prog.isError) {
+    if (prog.mod == "ca")
+    {
+        if (prog.isError)
+        {
             messageWarning(this, "Результат выполениния программы: \n\n" + prog.output);
         }
         rc = prepareSaveToDb(prog, table);
@@ -576,7 +641,8 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
         }
         else
         {
-            if (!work_dir.isOk) {
+            if (!work_dir.isOk)
+            {
                 messageError(this, "Config is wrong");
                 return FAIL;
             }
@@ -593,7 +659,6 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
             }
         }
     }
-
 }
 //------------------------------------------------------
 //------------------------------------------------------
@@ -610,11 +675,13 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table) {
 //--------------ВЫВОД И ПЕЧАТЬ СООБЩЕНИЙ----------------
 //------------------------------------------------------
 // Вывод на дебагавое окно, затирает текущей текст
-void MainWindow::messageDebug(QString message) {
+void MainWindow::messageDebug(QString message)
+{
     if (isDebug) ui_mw->debugLogEdit->setPlainText(message);
 }
 // Вывод на дебаговое окно, конкатенация
-void MainWindow::messageDebugUpdate(QString messageUpdate) {
+void MainWindow::messageDebugUpdate(QString messageUpdate)
+{
     if (isDebug) ui_mw->debugLogEdit->setPlainText( ui_mw->debugLogEdit->toPlainText() + messageUpdate);
 }
 // Сообщение об ошибке
@@ -645,7 +712,8 @@ void MainWindow::messageSuccess(QWidget *window, QString message)
 //---------ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ И СЛОТЫ--------------
 //------------------------------------------------------
 // Настройки окна при инициализации
-void MainWindow::initWindow() {
+void MainWindow::initWindow()
+{
     ui_mw->openWorkDirBtn->setDisabled(true);
     ui_mw->openWorkDirBtn->close();
     disableBtn();
@@ -655,20 +723,28 @@ void MainWindow::initWindow() {
     ui_mw->revokeCertBtn->setVisible(false);
 }
 // Слот, принимающий конфиг
-void MainWindow::saveConfig(QString data) {
-    if (work_dir.config.writeToConfigFile(work_dir.config.name, data) == "error") {
+void MainWindow::saveConfig(QString data)
+{
+    if (work_dir.config.writeToConfigFile(work_dir.config.name, data) == "error")
+    {
         messageError(this, "Не удалось записать в файл конфигурации");
-    } else {
+    }
+    else
+    {
         on_openWorkDirBtn_clicked();
     }
 }
 // Проверяем поля из ca_cert (csr) и пробуем генерировать сертификат
-void MainWindow::checkCertParam(DbTable table) {
+void MainWindow::checkCertParam(DbTable table)
+{
     Program prog;
     QStringList args_cur;
-    if (table.table_name == "ca") {
+    if (table.table_name == "ca")
+    {
         prog = Program("openssl", "ca", work_dir.work_path);
-    } else {
+    }
+    else
+    {
         prog = Program("openssl", "csr", work_dir.work_path);
     }
 
@@ -700,11 +776,13 @@ void MainWindow::checkCertParam(DbTable table) {
     emit closeCertParam("ok");
 }
 // Слот, принимающие данные от сигналов
-void MainWindow::getData(QString data) {
+void MainWindow::getData(QString data)
+{
     program.file_in = data;
 }
 // Получение данных поля по выбранному в таблице сертификату
-void MainWindow::setSelectedName(QString field, QString &select_name, QTableView *table_view) {
+void MainWindow::setSelectedName(QString field, QString &select_name, QTableView *table_view)
+{
     const QModelIndex &index = table_view->selectionModel()->currentIndex();
     //QString selectedData = table_view->model()->data(index).toString();
     //select_name = table_view->model()->data(index, 0).toString();
@@ -718,7 +796,8 @@ void MainWindow::setSelectedName(QString field, QString &select_name, QTableView
     }
 }
 // Отключение всех кнопок
-void MainWindow::disableBtn() {
+void MainWindow::disableBtn()
+{
     ui_mw->creatCaCertBtn->setEnabled(false);
     ui_mw->creatCsrBtn->setEnabled(false);
     ui_mw->creatCrlBtn->setEnabled(false);
@@ -729,7 +808,8 @@ void MainWindow::disableBtn() {
     ui_mw->exportBtn->setEnabled(false);
 }
 //Включение всех кнопок
-void MainWindow::enableBtn() {
+void MainWindow::enableBtn()
+{
     ui_mw->creatCaCertBtn->setEnabled(true);
     ui_mw->creatCsrBtn->setEnabled(true);
     ui_mw->creatCrlBtn->setEnabled(true);
@@ -740,8 +820,10 @@ void MainWindow::enableBtn() {
     ui_mw->exportBtn->setEnabled(true);
 }
 // Реакция на выбор нескольких строк
-void MainWindow::on_certTableView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) {
-    if (selected.indexes().count() == 6) {
+void MainWindow::on_certTableView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    if (selected.indexes().count() == 6)
+    {
         QString CN = selected.indexes()[0].data().toString();
         QString pem = selected.indexes()[1].data().toString();
         QString serial = selected.indexes()[2].data().toString();
@@ -754,7 +836,8 @@ void MainWindow::on_certTableView_selectionChanged(const QItemSelection &selecte
         else ui_mw->signCsrBtn->setVisible(false);
         if (revoked == "no" && issuer != "no") ui_mw->revokeCertBtn->setVisible(true);
         else ui_mw->revokeCertBtn->setVisible(false);
-        if (issuer != "no" && issuer != work_dir.ca_cert.CN) {
+        if (issuer != "no" && issuer != work_dir.ca_cert.CN)
+        {
             ui_mw->revokeCertBtn->setVisible(false);
             ui_mw->revokeCertBtn->setVisible(false);
         }

@@ -35,9 +35,11 @@ CertParams::~CertParams()
 //------------------СОЗДАНИЕ CSR------------------------
 //------------------------------------------------------
 //Инициализация детерменированных параметров
-void CertParams::initialise(QString table_name) {
+void CertParams::initialise(QString table_name)
+{
     table.table_name = table_name;
-    for (int i = 0; i < conts_info.size(); ++i) {
+    for (int i = 0; i < conts_info.size(); ++i)
+    {
         ui_cp->containersBox->addItem(conts_info[i]);
     }
     ui_cp->basicConstraintsContBox->addItems(
@@ -147,7 +149,8 @@ void CertParams::on_cancelBtn_clicked()
 //---------------СЛОТЫ ПРИЕМА ДАННЫХ--------------------
 //------------------------------------------------------
 //Прием work_dir
-void CertParams::getData(QStringList conts_info) {
+void CertParams::getData(QStringList conts_info)
+{
     this->conts_info = conts_info;
 }
 void CertParams::closeWindow(QString rc)
@@ -170,11 +173,13 @@ void CertParams::closeWindow(QString rc)
 //Блокировка на ввод пустого текста
 void CertParams::on_nameCertEdit_textChanged()
 {
-    if (ui_cp->nameCertEdit->toPlainText().size() > 0) {
+    if (ui_cp->nameCertEdit->toPlainText().size() > 0)
+    {
         ui_cp->nameCertLabel->setStyleSheet("color: rgb(0,150,0)");
         ui_cp->creatBtn->setEnabled(true);
     }
-    else {
+    else
+    {
         ui_cp->nameCertLabel->setStyleSheet("color: rgb(230,0,0)");
         ui_cp->creatBtn->setDisabled(true);
     }
@@ -182,11 +187,13 @@ void CertParams::on_nameCertEdit_textChanged()
 //Блокировка на ввод пустого текста
 void CertParams::on_keycontCertEdit_textChanged()
 {
-    if (ui_cp->keycontCertEdit->toPlainText().size() > 0) {
+    if (ui_cp->keycontCertEdit->toPlainText().size() > 0)
+    {
         ui_cp->keycontCertLabel->setStyleSheet("color: rgb(0,150,0)");
         ui_cp->creatBtn->setEnabled(true);
     }
-    else {
+    else
+    {
         ui_cp->keycontCertLabel->setStyleSheet("color: rgb(230,0,0)");
         ui_cp->creatBtn->setDisabled(true);
     }
@@ -195,10 +202,13 @@ void CertParams::on_keycontCertEdit_textChanged()
 void CertParams::on_containersBox_currentIndexChanged(const QString &arg1)
 {
     QRegExp regexp("Name: (\\w+) \\(len = \\d+\\)");
-    if (regexp.indexIn(arg1, 0) == -1) {
+    if (regexp.indexIn(arg1, 0) == -1)
+    {
         //ui_mw->debugLogEdit->setPlainText(ui_mw->debugLogEdit->toPlainText() + prog.output
         //                                    + "\n В " + prog.file_out + " не удалось определить CN");
-    } else {
+    }
+    else
+    {
         ui_cp->keycontCertEdit->setPlainText(regexp.cap(1));
     }
 }
@@ -220,7 +230,7 @@ void CertParams::on_basicConstraintsContBox_activated(const QString &arg1)
 void CertParams::on_authorityKeyIdentifierContBox_activated(const QString &arg1)
 {
     if (ui_cp->authorityKeyIdentifierEdit->isEnabled())
-        {
+    {
         if (ui_cp->authorityKeyIdentifierEdit->toPlainText().isEmpty())
         {
             ui_cp->authorityKeyIdentifierEdit->setPlainText(arg1);

@@ -54,13 +54,16 @@ typedef BOOL_ERR BOOL;
 extern class ErrorStr {
     QStack<QString> stack;
 public:
-    bool empty() {
+    bool empty()
+    {
         return stack.empty();
     }
-    void setError(QString str) {
+    void setError(QString str)
+    {
         stack.push_back(str);
     }
-    QString getLastError() {
+    QString getLastError()
+    {
         if (empty())
         {
             return "getLastErrorString() is empty";
