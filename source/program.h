@@ -105,8 +105,6 @@ public:
     QString program_path;
     QString program_name;
     QString work_path;
-    QString file_in;
-    QString file_out;
     QString key_in;
     QString key_out;
     QStringList args;

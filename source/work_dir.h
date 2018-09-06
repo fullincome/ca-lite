@@ -108,27 +108,53 @@ public:
 
 class WorkDirFiles {
 public:
-    QString ca_cert_file = "ca_cert.cer";
-    QString srl_ca_cert_file = "ca_cert.srl";
-    QString key_ca_cert_file = "ca_cert.key";
+    QString ca_cert_file;
+    QString srl_ca_cert_file;
+    QString key_ca_cert_file;
 
-    QString export_cert_file = "export_cert.cer";
-    QString import_cert_file = "import_cert.cer";
+    QString export_cert_file;
+    QString import_cert_file;
 
-    QString csr_file = "csr.csr";
-    QString cert_file = "cert.cer";
-    QString signing_file = "signing_cert.cer";
+    QString csr_file;
+    QString cert_file;
+    QString signing_file;
 
-    QString key_csr_file = "csr.key";
-    QString key_signing_file = "signing_cert.key";
-    QString key_cert_file = "signing_cert.key";
+    QString key_csr_file;
+    QString key_signing_file;
+    QString key_cert_file;
 
-    QString config_file = "config";
-    QString openssl_config = "openssl_calite.cnf";
-    QString cert_config = "openssl_cert.cnf";
+    QString config_file;
+    QString openssl_config;
+    QString cert_config;
 
-    QString crlnumber = "crlnumber";
-    QString index = "index.txt";
+    QString crl;
+    QString crlnumber;
+    QString index;
+    WorkDirFiles()
+    {
+        ca_cert_file = "ca_cert.cer";
+        srl_ca_cert_file = "ca_cert.srl";
+        key_ca_cert_file = "ca_cert.key";
+
+        export_cert_file = "export_cert.cer";
+        import_cert_file = "import_cert.cer";
+
+        csr_file = "csr.csr";
+        cert_file = "cert.cer";
+        signing_file = "signing_cert.cer";
+
+        key_csr_file = "csr.key";
+        key_signing_file = "signing_cert.key";
+        key_cert_file = "signing_cert.key";
+
+        config_file = "config";
+        openssl_config = "openssl_calite.cnf";
+        cert_config = "openssl_cert.cnf";
+
+        crl = "crl";
+        crlnumber = "crlnumber";
+        index = "index.txt";
+    }
 };
 
 class WorkDir {

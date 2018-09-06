@@ -20,28 +20,22 @@ Program::Program (QString prog_name, QString mod, QString work_path)
         program_path = OPENSSL_DIR_PATH;
         program_name = "openssl";
         this->work_path = work_path;
-        file_in = "no";
-        file_out = "no";
         key_in = "no";
         key_out = "no";
         this->mod = "no";
         args << "version";
         if (mod == "csr")
         {
-            file_out = work_path + csr_filename;
             key_out = work_path + key_csr_filename;
             this->mod = "csr";
         }
         else if (mod == "ca")
         {
-            file_out = work_path + ca_cert_filename;
             key_out = work_path + key_ca_cert_filename;
             this->mod = "ca";
         }
         else if (mod == "signing_cert")
         {
-            file_in = work_path + csr_filename;
-            file_out = work_path + signing_filename;
             key_in = work_path + key_ca_cert_filename;
             key_out = work_path + key_signing_filename;
             this->mod = "signing_cert";
@@ -67,8 +61,6 @@ Program::Program (QString prog_name, QString mod)
         program_path = "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/";
         program_name = "openssl";
         work_path = QCoreApplication::applicationDirPath() + "/";
-        file_in = "no";
-        file_out = "no";
         key_in = "no";
         key_out = "no";
         this->mod = "no";
@@ -76,20 +68,16 @@ Program::Program (QString prog_name, QString mod)
         if (mod == "cert") {};
         if (mod == "csr")
         {
-            file_out = work_path + csr_filename;
             key_out = work_path + key_csr_filename;
             this->mod = "csr";
         }
         else if (mod == "ca")
         {
-            file_out = work_path + ca_cert_filename;
             key_out = work_path + key_ca_cert_filename;
             this->mod = "ca";
         }
         else if (mod == "signing_cert")
         {
-            file_in = work_path + csr_filename;
-            file_out = work_path + signing_filename;
             key_in = work_path + key_ca_cert_filename;
             key_out = work_path + key_signing_filename;
             this->mod = "signing_cert";

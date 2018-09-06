@@ -243,8 +243,6 @@ void MainWindow::on_signCsrBtn_clicked()
     //Заполнение параметров программы
     prog.key_in = work_dir.ca_cert.file_key;
     prog.key_out = table_cert.key;
-    prog.file_in = work_dir.work_path + prog.csr_filename;
-    prog.file_out = work_dir.work_path + prog.cert_filename;
     prog.mod = "cert";
 
     work_dir.genCertConfig(table_cert, SIGN_CSR);
@@ -253,7 +251,7 @@ void MainWindow::on_signCsrBtn_clicked()
     prog.args = QString("x509 -engine gostengy -req -CA " + work_dir.ca_cert.file_name).split(" ");
     prog.args += QString("-CAkeyform ENGINE -CAkey c:" + work_dir.ca_cert.key).split(" ");
     prog.args += QString("-CAserial " + work_dir.files.srl_ca_cert_file).split(" ");
-    prog.args += QString("-in " + prog.file_in + " -out " + prog.file_out).split(" ");
+    prog.args += QString("-in " + work_dir.files.csr_file + " -out " + work_dir.files.cert_file).split(" ");
     prog.args += QString("-days " + table_cert.days_valid).split(" ");
 
     if (DbTable::existExtension(table_cert.cert_extension.config))
@@ -269,8 +267,8 @@ void MainWindow::on_signCsrBtn_clicked()
     if (!prog.isError)
     {
         table_cert.table_name = "cert";
-        table_cert.pem = table_cert.getPemFromFile(prog.file_out);
-        table_cert.serial = table_cert.getSerialFromCert(prog.file_out);
+        table_cert.pem = table_cert.getPemFromFile(work_dir.files.cert_file);
+        table_cert.serial = table_cert.getSerialFromCert(work_dir.files.cert_file);
         table_cert.issuer = table_cert.getCNFromCert(work_dir.ca_cert.file_name);
         rc = work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
         if (rc == FAIL)
@@ -315,20 +313,18 @@ void MainWindow::on_revokeCertBtn_clicked()
     }
     if (table_cert.suite == "gost") prog.suite = "gost";
     //Заполнение параметров программы
-    prog.file_in = work_dir.work_path + prog.cert_filename;
-    prog.file_out = work_dir.work_path + prog.cert_filename;
     prog.key_in = work_dir.ca_cert.key;
-    prog.args = QString("ca -engine gostengy -revoke " + prog.file_in).split(" ");
+    prog.args = QString("ca -engine gostengy -revoke " + work_dir.files.cert_file).split(" ");
     prog.args += QString("-cert " + work_dir.ca_cert.file_name + " -keyform ENGINE").split(" ");
-    prog.args += QString("-keyfile c:" + work_dir.ca_cert.key + " -out " + prog.file_out).split(" ");
+    prog.args += QString("-keyfile c:" + work_dir.ca_cert.key + " -out " + work_dir.files.cert_file).split(" ");
     prog.run();
     messageDebug(prog.output);
     if (!prog.isError)
     {
         table_cert.table_name = "cert";
         table_cert.revoke = "revoked";
-        table_cert.pem = table_cert.getPemFromFile(prog.file_out);
-        table_cert.serial = table_cert.getSerialFromCert(prog.file_out);
+        table_cert.pem = table_cert.getPemFromFile(work_dir.files.cert_file);
+        table_cert.serial = table_cert.getSerialFromCert(work_dir.files.cert_file);
         table_cert.issuer = table_cert.getCNFromCert(work_dir.ca_cert.file_name);
         work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
         updateView(work_dir.data_base);
@@ -344,12 +340,10 @@ void MainWindow::on_revokeCertBtn_clicked()
 void MainWindow::on_creatCrlBtn_clicked()
 {
     Program prog = Program("openssl", "revoke_cert", work_dir.work_path);
-    prog.file_in = work_dir.work_path + prog.ca_cert_filename;
-    prog.file_out = work_dir.work_path + "crl";
     prog.key_in = work_dir.ca_cert.key;
-    prog.args = QString("ca -engine gostengy -gencrl -cert " + prog.file_in).split(" ");
+    prog.args = QString("ca -engine gostengy -gencrl -cert " + work_dir.files.ca_cert_file).split(" ");
     prog.args += QString("-keyform ENGINE -keyfile c:" + prog.key_in).split(" ");
-    prog.args += QString("-out " + prog.file_out).split(" ");
+    prog.args += QString("-out " + work_dir.files.crl).split(" ");
     prog.run();
     messageDebug(prog.output);
     if (!prog.isError)
@@ -403,15 +397,14 @@ void MainWindow::on_exportBtn_clicked()
 // Кнопка: Импорт сертификата
 void MainWindow::on_importBtn_clicked()
 {
-    program.file_in = "";
     DbTable table;
     DbDialog db_dialog;
     connect(&db_dialog, SIGNAL(sendData(QString)), this, SLOT(getData(QString)));
     db_dialog.setDialogMod("import_cert", work_dir.work_path);
     db_dialog.exec();
-    if (!program.file_in.isEmpty())
+    if (!work_dir.files.import_cert_file.isEmpty())
     {
-        table = work_dir.importCert(program.file_in);
+        table = work_dir.importCert(work_dir.files.import_cert_file);
         if (!table.isOk)
         {
             messageError(this, "Сертификат не импортирован: \n\n" + work_dir.data_base.table.status);
@@ -496,16 +489,16 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
 
     if (prog.mod == "ca")
     {
-        if (table.CN == "need") table.getCNFromCert(prog.file_out);
+        if (table.CN == "need") table.getCNFromCert(work_dir.files.ca_cert_file);
         if (table.subj == "need");
         if (table.suite == "need");
         if (table.table_name == "need");
         if (table.serial == "need")
         {
             table.serial = table.getSerialFromFile(work_dir.work_path + work_dir.files.srl_ca_cert_file);
-            file_to_delete << work_dir.work_path + prog.srl_ca_cert_filename;
+            file_to_delete << work_dir.work_path + work_dir.files.srl_ca_cert_file;
         }
-        if (table.pem == "need") table.pem = table.getPemFromFile(prog.file_out);
+        if (table.pem == "need") table.pem = table.getPemFromFile(work_dir.files.srl_ca_cert_file);
         if (table.revoke == "need");
         if (table.issuer == "need");
         if (table.condition == "need");
@@ -521,8 +514,8 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
             messageError(this, message);
             return FAIL;
         }
-        work_dir.config.CAcert = prog.file_out;
-        work_dir.config.CAkey = prog.key_in;
+        work_dir.config.CAcert = work_dir.files.srl_ca_cert_file;
+        work_dir.config.CAkey = table.key;
         work_dir.saveConfig(work_dir.config);
         work_dir.config = work_dir.loadConfig(work_dir.config.name);
         if (work_dir.config.isOk)
@@ -535,18 +528,18 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
     {
         if (table.CN == "need")
         {
-            table.CN = table.getCNFromCsr(prog.file_out);
-            if (table.CN == "error") table.CN = table.getCNFromCert(prog.file_out);
+            table.CN = table.getCNFromCsr(work_dir.files.csr_file);
+            if (table.CN == "error") table.CN = table.getCNFromCert(work_dir.files.csr_file);
         }
         if (table.subj == "need");
         if (table.suite == "need");
         if (table.table_name == "need");
         if (table.serial == "need")
         {
-            table.serial = table.getSerialFromFile(work_dir.work_path + prog.srl_ca_cert_filename);
-            file_to_delete << work_dir.work_path + prog.srl_ca_cert_filename;
+            table.serial = table.getSerialFromFile(work_dir.files.srl_ca_cert_file);
+            file_to_delete << work_dir.files.srl_ca_cert_file;
         }
-        if (table.pem == "need") table.pem = table.getPemFromFile(prog.file_out);
+        if (table.pem == "need") table.pem = table.getPemFromFile(work_dir.files.csr_file);
         if (table.revoke == "need");
         if (table.issuer == "need");
         if (table.condition == "need");
@@ -762,14 +755,14 @@ void MainWindow::checkCertParam(DbTable table)
     {
         args_cur = QString("req -engine gostengy -x509 -keyform ENGINE -key c:" + table.key).split(" ");
         args_cur += QString("-config " + work_dir.files.cert_config).split(" ");
-        args_cur += QString("-out " + prog.file_out + " -days " + table.days_valid).split(" ");
+        args_cur += QString("-out " + work_dir.files.ca_cert_file + " -days " + table.days_valid).split(" ");
     }
     // prepare to generate CSR
     else
     {
         args_cur = QString("req -engine gostengy -new -keyform ENGINE -key c:" + table.key).split(" ");
         args_cur += QString("-config " + work_dir.files.cert_config).split(" ");
-        args_cur += QString("-out " + prog.file_out + " -days " + table.days_valid).split(" ");
+        args_cur += QString("-out " + work_dir.files.csr_file + " -days " + table.days_valid).split(" ");
     }
     prog.args = args_cur;
     generateCert(prog, table);
@@ -778,7 +771,7 @@ void MainWindow::checkCertParam(DbTable table)
 // Слот, принимающие данные от сигналов
 void MainWindow::getData(QString data)
 {
-    program.file_in = data;
+    work_dir.files.import_cert_file = data;
 }
 // Получение данных поля по выбранному в таблице сертификату
 void MainWindow::setSelectedName(QString field, QString &select_name, QTableView *table_view)
