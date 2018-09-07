@@ -77,6 +77,10 @@ void DbDialog::on_creatBtn_clicked()
 //Кнопка: отмена
 void DbDialog::on_cancelBtn_clicked()
 {
+    if (dialog_mod == "import_cert")
+    {
+        emit sendData("");
+    }
     this->close();
 }
 //------------------------------------------------------

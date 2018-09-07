@@ -155,6 +155,7 @@ public:
         crlnumber = "crlnumber";
         index = "index.txt";
     }
+    QStringList getVariableFiles();
 };
 
 class WorkDir {

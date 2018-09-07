@@ -694,6 +694,14 @@ QString Config::readAllFromConfigFile(QString file_name)
     file_config.close();
     return config_data;
 }
+
+QStringList WorkDirFiles::getVariableFiles()
+{
+    return QStringList() << csr_file << cert_file
+                         << signing_file << key_csr_file
+                         << key_signing_file << key_cert_file
+                         << cert_config;
+}
 //------------------------------------------------------
 //--------------------WorkDir---------------------------
 //------------------------------------------------------

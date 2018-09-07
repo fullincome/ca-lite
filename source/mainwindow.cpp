@@ -226,7 +226,7 @@ void MainWindow::on_signCsrBtn_clicked()
     QString csr_CN;
     setSelectedName("cn", csr_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
-    work_dir.exportCert(csr_CN, work_dir.work_path + prog.csr_filename);
+    work_dir.exportCert(csr_CN, work_dir.work_path + work_dir.files.csr_file);
     rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + csr_CN + "'", work_dir.data_base.query, table_cert);
     if (!rc)
     {
@@ -260,6 +260,7 @@ void MainWindow::on_signCsrBtn_clicked()
         prog.args += QString("-extfile " + work_dir.files.cert_config).split(" ");
     }
 
+    prog.files_to_delete = work_dir.files.getVariableFiles();
     prog.run();
     work_dir.delCertConfigFile();
     //--------------------------------------------------
@@ -317,6 +318,7 @@ void MainWindow::on_revokeCertBtn_clicked()
     prog.args = QString("ca -engine gostengy -revoke " + work_dir.files.cert_file).split(" ");
     prog.args += QString("-cert " + work_dir.ca_cert.file_name + " -keyform ENGINE").split(" ");
     prog.args += QString("-keyfile c:" + work_dir.ca_cert.key + " -out " + work_dir.files.cert_file).split(" ");
+    prog.files_to_delete = work_dir.files.getVariableFiles();
     prog.run();
     messageDebug(prog.output);
     if (!prog.isError)
@@ -764,6 +766,7 @@ void MainWindow::checkCertParam(DbTable table)
         args_cur += QString("-config " + work_dir.files.cert_config).split(" ");
         args_cur += QString("-out " + work_dir.files.csr_file + " -days " + table.days_valid).split(" ");
     }
+    prog.files_to_delete = work_dir.files.getVariableFiles();
     prog.args = args_cur;
     generateCert(prog, table);
     emit closeCertParam("ok");
@@ -859,11 +862,10 @@ void MainWindow::on_installOpensslBtn_clicked()
 {
     // Download openssl pkgs
     Program prog = Program("curl");
-    QStringList files;
-    files << OPENSSL_BASE_DEB
-          << OPENSSL_X64_DEB
-          << OPENSSL_DEVEL_DEB
-          << OPENSSL_GOST_DEB;
+    prog.files_to_delete << OPENSSL_BASE_DEB
+                         << OPENSSL_X64_DEB
+                         << OPENSSL_DEVEL_DEB
+                         << OPENSSL_GOST_DEB;
 
     prog.args.push_back(QString(OPENSSL_URL) + QString(OPENSSL_BASE_DEB));
     prog.args.push_back(QString(OPENSSL_URL) + QString(OPENSSL_X64_DEB));
@@ -876,7 +878,7 @@ void MainWindow::on_installOpensslBtn_clicked()
     if (prog.isError)
     {
         messageError(this, "Не удалось загрузить openssl: \n\n" + prog.output);
-        prog.clearResult(files);
+        prog.clearResult();
         return;
     }
 
@@ -894,11 +896,11 @@ void MainWindow::on_installOpensslBtn_clicked()
     if (prog.isError)
     {
         messageError(this, "Не удалось установить openssl: \n\n" + prog.output);
-        prog.clearResult(files);
+        prog.clearResult();
         return;
     }
 
-    prog.clearResult(files);
+    prog.clearResult();
     on_openWorkDirBtn_clicked();
 }
 //------------------------------------------------------

@@ -147,26 +147,23 @@ void Program::removeFile(QString file_name)
     file.remove();
 }
 
-void Program::clearResult(QStringList file_to_delete)
+void Program::clearResult(QStringList files)
 {
-    foreach (QString file, file_to_delete)
+    foreach (QString file, files_to_delete)
     {
         if (QFile::exists(file)) removeFile(file);
     }
-    if (QFile::exists(work_path + csr_filename)) removeFile(work_path + csr_filename);
-    if (QFile::exists(work_path + cert_filename)) removeFile(work_path + csr_filename);
-    if (QFile::exists(work_path + signing_filename)) removeFile(work_path + signing_filename);
-    if (QFile::exists(work_path + key_ca_cert_filename)) removeFile(work_path + key_ca_cert_filename);
-    if (QFile::exists(work_path + key_csr_filename)) removeFile(work_path + key_csr_filename);
-    if (QFile::exists(work_path + key_signing_filename)) removeFile(work_path + key_signing_filename);
+
+    foreach (QString file, files)
+    {
+        if (QFile::exists(file)) removeFile(file);
+    }
 }
 
 void Program::clearResult()
 {
-    if (QFile::exists(work_path + csr_filename)) removeFile(work_path + csr_filename);
-    if (QFile::exists(work_path + cert_filename)) removeFile(work_path + csr_filename);
-    if (QFile::exists(work_path + signing_filename)) removeFile(work_path + signing_filename);
-    if (QFile::exists(work_path + key_ca_cert_filename)) removeFile(work_path + key_ca_cert_filename);
-    if (QFile::exists(work_path + key_csr_filename)) removeFile(work_path + key_csr_filename);
-    if (QFile::exists(work_path + key_signing_filename)) removeFile(work_path + key_signing_filename);
+    foreach (QString file, files_to_delete)
+    {
+        if (QFile::exists(file)) removeFile(file);
+    }
 }

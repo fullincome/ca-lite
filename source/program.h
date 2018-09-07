@@ -94,7 +94,7 @@ public:
     Program(QString prog_name, QString mod);
     Program(QString prog_name);
     Program();
-    QString ca_cert_filename = "ca_cert.cer";
+    QStringList files_to_delete;
     QString csr_filename = "csr.csr";
     QString signing_filename = "signing_cert.cer";
     QString cert_filename = "cert.cer";
@@ -113,7 +113,7 @@ public:
     int isError;
     QString output;
     BOOL_ERR run();
-    void clearResult(QStringList file_to_delete);
+    void clearResult(QStringList files);
     void clearResult();
     static void removeFile(QString file);
 };
