@@ -241,8 +241,6 @@ void MainWindow::on_signCsrBtn_clicked()
     //table_cert.creatSerialToFile(work_dir.files.srl_ca_cert_file);
 
     //Заполнение параметров программы
-    prog.key_in = work_dir.ca_cert.file_key;
-    prog.key_out = table_cert.key;
     prog.mod = "cert";
 
     work_dir.genCertConfig(table_cert, SIGN_CSR);
@@ -306,7 +304,7 @@ void MainWindow::on_revokeCertBtn_clicked()
     QString cert_CN;
     setSelectedName("cn", cert_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
-    work_dir.exportCert(cert_CN, work_dir.work_path + prog.cert_filename);
+    work_dir.exportCert(cert_CN, work_dir.work_path + work_dir.files.cert_file);
     rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + cert_CN + "'", work_dir.data_base.query, table_cert);
     if (!rc)
     {
@@ -314,7 +312,6 @@ void MainWindow::on_revokeCertBtn_clicked()
     }
     if (table_cert.suite == "gost") prog.suite = "gost";
     //Заполнение параметров программы
-    prog.key_in = work_dir.ca_cert.key;
     prog.args = QString("ca -engine gostengy -revoke " + work_dir.files.cert_file).split(" ");
     prog.args += QString("-cert " + work_dir.ca_cert.file_name + " -keyform ENGINE").split(" ");
     prog.args += QString("-keyfile c:" + work_dir.ca_cert.key + " -out " + work_dir.files.cert_file).split(" ");
@@ -342,9 +339,8 @@ void MainWindow::on_revokeCertBtn_clicked()
 void MainWindow::on_creatCrlBtn_clicked()
 {
     Program prog = Program("openssl", "revoke_cert", work_dir.work_path);
-    prog.key_in = work_dir.ca_cert.key;
     prog.args = QString("ca -engine gostengy -gencrl -cert " + work_dir.files.ca_cert_file).split(" ");
-    prog.args += QString("-keyform ENGINE -keyfile c:" + prog.key_in).split(" ");
+    prog.args += QString("-keyform ENGINE -keyfile c:" + work_dir.ca_cert.key).split(" ");
     prog.args += QString("-out " + work_dir.files.crl).split(" ");
     prog.run();
     messageDebug(prog.output);
@@ -742,8 +738,6 @@ void MainWindow::checkCertParam(DbTable table)
     {
         prog = Program("openssl", "csr", work_dir.work_path);
     }
-
-    prog.key_in = table.key;
 
     //RSA MOD
     //args_cur = QString("req -x509 -newkey rsa:2048").split(" ");

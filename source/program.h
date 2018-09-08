@@ -95,18 +95,9 @@ public:
     Program(QString prog_name);
     Program();
     QStringList files_to_delete;
-    QString csr_filename = "csr.csr";
-    QString signing_filename = "signing_cert.cer";
-    QString cert_filename = "cert.cer";
-    QString srl_ca_cert_filename = "ca_cert.srl";
-    QString key_ca_cert_filename = "ca_cert.key";
-    QString key_csr_filename = "csr.key";
-    QString key_signing_filename = "signing_cert.key";
     QString program_path;
     QString program_name;
     QString work_path;
-    QString key_in;
-    QString key_out;
     QStringList args;
     QString mod;
     QString suite;
