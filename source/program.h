@@ -45,9 +45,9 @@ typedef BOOL_ERR BOOL;
 
 #else
 #ifdef Q_OS_WIN32
-#define OPENSSL_DIR_PATH "c:\OpenSSL-Win32\bin\openssl.exe???"
-#define OPENSSL_CONFIG_PATH "c:/openssl.cnf???"
-#define CRYPTOPRO_DIR_PATH "c:/opt/cprocsp/bin/amd64/csptest???"
+#define OPENSSL_DIR_PATH "C:\\OpenSSL-Win32\\bin\\openssl.exe"
+#define OPENSSL_CONFIG_PATH "C:\\OpenSSL-Win32\\bin\\openssl.cfg"
+#define CRYPTOPRO_DIR_PATH "C:\\Program Files\\Crypto Pro\\CSP\\"
 #endif
 #endif
 

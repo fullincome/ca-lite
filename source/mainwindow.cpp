@@ -856,6 +856,7 @@ void MainWindow::on_installOpensslBtn_clicked()
 {
     // Download openssl pkgs
     Program prog = Program("curl");
+#if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
     prog.files_to_delete << OPENSSL_BASE_DEB
                          << OPENSSL_X64_DEB
                          << OPENSSL_DEVEL_DEB
@@ -896,6 +897,9 @@ void MainWindow::on_installOpensslBtn_clicked()
 
     prog.clearResult();
     on_openWorkDirBtn_clicked();
+#else
+    messageError(this, "Windows пока не поддерживается.");
+#endif
 }
 //------------------------------------------------------
 //------------------------------------------------------
