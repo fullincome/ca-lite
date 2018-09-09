@@ -153,10 +153,6 @@ void CertParams::getData(QStringList conts_info)
 {
     this->conts_info = conts_info;
 }
-void CertParams::closeWindow(QString rc)
-{
-    this->close();
-}
 //------------------------------------------------------
 //------------------------------------------------------
 //------------------------------------------------------

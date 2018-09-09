@@ -30,8 +30,6 @@ private slots:
     void on_nameCertEdit_textChanged();
     void on_containersBox_currentIndexChanged(const QString &arg1);
     void getData(QStringList conts_info);
-    void closeWindow(QString rc);
-
     void on_authorityKeyIdentifierContBox_activated(const QString &arg1);
 
     void on_extendedKeyUsageContBox_activated(const QString &arg1);

@@ -546,6 +546,7 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
             if (table.key == "need") ;
         }
         if (table.days_valid == "need");
+
         QStringList errorField = table.checkErrorFields();
         if (!errorField.isEmpty())
         {
@@ -650,6 +651,7 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table)
             }
         }
     }
+    return OK;
 }
 //------------------------------------------------------
 //------------------------------------------------------

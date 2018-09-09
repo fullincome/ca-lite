@@ -126,7 +126,9 @@ BOOL_ERR Program::run()
    if (isError)
    {
        output += "\nProcess error:\n" + proc->errorString() + "\n";
+       return FAIL;
    }
+   return OK;
 }
 
 void Program::removeFile(QString file_name)
