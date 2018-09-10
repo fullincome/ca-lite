@@ -759,32 +759,39 @@ BOOL_ERR WorkDir::newWorkDir()
     file_index.close();
 
     //creat openssl.cnf file
-    QFile::copy(QString(OPENSSL_CONFIG_PATH) + "openssl.cnf", files.openssl_config);
-    QFile file_openssl_config(files.openssl_config);
-    if (!file_openssl_config.open(QIODevice::ReadOnly | QIODevice::Text ))
+    if (checkOpenssl())
     {
-        return FAIL;
-    }
-    QString file_text = file_openssl_config.readAll();
-    file_openssl_config.close();
-    QRegExp regexp_dir(RegexpPatternWorkDir::OpensslConfCADir);
-    int pos = 0;
-    // меняем переменную dir в файле openssl.cnf на текущую work_path
-    if ((pos = regexp_dir.indexIn(file_text, 0)) != -1)
-    {
-        if (!file_openssl_config.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
+        QFile::copy(QString(OPENSSL_CONFIG_PATH) + "openssl.cnf", files.openssl_config);
+        QFile file_openssl_config(files.openssl_config);
+        if (!file_openssl_config.open(QIODevice::ReadOnly | QIODevice::Text ))
         {
             return FAIL;
         }
-        file_text.remove(pos + regexp_dir.cap(1).length(), regexp_dir.cap(2).length());
-        file_text.insert(pos + regexp_dir.cap(1).length(), work_path);
-        file_openssl_config.write(file_text.toLocal8Bit());
+        QString file_text = file_openssl_config.readAll();
+        file_openssl_config.close();
+        QRegExp regexp_dir(RegexpPatternWorkDir::OpensslConfCADir);
+        int pos = 0;
+        // меняем переменную dir в файле openssl.cnf на текущую work_path
+        if ((pos = regexp_dir.indexIn(file_text, 0)) != -1)
+        {
+            if (!file_openssl_config.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
+            {
+                return FAIL;
+            }
+            file_text.remove(pos + regexp_dir.cap(1).length(), regexp_dir.cap(2).length());
+            file_text.insert(pos + regexp_dir.cap(1).length(), work_path);
+            file_openssl_config.write(file_text.toLocal8Bit());
+        }
+        else
+        {
+            return FAIL;
+        }
+        file_openssl_config.close();
     }
     else
     {
         return FAIL;
     }
-    file_openssl_config.close();
 
     //creat config file
     QFile file_config(config.name);
