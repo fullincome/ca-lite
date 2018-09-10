@@ -899,8 +899,20 @@ void MainWindow::on_installOpensslBtn_clicked()
 
     prog.clearResult();
     on_openWorkDirBtn_clicked();
-#else
-    messageError(this, "Windows пока не поддерживается.");
+#elif defined(Q_OS_WIN)
+    prog.files_to_delete << OPENSSL_X64_EXE;
+    prog.args.push_back(QString(OPENSSL_URL) + QString(OPENSSL_X64_EXE));
+    prog.args.push_back("-OutFile");
+    prog.args.push_back(QString(OPENSSL_X64_EXE));
+    prog.run();
+
+    messageDebug("Загрузка openssl: \n\n" + prog.output);
+    if (prog.isError)
+    {
+        messageError(this, "Не удалось загрузить openssl: \n\n" + prog.output);
+        prog.clearResult();
+        return;
+    }
 #endif
 }
 //------------------------------------------------------

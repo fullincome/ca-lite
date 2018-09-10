@@ -100,6 +100,11 @@ Program::Program (QString prog_name)
 #if defined(Q_OS_UNIX)
         program_path = "";
         program_name = "wget";
+#elif defined(Q_OS_WIN)
+        program_path = "C:/Windows/system32/WindowsPowerShell/v1.0/";
+        program_name = "powershell.exe";
+        args.push_back("-Command");
+        args.push_back("wget");
 #endif
     }
 }

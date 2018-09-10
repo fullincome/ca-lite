@@ -43,12 +43,13 @@ typedef BOOL_ERR BOOL;
 #define OPENSSL_DEVEL_DEB "cprocsp-cpopenssl-110-devel_5.0.11216-5_all.deb"
 #define OPENSSL_GOST_DEB "cprocsp-cpopenssl-110-gost-64_5.0.11216-5_amd64.deb"
 
-#else
-#ifdef Q_OS_WIN32
+#elif defined(Q_OS_WIN)
 #define OPENSSL_DIR_PATH "C:\\OpenSSL-Win64\\bin\\openssl.exe"
 #define OPENSSL_CONFIG_PATH "C:\\OpenSSL-Win64\\bin\\openssl.cfg"
 #define CRYPTOPRO_DIR_PATH "C:\\Program Files\\Crypto Pro\\CSP\\"
-#endif
+
+#define OPENSSL_URL "https://slproweb.com/download/"
+#define OPENSSL_X64_EXE "Win64OpenSSL-1_1_0i.exe"
 #endif
 
 extern class ErrorStr {
