@@ -35,6 +35,8 @@ typedef BOOL_ERR BOOL;
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
 #define OPENSSL_DIR_PATH "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/"
 #define OPENSSL_CONFIG_PATH "/var/opt/cprocsp/cp-openssl-1.1.0/"
+#define OPENSSL_CONFIG "openssl.cfg"
+#define OPENSSL_EXE "openssl"
 #define CRYPTOPRO_DIR_PATH "/opt/cprocsp/bin/amd64/"
 
 #define OPENSSL_URL "https://update.cryptopro.ru/support/nginx-gost/bin/180423/"
@@ -44,12 +46,17 @@ typedef BOOL_ERR BOOL;
 #define OPENSSL_GOST_DEB "cprocsp-cpopenssl-110-gost-64_5.0.11216-5_amd64.deb"
 
 #elif defined(Q_OS_WIN)
-#define OPENSSL_DIR_PATH "C:\\OpenSSL-Win64\\bin\\openssl.exe"
-#define OPENSSL_CONFIG_PATH "C:\\OpenSSL-Win64\\bin\\openssl.cfg"
-#define CRYPTOPRO_DIR_PATH "C:\\Program Files\\Crypto Pro\\CSP\\"
+#define OPENSSL_DIR_PATH QString("C:\\OpenSSL-Win64\\gost\\")
+#define OPENSSL_CONFIG_PATH QString("C:\\OpenSSL-Win64\\gost\\")
+#define CRYPTOPRO_DIR_PATH QString("C:\\Program Files\\Crypto Pro\\CSP\\")
 
-#define OPENSSL_URL "https://slproweb.com/download/"
-#define OPENSSL_X64_EXE "Win64OpenSSL-1_1_0i.exe"
+#define OPENSSL_URL QString("http://37.230.116.109/openssl-1.1.0i-gost-0.17/bin64/")
+#define OPENSSL_X64_LIBCRYPTO QString("libcrypto-1_1-x64.dll")
+#define OPENSSL_X64_LIBSSL QString("libssl-1_1-x64.dll")
+#define OPENSSL_X64_LIBGOSTENGY QString("gostengy.dll")
+#define OPENSSL_X64_EXE QString("openssl.exe")
+#define OPENSSL_CONFIG "openssl.cfg"
+#define OPENSSL_EXE OPENSSL_X64_EXE
 #endif
 
 extern class ErrorStr {

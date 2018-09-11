@@ -758,10 +758,28 @@ BOOL_ERR WorkDir::newWorkDir()
     }
     file_index.close();
 
+    //creat config file
+    QFile file_config(config.name);
+    if (!file_config.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        return FAIL;
+    }
+    QTextStream stream_config(&file_config);
+#if defined(Q_OS_UNIX)
+    stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << "csptest\n";
+    stream_config << "openssl = " << OPENSSL_DIR_PATH << "openssl\n";
+#elif defined(Q_OS_WIN)
+    stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << "csptest.exe\n";
+    stream_config << "openssl = " << OPENSSL_DIR_PATH << "openssl.exe\n";
+#endif
+    stream_config << "CAcert = \n";
+    stream_config << "CAkey = \n";
+    file_config.close();
+
     //creat openssl.cnf file
     if (checkOpenssl())
     {
-        QFile::copy(QString(OPENSSL_CONFIG_PATH) + "openssl.cnf", files.openssl_config);
+        QFile::copy(QString(OPENSSL_CONFIG_PATH) + OPENSSL_CONFIG, files.openssl_config);
         QFile file_openssl_config(files.openssl_config);
         if (!file_openssl_config.open(QIODevice::ReadOnly | QIODevice::Text ))
         {
@@ -793,18 +811,6 @@ BOOL_ERR WorkDir::newWorkDir()
         return FAIL;
     }
 
-    //creat config file
-    QFile file_config(config.name);
-    if (!file_config.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        return FAIL;
-    }
-    QTextStream stream_config(&file_config);
-    stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << "csptest\n";
-    stream_config << "openssl = " << OPENSSL_DIR_PATH << "openssl\n";
-    stream_config << "CAcert = \n";
-    stream_config << "CAkey = \n";
-    file_config.close();
     isOk = true;
     return OK;
 }
@@ -1218,7 +1224,7 @@ BOOL_ERR WorkDir::delCertConfigFile()
 
 BOOL_ERR WorkDir::checkOpenssl()
 {
-    if (QFile::exists(config.openssl))
+    if (QFile::exists(OPENSSL_CONFIG_PATH + OPENSSL_EXE) )
     {
         return OK;
     }

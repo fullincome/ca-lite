@@ -857,8 +857,8 @@ void MainWindow::on_certTableView_activated(const QModelIndex &index)
 void MainWindow::on_installOpensslBtn_clicked()
 {
     // Download openssl pkgs
-    Program prog = Program("curl");
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
+    Program prog = Program("curl");
     prog.files_to_delete << OPENSSL_BASE_DEB
                          << OPENSSL_X64_DEB
                          << OPENSSL_DEVEL_DEB
@@ -897,23 +897,121 @@ void MainWindow::on_installOpensslBtn_clicked()
         return;
     }
 
-    prog.clearResult();
-    on_openWorkDirBtn_clicked();
 #elif defined(Q_OS_WIN)
-    prog.files_to_delete << OPENSSL_X64_EXE;
-    prog.args.push_back(QString(OPENSSL_URL) + QString(OPENSSL_X64_EXE));
-    prog.args.push_back("-OutFile");
-    prog.args.push_back(QString(OPENSSL_X64_EXE));
-    prog.run();
-
-    messageDebug("Загрузка openssl: \n\n" + prog.output);
-    if (prog.isError)
+    QDir openssl_dir(OPENSSL_DIR_PATH);
+    Program prog = Program("powershell");
+    if (!openssl_dir.exists())
     {
-        messageError(this, "Не удалось загрузить openssl: \n\n" + prog.output);
-        prog.clearResult();
-        return;
+        if (!openssl_dir.mkpath(OPENSSL_DIR_PATH))
+        {
+            messageError(this, "Не удалось создать директорию: \n\n" + OPENSSL_DIR_PATH);
+            prog.clearResult();
+            return;
+        }
+    }
+
+    if (!QFile::exists(OPENSSL_DIR_PATH + OPENSSL_X64_LIBCRYPTO))
+    {
+        prog.args.push_back("-Command");
+        prog.args.push_back(QString("wget ")
+                            + OPENSSL_URL
+                            + OPENSSL_X64_LIBCRYPTO
+                            + QString(" -OutFile ")
+                            + OPENSSL_DIR_PATH
+                            + OPENSSL_X64_LIBCRYPTO);
+        prog.run();
+        messageDebug("Загузка openssl: \n\n" + prog.output);
+        if (prog.isError)
+        {
+            messageError(this, "Не удалось распаковать openssl: \n\n" + prog.output);
+            prog.clearResult();
+            return;
+        }
+    }
+
+    if (!QFile::exists(OPENSSL_DIR_PATH + OPENSSL_X64_LIBSSL))
+    {
+        prog.args.clear();
+        prog.args.push_back("-Command");
+        prog.args.push_back(QString("wget ")
+                            + OPENSSL_URL
+                            + OPENSSL_X64_LIBSSL
+                            + QString(" -OutFile ")
+                            + OPENSSL_DIR_PATH
+                            + OPENSSL_X64_LIBSSL);
+        prog.run();
+        messageDebug("Загузка openssl: \n\n" + prog.output);
+        if (prog.isError)
+        {
+            messageError(this, "Не удалось распаковать openssl: \n\n" + prog.output);
+            prog.clearResult();
+            return;
+        }
+    }
+
+    if (!QFile::exists(OPENSSL_DIR_PATH + OPENSSL_X64_LIBGOSTENGY))
+    {
+        prog.args.clear();
+        prog.args.push_back("-Command");
+        prog.args.push_back(QString("wget ")
+                            + OPENSSL_URL
+                            + OPENSSL_X64_LIBGOSTENGY
+                            + QString(" -OutFile ")
+                            + OPENSSL_DIR_PATH
+                            + OPENSSL_X64_LIBGOSTENGY);
+        prog.run();
+        messageDebug("Загузка openssl: \n\n" + prog.output);
+        if (prog.isError)
+        {
+            messageError(this, "Не удалось распаковать openssl: \n\n" + prog.output);
+            prog.clearResult();
+            return;
+        }
+    }
+
+    if (!QFile::exists(OPENSSL_DIR_PATH + OPENSSL_X64_EXE))
+    {
+        prog.args.clear();
+        prog.args.push_back("-Command");
+        prog.args.push_back(QString("wget ")
+                            + OPENSSL_URL
+                            + OPENSSL_X64_EXE
+                            + QString(" -OutFile ")
+                            + OPENSSL_DIR_PATH
+                            + OPENSSL_X64_EXE);
+        prog.run();
+        messageDebug("Загузка openssl: \n\n" + prog.output);
+        if (prog.isError)
+        {
+            messageError(this, "Не удалось распаковать openssl: \n\n" + prog.output);
+            prog.clearResult();
+            return;
+        }
+    }
+
+    if (!QFile::exists(OPENSSL_DIR_PATH + OPENSSL_CONFIG))
+    {
+        prog.args.clear();
+        prog.args.push_back("-Command");
+        prog.args.push_back(QString("wget ")
+                            + OPENSSL_URL
+                            + OPENSSL_CONFIG
+                            + QString(" -OutFile ")
+                            + OPENSSL_DIR_PATH
+                            + OPENSSL_CONFIG);
+        prog.run();
+        messageDebug("Загузка openssl: \n\n" + prog.output);
+        if (prog.isError)
+        {
+            messageError(this, "Не удалось распаковать openssl: \n\n" + prog.output);
+            prog.clearResult();
+            return;
+        }
     }
 #endif
+
+    prog.clearResult();
+    on_openWorkDirBtn_clicked();
 }
 //------------------------------------------------------
 //------------------------------------------------------

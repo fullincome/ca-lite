@@ -95,20 +95,27 @@ Program::Program (QString prog_name, QString mod)
 
 Program::Program (QString prog_name)
 {
+#if defined(Q_OS_UNIX)
     if (prog_name == "curl")
     {
-#if defined(Q_OS_UNIX)
+
         program_path = "";
         program_name = "wget";
+    }
 #elif defined(Q_OS_WIN)
+    if(prog_name == "powershell")
+    {
         program_path = "C:/Windows/system32/WindowsPowerShell/v1.0/";
         program_name = "powershell.exe";
-        args.push_back("-Command");
-        args.push_back("wget");
+    }
 #endif
+    else
+    {
+        program_path = "";
+        program_name = prog_name;
     }
 }
-
+#include <iostream>
 BOOL_ERR Program::run()
 {
    isError = 0;
@@ -117,15 +124,14 @@ BOOL_ERR Program::run()
    proc->start(program_path + program_name, args);
    if (!proc->waitForStarted())
    {
-       //return FAIL;
+       output += QString(proc->errorString());
    }
    if (!proc->waitForFinished())
    {
-       //return FAIL;
+       output += QString(proc->errorString());
    }
    isError = proc->exitCode();
-   output = QString(program_path + program_name + " " + args.join(" ") + ": " + "\n\n");
-   //output += QString(proc->readAll());
+   output += QString(program_path + program_name + " " + args.join(" ") + ": " + "\n\n");
    output += QString("\nAllStandardOutput:\n") + QString(proc->readAllStandardOutput());
    output += QString("\nAllStandardError:\n") +QString(proc->readAllStandardError());
    if (isError)
