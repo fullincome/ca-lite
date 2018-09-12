@@ -1224,7 +1224,7 @@ BOOL_ERR WorkDir::delCertConfigFile()
 
 BOOL_ERR WorkDir::checkOpenssl()
 {
-    if (QFile::exists(OPENSSL_CONFIG_PATH + OPENSSL_EXE) )
+    if (QFile::exists(OPENSSL_DIR_PATH + OPENSSL_EXE) )
     {
         return OK;
     }

@@ -7,11 +7,11 @@
 namespace RegexpPatternWorkDir {
     const QString CN = "Subject: CN = (\\w+)";
     const QString Issuer = "Issuer: CN = (\\w+)";
-    const QString Serial = "Serial Number:[\n ]+([\\w: \\(\\)]+)\n";
-    const QString OpensslConfCADir = "(\\[ CA_default \\]\\s+dir\\s+=\\s+)([^\\t\\n]+)";
-    const QString ContainerLine = "\n +(\\d+) +(\\w+)\n";
-    const QString SkipCsptestOutputWords = "___+\n";
-    const QString ConfigLine = "(\\w+)\\s*=\\s*([^\\n\\s]+)";
+    const QString Serial = "Serial Number:[\\r\\n ]+([\\w: \\(\\)]+)\\r?\\n";
+    const QString OpensslConfCADir = "(\\[ CA_default \\]\\s+dir\\s+=\\s+)([^\\t\\r\\n]+)";
+    const QString ContainerLine = "\\r*\\n +(\\d+) +(\\w+)\\r*\\n";
+    const QString SkipCsptestOutputWords = "___+\\r*\\n";
+    const QString ConfigLine = "(\\w+)\\s*=\\s*([^\\n]+)\\s*";
     const QString OpensslExtension = "(\\[ req_ext \\])";
     // Выбор из parsed контейнеров (by ContainerLine)
     const QString Container = "Name: (\\w+) \\(len = \\d+\\)";
