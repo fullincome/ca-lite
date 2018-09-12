@@ -11,7 +11,7 @@ namespace RegexpPatternWorkDir {
     const QString OpensslConfCADir = "(\\[ CA_default \\]\\s+dir\\s+=\\s+)([^\\t\\r\\n]+)";
     const QString ContainerLine = "\\r*\\n +(\\d+) +(\\w+)\\r*\\n";
     const QString SkipCsptestOutputWords = "___+\\r*\\n";
-    const QString ConfigLine = "(\\w+)\\s*=\\s*([^\\n]+)\\s*";
+    const QString ConfigLine = "(\\w+)\\s*=\\s*([^\\r\\n]+)\\s*";
     const QString OpensslExtension = "(\\[ req_ext \\])";
     // Выбор из parsed контейнеров (by ContainerLine)
     const QString Container = "Name: (\\w+) \\(len = \\d+\\)";

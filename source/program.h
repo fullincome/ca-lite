@@ -33,17 +33,17 @@ typedef BOOL_ERR BOOL;
 #define CRT_RSA 1
 
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
-#define OPENSSL_DIR_PATH "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/"
-#define OPENSSL_CONFIG_PATH "/var/opt/cprocsp/cp-openssl-1.1.0/"
-#define OPENSSL_CONFIG "openssl.cfg"
-#define OPENSSL_EXE "openssl"
-#define CRYPTOPRO_DIR_PATH "/opt/cprocsp/bin/amd64/"
+#define OPENSSL_DIR_PATH QString("/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/")
+#define OPENSSL_CONFIG_PATH QString("/var/opt/cprocsp/cp-openssl-1.1.0/")
+#define OPENSSL_CONFIG QString("openssl.cfg")
+#define OPENSSL_EXE QString("openssl")
+#define CRYPTOPRO_DIR_PATH QString("/opt/cprocsp/bin/amd64/")
 
-#define OPENSSL_URL "https://update.cryptopro.ru/support/nginx-gost/bin/180423/"
-#define OPENSSL_X64_DEB "cprocsp-cpopenssl-110-64_5.0.11216-5_amd64.deb"
-#define OPENSSL_BASE_DEB "cprocsp-cpopenssl-110-base_5.0.11216-5_all.deb"
-#define OPENSSL_DEVEL_DEB "cprocsp-cpopenssl-110-devel_5.0.11216-5_all.deb"
-#define OPENSSL_GOST_DEB "cprocsp-cpopenssl-110-gost-64_5.0.11216-5_amd64.deb"
+#define OPENSSL_URL QString("https://update.cryptopro.ru/support/nginx-gost/bin/180423/")
+#define OPENSSL_X64_DEB QString("cprocsp-cpopenssl-110-64_5.0.11216-5_amd64.deb")
+#define OPENSSL_BASE_DEB QString("cprocsp-cpopenssl-110-base_5.0.11216-5_all.deb")
+#define OPENSSL_DEVEL_DEB QString("cprocsp-cpopenssl-110-devel_5.0.11216-5_all.deb")
+#define OPENSSL_GOST_DEB QString("cprocsp-cpopenssl-110-gost-64_5.0.11216-5_amd64.deb")
 
 #elif defined(Q_OS_WIN)
 #define OPENSSL_DIR_PATH QString("C:\\OpenSSL-Win64\\gost\\")
