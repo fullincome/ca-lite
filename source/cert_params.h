@@ -25,6 +25,7 @@ public:
 signals:
     void readyToCheck(DbTable table);
 private slots:
+    void closeWindow(QString rc);
     void on_cancelBtn_clicked();
     void on_creatBtn_clicked();
     void on_nameCertEdit_textChanged();
