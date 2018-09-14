@@ -148,7 +148,7 @@ public:
         key_cert_file = "signing_cert.key";
 
         config_file = "config";
-        openssl_config = "openssl_calite.cnf";
+        openssl_config = OPENSSL_CONFIG;
         cert_config = "openssl_cert.cnf";
 
         crl = "crl";

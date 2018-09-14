@@ -35,8 +35,9 @@ typedef BOOL_ERR BOOL;
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
 #define OPENSSL_DIR_PATH QString("/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/")
 #define OPENSSL_CONFIG_PATH QString("/var/opt/cprocsp/cp-openssl-1.1.0/")
-#define OPENSSL_CONFIG QString("openssl.cfg")
+#define OPENSSL_CONFIG QString("openssl.cnf")
 #define OPENSSL_EXE QString("openssl")
+#define CSPTEST_EXE QString("csptest")
 #define CRYPTOPRO_DIR_PATH QString("/opt/cprocsp/bin/amd64/")
 
 #define OPENSSL_URL QString("https://update.cryptopro.ru/support/nginx-gost/bin/180423/")
@@ -57,8 +58,13 @@ typedef BOOL_ERR BOOL;
 #define OPENSSL_X64_EXE QString("openssl.exe")
 #define OPENSSL_CONFIG "openssl.cfg"
 #define OPENSSL_EXE OPENSSL_X64_EXE
+#define CSPTEST_EXE QString("csptest.exe")
 #endif
 
+
+#define ERR_STRING 0
+#define ERR_OPEN_FILE 1
+#define ERR_EXIST_FILE 2
 extern class ErrorStr {
     QStack<QString> stack;
 public:
@@ -66,10 +72,12 @@ public:
     {
         return stack.empty();
     }
+
     void setError(QString str)
     {
         stack.push_back(str);
     }
+
     QString getLastError()
     {
         if (empty())
@@ -82,13 +90,17 @@ public:
             while (!empty())
             {
                 str += stack.pop();
+                if (!empty())
+                {
+                    str += ":\n    ";
+                }
             }
             return str;
         }
     }
 } errorStr;
 
-extern void setErrorString(QString str);
+extern void setErrorString(QString str, int error_type = 0);
 extern QString getLastErrorString();
 
 //extern void setErrorStringasdf(QString str) {

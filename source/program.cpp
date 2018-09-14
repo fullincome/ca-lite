@@ -2,9 +2,20 @@
 
 ErrorStr errorStr;
 
-void setErrorString(QString str)
+void setErrorString(QString str, int error_type)
 {
-    return errorStr.setError(str);
+    if (error_type == ERR_OPEN_FILE)
+    {
+        errorStr.setError("Fail open file: " + str);
+    }
+    else if (error_type == ERR_EXIST_FILE)
+    {
+        errorStr.setError("File not exist: " + str);
+    }
+    else if (error_type == ERR_STRING)
+    {
+        errorStr.setError(str);
+    }
 }
 
 QString getLastErrorString()
@@ -115,12 +126,12 @@ Program::Program (QString prog_name)
         program_name = prog_name;
     }
 }
-#include <iostream>
+
 BOOL_ERR Program::run()
 {
    isError = 0;
    QProcess *proc = new QProcess();
-   proc->setEnvironment(QString("OPENSSL_CONF=" + work_path + "openssl.cnf").split(" "));
+   proc->setEnvironment(QString("OPENSSL_CONF=" + work_path + OPENSSL_CONFIG).split(" "));
    proc->start(program_path + program_name, args);
    if (!proc->waitForStarted())
    {

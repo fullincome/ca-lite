@@ -97,7 +97,8 @@ void MainWindow::on_openWorkDirBtn_clicked()
         rc = work_dir.newWorkDir();
         if (!rc)
         {
-            messageError(this, "Не удалось инициализировать директорию");
+            setErrorString("Не удалось инициализировать директорию");
+            messageError(this, getLastErrorString());
             return;
         }
     }

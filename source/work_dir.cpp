@@ -719,9 +719,6 @@ WorkDir::WorkDir (QString work_path)
     //work_path = ui_dl->textEdit->toPlainText() + "/";
     data_base.name = work_path + "ca_db";
     config.name = work_path + "config";
-    files.index = work_path + "index.txt";
-    files.crlnumber = work_path + "crlnumber";
-    files.openssl_config = work_path + "openssl_calite.cnf";
 }
 
 //------------------------------------------------------
@@ -731,58 +728,70 @@ WorkDir::WorkDir (QString work_path)
 BOOL_ERR WorkDir::newWorkDir()
 {
     //creat crlnumber file
-    QFile file_crlnumber(files.crlnumber);
-    if (!file_crlnumber.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!QFile::exists(files.crlnumber))
     {
-        return FAIL;
+        QFile file_crlnumber(files.crlnumber);
+        if (!file_crlnumber.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            setErrorString(files.crlnumber, ERR_OPEN_FILE);
+            return FAIL;
+        }
+        QTextStream stream_crlnumber(&file_crlnumber);
+        stream_crlnumber << "01";
+        file_crlnumber.close();
     }
-    QTextStream stream_crlnumber(&file_crlnumber);
-    stream_crlnumber << "01";
-    file_crlnumber.close();
 
     //creat serial file
-    QFile file_serial(files.srl_ca_cert_file);
-    if (!file_serial.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!QFile::exists(files.srl_ca_cert_file))
     {
-        return FAIL;
+        QFile file_serial(files.srl_ca_cert_file);
+        if (!file_serial.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            setErrorString(files.srl_ca_cert_file, ERR_OPEN_FILE);
+            return FAIL;
+        }
+        QTextStream stream_serial(&file_serial);
+        stream_serial << "00";
+        file_serial.close();
     }
-    QTextStream stream_serial(&file_serial);
-    stream_serial << "00";
-    file_serial.close();
 
     //creat index file
-    QFile file_index(files.index);
-    if (!file_index.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!QFile::exists(files.index))
     {
-        return FAIL;
+        QFile file_index(files.index);
+        if (!file_index.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            setErrorString(files.index, ERR_OPEN_FILE);
+            return FAIL;
+        }
+        file_index.close();
     }
-    file_index.close();
 
     //creat config file
-    QFile file_config(config.name);
-    if (!file_config.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!QFile::exists(config.name))
     {
-        return FAIL;
+        QFile file_config(config.name);
+        if (!file_config.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            setErrorString(config.name, ERR_OPEN_FILE);
+            return FAIL;
+        }
+        QTextStream stream_config(&file_config);
+        stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << CSPTEST_EXE;
+        stream_config << "openssl = " << OPENSSL_DIR_PATH << OPENSSL_EXE;
+        stream_config << "CAcert = \n";
+        stream_config << "CAkey = \n";
+        file_config.close();
     }
-    QTextStream stream_config(&file_config);
-#if defined(Q_OS_UNIX)
-    stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << "csptest\n";
-    stream_config << "openssl = " << OPENSSL_DIR_PATH << "openssl\n";
-#elif defined(Q_OS_WIN)
-    stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << "csptest.exe\n";
-    stream_config << "openssl = " << OPENSSL_DIR_PATH << "openssl.exe\n";
-#endif
-    stream_config << "CAcert = \n";
-    stream_config << "CAkey = \n";
-    file_config.close();
 
     //creat openssl.cnf file
     if (checkOpenssl())
     {
-        QFile::copy(QString(OPENSSL_CONFIG_PATH) + OPENSSL_CONFIG, files.openssl_config);
+        QFile::copy(OPENSSL_CONFIG_PATH + OPENSSL_CONFIG, files.openssl_config);
         QFile file_openssl_config(files.openssl_config);
         if (!file_openssl_config.open(QIODevice::ReadOnly | QIODevice::Text ))
         {
+            setErrorString(files.openssl_config, ERR_OPEN_FILE);
             return FAIL;
         }
         QString file_text = file_openssl_config.readAll();
@@ -794,6 +803,7 @@ BOOL_ERR WorkDir::newWorkDir()
         {
             if (!file_openssl_config.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
             {
+                setErrorString(files.openssl_config, ERR_OPEN_FILE);
                 return FAIL;
             }
             file_text.remove(pos + regexp_dir.cap(1).length(), regexp_dir.cap(2).length());
@@ -802,12 +812,14 @@ BOOL_ERR WorkDir::newWorkDir()
         }
         else
         {
+            setErrorString("patch openssl config " + files.openssl_config + " fail");
             return FAIL;
         }
         file_openssl_config.close();
     }
     else
     {
+        setErrorString("openssl was not found");
         return FAIL;
     }
 
@@ -826,28 +838,51 @@ BOOL_ERR WorkDir::initialiseWorkDir()
     isOpenMod = false;
     data_base.table.table_name = "cert";
     data_base.name = work_path + "ca_db";
-    config.name = work_path + "config";
-    files.index = work_path + "index.txt";
-    files.crlnumber = work_path + "crlnumber";
-    files.openssl_config = work_path + "openssl.cnf";
-    files.srl_ca_cert_file = work_path + "ca_cert.srl";
 
     if (!dir.exists(work_path))
     {
         dir.mkpath(work_path);
     }
 
-    if (!QFile::exists(config.name) || !QFile::exists(files.openssl_config) ||
-        !QFile::exists(data_base.name) || !QFile::exists(files.crlnumber) ||
-        !QFile::exists(files.index))
+    if (!QFile::exists(config.name))
     {
+        setErrorString("QFile::exists fail(" + config.name + ")");
         return FAIL;
     }
-    else
+
+    if (!QFile::exists(files.openssl_config))
     {
-        isOk = true;
-        isOpenMod = true;
+        setErrorString("QFile::exists fail(" + files.openssl_config + ")");
+        return FAIL;
     }
+
+    if (!QFile::exists(data_base.name))
+    {
+        setErrorString("QFile::exists fail(" + data_base.name + ")");
+        return FAIL;
+    }
+
+    if (!QFile::exists(files.srl_ca_cert_file))
+    {
+        setErrorString("QFile::exists fail(" + files.srl_ca_cert_file + ")");
+        return FAIL;
+    }
+
+    if (!QFile::exists(files.crlnumber))
+    {
+        setErrorString("QFile::exists fail(" + files.crlnumber + ")");
+        return FAIL;
+    }
+
+    if (!QFile::exists(files.index))
+    {
+        setErrorString("QFile::exists fail(" + files.index + ")");
+        return FAIL;
+    }
+
+
+    isOk = true;
+    isOpenMod = true;
 
     return OK;
 }
