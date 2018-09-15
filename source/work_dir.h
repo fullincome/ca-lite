@@ -65,7 +65,7 @@ public:
     static BOOL_ERR getTextFromCert(QString file_in, QString &cert_info);
     static QString getTextFromAny(QString file_in, QString work_path);
     static QString getCNFromCsr(QString file);
-    static QString getCNFromCert(QString file);
+    static BOOL_ERR getCNFromCert(QString file, QString &CN);
     static QString getIssuerFromCert(QString file);
     static QString creatSerialToFile(QString file_name);
     static QString getSerialFromCert(QString file_name);
@@ -177,7 +177,7 @@ public:
     QStringList checkContainers();
     Config loadConfig(QString file_name);
     void saveConfig(Config config);
-    CACert loadCaCert(Config config);
+    BOOL_ERR loadCaCert(Config config, CACert &ca_cert);
     BOOL_ERR exportCert(QString CN, QString file_name);
     DbTable importCert(QString file_name);
     BOOL_ERR genCertConfig(DbTable &table, BOOL mod);

@@ -156,22 +156,22 @@ QString DbTable::getCNFromCsr(QString file_in)
     return CN;
 }
 
-QString DbTable::getCNFromCert(QString file_in)
+BOOL_ERR DbTable::getCNFromCert(QString file_in, QString &CN)
 {
-    QString CN;
     QString textCert;
     QRegExp regexp(RegexpPatternWorkDir::CN);
 
     getTextFromCert(file_in, textCert);
     if (regexp.indexIn(textCert, 0) == -1)
     {
-        return "error";
+        setErrorString("CN was not found in " + file_in);
+        return FAIL;
     }
     else
     {
         CN = regexp.cap(1);
     }
-    return CN;
+    return OK;
 }
 
 QString DbTable::getIssuerFromCert(QString file_in)
@@ -835,7 +835,6 @@ BOOL_ERR WorkDir::initialiseWorkDir()
     isOk = false;
     config.isOk = false;
     data_base.isOk = false;
-    isOpenMod = false;
     data_base.table.table_name = "cert";
     data_base.name = work_path + "ca_db";
 
@@ -904,6 +903,7 @@ BOOL_ERR WorkDir::initialiseDatabase()
 {
     if (!data_base.load_db(data_base.name))
     {
+        setErrorString("Load data base fail: " + data_base.name);
         return FAIL;
     }
     else
@@ -914,6 +914,7 @@ BOOL_ERR WorkDir::initialiseDatabase()
         {
             if (!data_base.newTables(data_base.query))
             {
+                setErrorString("data_base.newTables fail");
                 return FAIL;
             }
         }
@@ -968,7 +969,7 @@ Config WorkDir::loadConfig(QString file_name)
     QFile file_config(config.name);
     if (!file_config.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        setErrorString("Open failed: " + config.name);
+        setErrorString("Open config fail: " + config.name);
         config.isOk = false;
         return config;
     }
@@ -1068,14 +1069,19 @@ void WorkDir::saveConfig(Config config)
     file_config.close();
  }
 
-CACert WorkDir::loadCaCert(Config config)
+BOOL_ERR WorkDir::loadCaCert(Config config, CACert &ca_cert)
 {
-    CACert ca_cert;
+    BOOL_ERR rc = FAIL;
+    rc = DbTable::getCNFromCert(ca_cert.file_name, ca_cert.CN);
+    if (!rc)
+    {
+        setErrorString("getCNFrom");
+        return FAIL;
+    }
     ca_cert.file_name = config.CAcert;
     ca_cert.file_key = config.CAkey;
     ca_cert.key = config.CAkey;
-    ca_cert.CN = DbTable::getCNFromCert(ca_cert.file_name);
-    return ca_cert;
+    return OK;
  }
 
 BOOL_ERR WorkDir::exportCert(QString CN, QString file_name)
@@ -1115,7 +1121,7 @@ DbTable WorkDir::importCert(QString file_name)
 
     if ((table_cert.CN = table_cert.getCNFromCsr(file_name)) == "error")
     {
-        if ((table_cert.CN = table_cert.getCNFromCert(file_name)) == "error")
+        if (table_cert.getCNFromCert(file_name, table_cert.CN) == FAIL)
         {
             table_cert.isOk = false;
             table_cert.status = "не удалось распознать CN";

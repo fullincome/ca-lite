@@ -135,11 +135,15 @@ BOOL_ERR Program::run()
    proc->start(program_path + program_name, args);
    if (!proc->waitForStarted())
    {
-       output += QString(proc->errorString());
+       output += "\nProcess error:\n" + proc->errorString() + "\n";
+       isError = true;
+       return FAIL;
    }
    if (!proc->waitForFinished())
    {
-       output += QString(proc->errorString());
+       output += "\nProcess error:\n" + proc->errorString() + "\n";
+       isError = true;
+       return FAIL;
    }
    isError = proc->exitCode();
    output += QString(program_path + program_name + " " + args.join(" ") + ": " + "\n\n");

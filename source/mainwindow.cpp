@@ -143,7 +143,7 @@ void MainWindow::checkWorkDir(WorkDir work_dir)
     BOOL_ERR rc = FAIL;
     if (work_dir.isOk && work_dir.config.isOk && work_dir.data_base.isOk)
     {
-        work_dir.ca_cert = work_dir.loadCaCert(work_dir.config);
+        rc = work_dir.loadCaCert(work_dir.config, work_dir.ca_cert);
         QString cert_info;
         rc = DbTable::getTextFromCert(work_dir.ca_cert.file_name, cert_info);
         if (rc == FAIL)
@@ -269,7 +269,11 @@ void MainWindow::on_signCsrBtn_clicked()
         table_cert.table_name = "cert";
         table_cert.pem = table_cert.getPemFromFile(work_dir.files.cert_file);
         table_cert.serial = table_cert.getSerialFromCert(work_dir.files.cert_file);
-        table_cert.issuer = table_cert.getCNFromCert(work_dir.ca_cert.file_name);
+        rc = table_cert.getCNFromCert(work_dir.ca_cert.file_name, table_cert.issuer);
+        if (rc == FAIL)
+        {
+            messageError(this, getLastErrorString());
+        }
         rc = work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
         if (rc == FAIL)
         {
@@ -325,7 +329,11 @@ void MainWindow::on_revokeCertBtn_clicked()
         table_cert.revoke = "revoked";
         table_cert.pem = table_cert.getPemFromFile(work_dir.files.cert_file);
         table_cert.serial = table_cert.getSerialFromCert(work_dir.files.cert_file);
-        table_cert.issuer = table_cert.getCNFromCert(work_dir.ca_cert.file_name);
+        rc = table_cert.getCNFromCert(work_dir.ca_cert.file_name, table_cert.issuer);
+        if (rc == FAIL)
+        {
+            messageError(this, "revoke cert fail: " + getLastErrorString());
+        }
         work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
         updateView(work_dir.data_base);
         ui_mw->revokeCertBtn->setVisible(false);
@@ -378,7 +386,9 @@ void MainWindow::on_exportBtn_clicked()
     if (!CN.isEmpty())
     {
         work_dir.exportCert(CN, work_dir.work_path + work_dir.files.export_cert_file);
-        if (CN != work_dir.data_base.table.getCNFromCert(work_dir.work_path + work_dir.files.export_cert_file) &&
+        QString out_cn;
+        work_dir.data_base.table.getCNFromCert(work_dir.work_path + work_dir.files.export_cert_file, out_cn);
+        if (CN != out_cn &&
             CN != work_dir.data_base.table.getCNFromCsr(work_dir.work_path + work_dir.files.export_cert_file))
         {
             messageError(this, "Не удалось экспортировать сертификат");
@@ -483,12 +493,16 @@ void MainWindow::updateView(DataBase data_base)
 // Подготовка к сохранению в бд, выполняет проверки полей
 BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
 {
+    BOOL_ERR rc = FAIL;
     QStringList file_to_delete;
     // работаем с фалом csr/cert
 
     if (prog.mod == "ca")
     {
-        if (table.CN == "need") table.getCNFromCert(work_dir.files.ca_cert_file);
+        if (table.CN == "need")
+        {
+            table.getCNFromCert(work_dir.files.ca_cert_file, table.CN);
+        }
         if (table.subj == "need");
         if (table.suite == "need");
         if (table.table_name == "need");
@@ -528,7 +542,10 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
         if (table.CN == "need")
         {
             table.CN = table.getCNFromCsr(work_dir.files.csr_file);
-            if (table.CN == "error") table.CN = table.getCNFromCert(work_dir.files.csr_file);
+            if (table.CN == "error")
+            {
+                rc = table.getCNFromCert(work_dir.files.csr_file, table.CN);
+            }
         }
         if (table.subj == "need");
         if (table.suite == "need");
