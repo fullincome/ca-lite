@@ -777,8 +777,8 @@ BOOL_ERR WorkDir::newWorkDir()
             return FAIL;
         }
         QTextStream stream_config(&file_config);
-        stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << CSPTEST_EXE;
-        stream_config << "openssl = " << OPENSSL_DIR_PATH << OPENSSL_EXE;
+        stream_config << "csptest = " << CRYPTOPRO_DIR_PATH << CSPTEST_EXE << "\n";
+        stream_config << "openssl = " << OPENSSL_DIR_PATH << OPENSSL_EXE << "\n";
         stream_config << "CAcert = \n";
         stream_config << "CAkey = \n";
         file_config.close();

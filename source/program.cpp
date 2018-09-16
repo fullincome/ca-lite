@@ -131,7 +131,7 @@ BOOL_ERR Program::run()
 {
    isError = 0;
    QProcess *proc = new QProcess();
-   proc->setEnvironment(QString("OPENSSL_CONF=" + work_path + OPENSSL_CONFIG).split(" "));
+   proc->setEnvironment(QString("OPENSSL_CONF=" + work_path + OPENSSL_CONFIG).split("\n"));
    proc->start(program_path + program_name, args);
    if (!proc->waitForStarted())
    {
