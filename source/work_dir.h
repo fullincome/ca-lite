@@ -130,31 +130,8 @@ public:
     QString crl;
     QString crlnumber;
     QString index;
-    WorkDirFiles()
-    {
-        ca_cert_file = "ca_cert.cer";
-        srl_ca_cert_file = "ca_cert.srl";
-        key_ca_cert_file = "ca_cert.key";
-
-        export_cert_file = "export_cert.cer";
-        import_cert_file = "import_cert.cer";
-
-        csr_file = "csr.csr";
-        cert_file = "cert.cer";
-        signing_file = "signing_cert.cer";
-
-        key_csr_file = "csr.key";
-        key_signing_file = "signing_cert.key";
-        key_cert_file = "signing_cert.key";
-
-        config_file = "config";
-        openssl_config = OPENSSL_CONFIG;
-        cert_config = "openssl_cert.cnf";
-
-        crl = "crl";
-        crlnumber = "crlnumber";
-        index = "index.txt";
-    }
+    WorkDirFiles();
+    WorkDirFiles(QString path);
     QStringList getVariableFiles();
 };
 

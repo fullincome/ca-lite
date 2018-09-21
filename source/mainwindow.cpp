@@ -144,11 +144,15 @@ void MainWindow::checkWorkDir(WorkDir work_dir)
     if (work_dir.isOk && work_dir.config.isOk && work_dir.data_base.isOk)
     {
         rc = work_dir.loadCaCert(work_dir.config, work_dir.ca_cert);
+        if (rc == FAIL)
+        {
+            messageError(this, tr("loadCaCert fail: \n") + getLastErrorString());
+        }
         QString cert_info;
         rc = DbTable::getTextFromCert(work_dir.ca_cert.file_name, cert_info);
         if (rc == FAIL)
         {
-            messageError(this, tr("Файл сертификата УЦ поврежден \n\n") + getLastErrorString());
+            messageError(this, tr("Файл сертификата УЦ поврежден: \n") + getLastErrorString());
         }
         else
         {
@@ -227,7 +231,7 @@ void MainWindow::on_signCsrBtn_clicked()
     QString csr_CN;
     setSelectedName("cn", csr_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
-    work_dir.exportCert(csr_CN, work_dir.work_path + work_dir.files.csr_file);
+    work_dir.exportCert(csr_CN, work_dir.files.csr_file);
     rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + csr_CN + "'", work_dir.data_base.query, table_cert);
     if (!rc)
     {
@@ -309,7 +313,7 @@ void MainWindow::on_revokeCertBtn_clicked()
     QString cert_CN;
     setSelectedName("cn", cert_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
-    work_dir.exportCert(cert_CN, work_dir.work_path + work_dir.files.cert_file);
+    work_dir.exportCert(cert_CN, work_dir.files.cert_file);
     rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + cert_CN + "'", work_dir.data_base.query, table_cert);
     if (!rc)
     {
@@ -385,17 +389,17 @@ void MainWindow::on_exportBtn_clicked()
     setSelectedName("cn", CN, ui_mw->certTableView);
     if (!CN.isEmpty())
     {
-        work_dir.exportCert(CN, work_dir.work_path + work_dir.files.export_cert_file);
+        work_dir.exportCert(CN, work_dir.files.export_cert_file);
         QString out_cn;
-        work_dir.data_base.table.getCNFromCert(work_dir.work_path + work_dir.files.export_cert_file, out_cn);
+        work_dir.data_base.table.getCNFromCert(work_dir.files.export_cert_file, out_cn);
         if (CN != out_cn &&
-            CN != work_dir.data_base.table.getCNFromCsr(work_dir.work_path + work_dir.files.export_cert_file))
+            CN != work_dir.data_base.table.getCNFromCsr(work_dir.files.export_cert_file))
         {
             messageError(this, "Не удалось экспортировать сертификат");
         }
         else
         {
-            messageSuccess(this, "Сертификат экспортирован: \n\n" + work_dir.work_path + work_dir.files.export_cert_file);
+            messageSuccess(this, "Сертификат экспортирован: \n\n" + work_dir.files.export_cert_file);
         }
     }
     else
@@ -497,7 +501,7 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
     QStringList file_to_delete;
     // работаем с фалом csr/cert
 
-    if (prog.mod == "ca")
+    if (table.table_name == "ca")
     {
         if (table.CN == "need")
         {
@@ -508,8 +512,8 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
         if (table.table_name == "need");
         if (table.serial == "need")
         {
-            table.serial = table.getSerialFromFile(work_dir.work_path + work_dir.files.srl_ca_cert_file);
-            file_to_delete << work_dir.work_path + work_dir.files.srl_ca_cert_file;
+            table.serial = table.getSerialFromFile(work_dir.files.srl_ca_cert_file);
+            file_to_delete << work_dir.files.srl_ca_cert_file;
         }
         if (table.pem == "need") table.pem = table.getPemFromFile(work_dir.files.srl_ca_cert_file);
         if (table.revoke == "need");
@@ -527,7 +531,7 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
             messageError(this, message);
             return FAIL;
         }
-        work_dir.config.CAcert = work_dir.files.srl_ca_cert_file;
+        work_dir.config.CAcert = work_dir.files.ca_cert_file;
         work_dir.config.CAkey = table.key;
         work_dir.saveConfig(work_dir.config);
         work_dir.config = work_dir.loadConfig(work_dir.config.name);
@@ -537,7 +541,7 @@ BOOL_ERR MainWindow::prepareSaveToDb(Program prog, DbTable table)
         }
     }
 
-    if (prog.mod == "cert" || prog.mod == "csr")
+    if (table.table_name == "cert" || table.table_name == "csr")
     {
         if (table.CN == "need")
         {
@@ -611,7 +615,7 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table)
     work_dir.delCertConfigFile();
     messageDebug(prog.output);
 
-    if (prog.mod == "cert" || prog.mod == "csr")
+    if (table.table_name == "cert" || table.table_name == "csr")
     {
         if (prog.isError)
         {
@@ -636,7 +640,7 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table)
         }
     }
 
-    if (prog.mod == "ca")
+    if (table.table_name == "ca")
     {
         if (prog.isError)
         {
@@ -748,16 +752,9 @@ void MainWindow::saveConfig(QString data)
 // Проверяем поля из ca_cert (csr) и пробуем генерировать сертификат
 void MainWindow::checkCertParam(DbTable table)
 {
-    Program prog;
+    Program prog("openssl", work_dir.work_path);
     QStringList args_cur;
-    if (table.table_name == "ca")
-    {
-        prog = Program("openssl", "ca", work_dir.work_path);
-    }
-    else
-    {
-        prog = Program("openssl", "csr", work_dir.work_path);
-    }
+    if (table.table_name == "ca");
 
     //RSA MOD
     //args_cur = QString("req -x509 -newkey rsa:2048").split(" ");
@@ -767,7 +764,7 @@ void MainWindow::checkCertParam(DbTable table)
 
     //GOST MOD
     // prepare to generate CA certificate
-    if (prog.mod == "ca")
+    if (table.table_name == "ca")
     {
         args_cur = QString("req -engine gostengy -x509 -keyform ENGINE -key c:" + table.key).split(" ");
         args_cur += QString("-config " + work_dir.files.cert_config).split(" ");

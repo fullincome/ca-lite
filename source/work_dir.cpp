@@ -695,6 +695,59 @@ QString Config::readAllFromConfigFile(QString file_name)
     return config_data;
 }
 
+WorkDirFiles::WorkDirFiles()
+{
+    QString path = QCoreApplication::applicationDirPath() + "/";
+    ca_cert_file = path + "ca_cert.cer";
+    srl_ca_cert_file = path + "ca_cert.srl";
+    key_ca_cert_file = path + "ca_cert.key";
+
+    export_cert_file = path + "export_cert.cer";
+    import_cert_file = path + "import_cert.cer";
+
+    csr_file = path + "csr.csr";
+    cert_file = path + "cert.cer";
+    signing_file = path + "signing_cert.cer";
+
+    key_csr_file = path + "csr.key";
+    key_signing_file = path + "signing_cert.key";
+    key_cert_file = path + "signing_cert.key";
+
+    config_file = path + "config";
+    openssl_config = path + OPENSSL_CONFIG;
+    cert_config = path + "openssl_cert.cnf";
+
+    crl = path + "crl";
+    crlnumber = path + "crlnumber";
+    index = path + "index.txt";
+}
+
+WorkDirFiles::WorkDirFiles(QString path)
+{
+    ca_cert_file = path + "ca_cert.cer";
+    srl_ca_cert_file = path + "ca_cert.srl";
+    key_ca_cert_file = path + "ca_cert.key";
+
+    export_cert_file = path + "export_cert.cer";
+    import_cert_file = path + "import_cert.cer";
+
+    csr_file = path + "csr.csr";
+    cert_file = path + "cert.cer";
+    signing_file = path + "signing_cert.cer";
+
+    key_csr_file = path + "csr.key";
+    key_signing_file = path + "signing_cert.key";
+    key_cert_file = path + "signing_cert.key";
+
+    config_file = path + "config";
+    openssl_config = path + OPENSSL_CONFIG;
+    cert_config = path + "openssl_cert.cnf";
+
+    crl = path + "crl";
+    crlnumber = path + "crlnumber";
+    index = path + "index.txt";
+}
+
 QStringList WorkDirFiles::getVariableFiles()
 {
     return QStringList() << csr_file << cert_file
@@ -784,7 +837,7 @@ BOOL_ERR WorkDir::newWorkDir()
         file_config.close();
     }
 
-    //creat openssl.cnf file
+    //creat openssl.(cnf/cfg) file
     if (checkOpenssl())
     {
         QFile::copy(OPENSSL_CONFIG_PATH + OPENSSL_CONFIG, files.openssl_config);
@@ -1072,10 +1125,10 @@ void WorkDir::saveConfig(Config config)
 BOOL_ERR WorkDir::loadCaCert(Config config, CACert &ca_cert)
 {
     BOOL_ERR rc = FAIL;
-    rc = DbTable::getCNFromCert(ca_cert.file_name, ca_cert.CN);
+    rc = DbTable::getCNFromCert(config.CAcert, ca_cert.CN);
     if (!rc)
     {
-        setErrorString("getCNFrom");
+        setErrorString("getCNFromCert fail");
         return FAIL;
     }
     ca_cert.file_name = config.CAcert;

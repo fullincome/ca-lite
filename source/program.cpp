@@ -29,25 +29,8 @@ Program::Program (QString prog_name, QString mod, QString work_path)
     if (prog_name == "openssl")
     {
         program_path = OPENSSL_DIR_PATH;
-        program_name = "openssl";
+        program_name = OPENSSL_EXE;
         this->work_path = work_path;
-        this->mod = "no";
-        args << "version";
-        if (mod == "csr")
-        {
-            this->mod = "csr";
-        }
-        else if (mod == "ca")
-        {
-            this->mod = "ca";
-        }
-        else if (mod == "signing_cert")
-        {
-            this->mod = "signing_cert";
-        }
-        else if (mod == "revoke_cert")
-        {
-        }
     }
     else if (prog_name == "curl")
     {
@@ -63,49 +46,36 @@ Program::Program (QString prog_name, QString mod)
 {
     if (prog_name == "openssl")
     {
-        program_path = "/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/";
-        program_name = "openssl";
+        program_path = OPENSSL_DIR_PATH;
+        program_name = OPENSSL_EXE;
         work_path = QCoreApplication::applicationDirPath() + "/";
-        this->mod = "no";
-        args << "version";
-        if (mod == "cert") {};
-        if (mod == "csr")
-        {
-            this->mod = "csr";
-        }
-        else if (mod == "ca")
-        {
-            this->mod = "ca";
-        }
-        else if (mod == "signing_cert")
-        {
-            this->mod = "signing_cert";
-        }
-        else if (mod == "revoke_cert")
-        {
-        }
     }
-    else if (prog_name == "curl")
-    {
 #if defined(Q_OS_UNIX)
+    if (prog_name == "curl")
+    {
         program_path = "";
         program_name = "wget";
-#endif
-        this->work_path = work_path;
     }
-    else if (prog_name == "install")
-    {
+#endif
 #if defined(Q_OS_UNIX)
+    if (prog_name == "install")
+    {
         program_path = "";
         program_name = "bash";
         args.push_back("-c");
         args.push_back("echo '" + mod + "' | sudo --user=root -S dpkg -i ");
-#endif
     }
+#endif
 }
 
 Program::Program (QString prog_name)
 {
+    if (prog_name == "openssl")
+    {
+        program_path = OPENSSL_DIR_PATH;
+        program_name = OPENSSL_EXE;
+        work_path = QCoreApplication::applicationDirPath() + "/";
+    }
 #if defined(Q_OS_UNIX)
     if (prog_name == "curl")
     {
@@ -113,7 +83,8 @@ Program::Program (QString prog_name)
         program_path = "";
         program_name = "wget";
     }
-#elif defined(Q_OS_WIN)
+#endif
+#if defined(Q_OS_WIN)
     if(prog_name == "powershell")
     {
         program_path = "C:/Windows/system32/WindowsPowerShell/v1.0/";
