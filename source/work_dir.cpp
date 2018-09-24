@@ -104,7 +104,7 @@ QString DbTable::getPemFromFile(QString file_name)
 
 QString DbTable::getTextFromCsr(QString file_in)
 {
-    Program prog = Program("openssl", "csr");
+    Program prog = Program("openssl");
     prog.args = QString("req -in " + file_in + " -noout -text").split(" ");
     prog.run();
     return prog.output;
@@ -112,7 +112,7 @@ QString DbTable::getTextFromCsr(QString file_in)
 
 BOOL_ERR DbTable::getTextFromCert(QString file_in, QString &cert_info)
 {
-    Program prog = Program("openssl", "ca");
+    Program prog = Program("openssl");
     prog.args = QString("x509 -in " + file_in + " -noout -text").split(" ");
     prog.run();
     if (prog.isError)
@@ -129,7 +129,7 @@ BOOL_ERR DbTable::getTextFromCert(QString file_in, QString &cert_info)
 
 QString DbTable::getTextFromAny(QString file_in, QString work_path)
 {
-    Program prog = Program("openssl", "ca", work_path);
+    Program prog = Program("openssl", work_path);
     prog.args = QString("x509 -in " + file_in + " -noout -text").split(" ");
     prog.run();
     if (prog.isError)
@@ -1007,7 +1007,7 @@ QStringList WorkDir::parsingContainers(QString info)
 
 QStringList WorkDir::checkContainers()
 {
-    Program program("openssl", "cert");
+    Program program("openssl");
     program.program_path = "";
     program.program_name = config.csptest;
     program.args = QString("-enum -info -type PP_ENUMCONTAINERS").split(" ");

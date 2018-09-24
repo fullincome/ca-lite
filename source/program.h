@@ -32,6 +32,9 @@ typedef BOOL_ERR BOOL;
 #define CRT_GOST 0
 #define CRT_RSA 1
 
+#define USER 0
+#define ROOT 1
+
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
 #define OPENSSL_DIR_PATH QString("/opt/cprocsp/cp-openssl-1.1.0/bin/amd64/")
 #define OPENSSL_CONFIG_PATH QString("/var/opt/cprocsp/cp-openssl-1.1.0/")
@@ -110,14 +113,13 @@ extern QString getLastErrorString();
 
 class Program {
 public:
-    Program(QString prog_name, QString mod, QString work_path);
-    Program(QString prog_name, QString mod);
-    Program(QString prog_name);
     Program();
+    Program(QString prog_name, QString work_path = QCoreApplication::applicationDirPath() + "/",
+            int user = USER, QString password = "");
     QStringList files_to_delete;
     QString program_path;
     QString program_name;
-    QString work_path;
+    QString _work_path;
     QStringList args;
     QString mod;
     QString suite;

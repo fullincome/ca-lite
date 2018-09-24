@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui_mw->setupUi(this);
 
-    program = Program("openssl", "ca_cert");
+    program = Program("openssl");
     work_dir = WorkDir(QCoreApplication::applicationDirPath() + "/");
 }
 
@@ -227,7 +227,7 @@ void MainWindow::on_signCsrBtn_clicked()
 {
     BOOL_ERR rc = FAIL;
     //GOST MOD
-    Program prog = Program("openssl", "signing_cert", work_dir.work_path);
+    Program prog = Program("openssl", work_dir.work_path);
     QString csr_CN;
     setSelectedName("cn", csr_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
@@ -309,7 +309,7 @@ void MainWindow::on_signCsrBtn_clicked()
 void MainWindow::on_revokeCertBtn_clicked()
 {
     BOOL_ERR rc = FAIL;
-    Program prog = Program("openssl", "revoke_cert", work_dir.work_path);
+    Program prog = Program("openssl", work_dir.work_path);
     QString cert_CN;
     setSelectedName("cn", cert_CN, ui_mw->certTableView);
     DbTable &table_cert = work_dir.data_base.table;
@@ -351,7 +351,7 @@ void MainWindow::on_revokeCertBtn_clicked()
 //Кнопка: Генерация списка CRL
 void MainWindow::on_creatCrlBtn_clicked()
 {
-    Program prog = Program("openssl", "revoke_cert", work_dir.work_path);
+    Program prog = Program("openssl", work_dir.work_path);
     prog.args = QString("ca -engine gostengy -gencrl -cert " + work_dir.files.ca_cert_file).split(" ");
     prog.args += QString("-keyform ENGINE -keyfile c:" + work_dir.ca_cert.key).split(" ");
     prog.args += QString("-out " + work_dir.files.crl).split(" ");
@@ -873,7 +873,7 @@ void MainWindow::on_installOpensslBtn_clicked()
 {
     // Download openssl pkgs
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
-    Program prog = Program("curl");
+    Program prog = Program("wget");
     prog.files_to_delete << OPENSSL_BASE_DEB
                          << OPENSSL_X64_DEB
                          << OPENSSL_DEVEL_DEB
@@ -896,7 +896,7 @@ void MainWindow::on_installOpensslBtn_clicked()
 
     // Install openssl pkgs
     QString password = QInputDialog::getText(this, "Запрос root прав", "Введите пароль root:");
-    prog = Program("install", password);
+    prog = Program("dpkg", work_dir.work_path, ROOT, password);
     prog.args.last() += QString(OPENSSL_BASE_DEB) + " ";
     prog.args.last() += QString(OPENSSL_X64_DEB) + " ";
     prog.args.last() += QString(OPENSSL_DEVEL_DEB) + " ";

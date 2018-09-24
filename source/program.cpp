@@ -24,71 +24,50 @@ QString getLastErrorString()
 }
 
 Program::Program () {}
-Program::Program (QString prog_name, QString mod, QString work_path)
+
+Program::Program (QString prog_name, QString work_path,
+                  int user, QString password)
 {
+    _work_path = work_path;
     if (prog_name == "openssl")
     {
         program_path = OPENSSL_DIR_PATH;
         program_name = OPENSSL_EXE;
-        this->work_path = work_path;
     }
-    else if (prog_name == "curl")
-    {
-#if defined(Q_OS_UNIX)
-        program_path = "";
-        program_name = "wget";
-#endif
-        this->work_path = work_path;
-    }
-}
-
-Program::Program (QString prog_name, QString mod)
-{
-    if (prog_name == "openssl")
-    {
-        program_path = OPENSSL_DIR_PATH;
-        program_name = OPENSSL_EXE;
-        work_path = QCoreApplication::applicationDirPath() + "/";
-    }
-#if defined(Q_OS_UNIX)
-    if (prog_name == "curl")
-    {
-        program_path = "";
-        program_name = "wget";
-    }
-#endif
-#if defined(Q_OS_UNIX)
-    if (prog_name == "install")
-    {
-        program_path = "";
-        program_name = "bash";
-        args.push_back("-c");
-        args.push_back("echo '" + mod + "' | sudo --user=root -S dpkg -i ");
-    }
-#endif
-}
-
-Program::Program (QString prog_name)
-{
-    if (prog_name == "openssl")
-    {
-        program_path = OPENSSL_DIR_PATH;
-        program_name = OPENSSL_EXE;
-        work_path = QCoreApplication::applicationDirPath() + "/";
-    }
-#if defined(Q_OS_UNIX)
-    if (prog_name == "curl")
-    {
-
-        program_path = "";
-        program_name = "wget";
-    }
-#endif
 #if defined(Q_OS_WIN)
     if(prog_name == "powershell")
     {
         program_path = "C:/Windows/system32/WindowsPowerShell/v1.0/";
         program_name = "powershell.exe";
+    }
+#endif
+#if defined(Q_OS_UNIX)
+    if (prog_name == "wget")
+    {
+        program_path = "";
+        program_name = "bash";
+        args.push_back("-c");
+        QString install_str;
+        if (user == ROOT)
+        {
+            install_str += "echo '" + password + "' | sudo --user=root -S ";
+        }
+        install_str += "wget ";
+        args.push_back(install_str);
+    }
+
+    if (prog_name == "install" || prog_name == "dpkg")
+    {
+        program_path = "";
+        program_name = "bash";
+        args.push_back("-c");
+        QString install_str;
+        if (user == ROOT)
+        {
+            install_str += "echo '" + password + "' | sudo --user=root -S ";
+        }
+        install_str += "dpkg -i ";
+        args.push_back(install_str);
     }
 #endif
     else
@@ -102,7 +81,7 @@ BOOL_ERR Program::run()
 {
    isError = 0;
    QProcess *proc = new QProcess();
-   proc->setEnvironment(QString("OPENSSL_CONF=" + work_path + OPENSSL_CONFIG).split("\n"));
+   proc->setEnvironment(QString("OPENSSL_CONF=" + _work_path + OPENSSL_CONFIG).split("\n"));
    proc->start(program_path + program_name, args);
    if (!proc->waitForStarted())
    {
