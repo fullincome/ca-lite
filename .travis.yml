@@ -29,6 +29,7 @@ deploy:
   api_key:
     secure: WGSWXRjkaOl+uwJAFdQ5Fe/b4H1T57A/4W+ATWaQ4hIp7o3Dd8nUV7I90aFVlw0dyHFfibla7Qfu+gT3tkex+KBib+lbG5llQYHt0Jn06Vw/Lx71irUxyuiFl9bAVIm9RK16HKf6XSTDujq5DUDge5/BegRyGCqFYu0mCFlYLwvd/pLPPKad2JTNCrpWONzlg/U8FsPNtPP2tAaEUV7fuhXB5qLTl4NSoKb1lcEPBONviLHOFnRkChGywbfTUGHipTBW541tUZr8PFWoMZO61pcY0Xc46Gtg2uXJYv9+cPwmVQb579WfG7U5aAc+Fu55x7i+su55HrJKwD61Z7d7jyUUymq5sdbZxgfZ+sTat2vqJuCiLLObR/F7lEuDl02PsUO1gIgh9/kOJekN/N4NeRji7teVD2QuTz30FIBQ7NBthzMLFLCHR2a2zZECiCKITH1WbxDs8KnsShcTsqoCh93mK7cvKFXHKlKG2xMK92wxybyG7so556av2Yet4vM8Z2WkI+qY87cdfmcNyPFo5zu+1HFN/xwipfKAEW6FbcmER7w+yUDXWaU4RIsgkBsBMlun6n+X/DdZ0/GAMUtiZEaAspqF/Zu5k/ApyGkHutsr/jgHgg+W6kYA5m2JDXqjcmbP1B3pLBQ2iXqYPN1y1Qz/bfXVmMPiniPqjSopRGU=
   skip_cleanup: true
+  draft: true
   file:
     - "${TRAVIS_TAG}-release_linux-amd64.tar.gz"
     - "${TRAVIS_TAG}-debug_linux-amd64.tar.gz"
