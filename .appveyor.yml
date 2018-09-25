@@ -5,28 +5,40 @@ environment:
 build_script:
 - cmd: >-
     set QT_MINGW_DIR=C:\Qt\5.11.1\mingw53_32
+
     set PATH=%PATH%;%QT_MINGW_DIR%\bin;C:\MinGW\bin
 
     if not defined APPVEYOR_REPO_TAG_NAME set APPVEYOR_REPO_TAG_NAME=notag
 
 
-
     mkdir release
+    
     cd release
+    
     qmake.exe ..\ca-lite.pro -spec win32-g++
+
     mingw32-make.exe
+
     cd ..
+
 
     mkdir debug
+
     cd debug
+
     qmake.exe ..\ca-lite.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
+
     mingw32-make.exe
+
     cd ..
 
+
     copy .\release\ca-lite.exe .\ca-lite.exe
+    
     7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip ca-lite.exe
 
     copy .\debug\ca-lite.exe .\ca-lite.exe
+
     7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip ca-lite.exe
 artifacts:
 - path: release/ca-lite.exe
