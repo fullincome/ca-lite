@@ -56,7 +56,7 @@ deploy:
   tag: $(APPVEYOR_REPO_TAG_NAME)
   auth_token:
     secure: boZUnfupnQ0mzFj+v+4IRwzDkWOm7uWf/4xzBEhEeztMFyf1AKNAVSQeJslJu+j1
-  artifact: $(APPVEYOR_REPO_TAG_NAME)-release_win32.zip $(APPVEYOR_REPO_TAG_NAME)-debug_win32.zip
+  artifact: $(APPVEYOR_REPO_TAG_NAME)-release_win32.zip; $(APPVEYOR_REPO_TAG_NAME)-debug_win32.zip
   draft: true
   prerelease: false
   force_update: true
