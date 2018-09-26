@@ -1161,52 +1161,52 @@ BOOL_ERR WorkDir::exportCert(QString CN, QString file_name)
     file_cert.close();
 }
 
-DbTable WorkDir::importCert(QString file_name)
+BOOL_ERR WorkDir::importCert(QString file_name, DbTable &table)
 {
-    DbTable table_cert;
-    table_cert.isOk = true;
+    BOOL_ERR rc = OK;
+    table.isOk = true;
     if (!QFile::exists(file_name))
     {
-        table_cert.isOk = false;
-        table_cert.status = "не удалось открыть файл";
-        return table_cert;
+        table.isOk = false;
+        setErrorString("не удалось открыть файл: " + file_name);
+        return FAIL;
     }
 
-    if ((table_cert.CN = table_cert.getCNFromCsr(file_name)) == "error")
+    if ((table.CN = table.getCNFromCsr(file_name)) == "error")
     {
-        if (table_cert.getCNFromCert(file_name, table_cert.CN) == FAIL)
+        if (table.getCNFromCert(file_name, table.CN) == FAIL)
         {
-            table_cert.isOk = false;
-            table_cert.status = "не удалось распознать CN";
-            return table_cert;
+            table.isOk = false;
+            setErrorString("не удалось распознать CN");
+            return FAIL;
         }
         // Работаем с подписанным сертификатом
         else
         {
-            table_cert.serial = table_cert.getSerialFromCert(file_name);
-            table_cert.issuer = table_cert.getIssuerFromCert(file_name);
-            table_cert.revoke = "unknown";
+            table.serial = table.getSerialFromCert(file_name);
+            table.issuer = table.getIssuerFromCert(file_name);
+            table.revoke = "unknown";
         }
     }
     // Работем с CSR
     else
     {
-        table_cert.serial = "no";
-        table_cert.issuer = "no";
-        table_cert.revoke = "no";
+        table.serial = "no";
+        table.issuer = "no";
+        table.revoke = "no";
     }
-    table_cert.pem = table_cert.getPemFromFile(file_name);
-    table_cert.table_name = "cert";
-    table_cert.days_valid = "no info";
-    if (table_cert.serial == "error" || table_cert.issuer == "error" ||
-        table_cert.pem == "error" || table_cert.revoke == "error")
+    table.pem = table.getPemFromFile(file_name);
+    table.table_name = "cert";
+    table.days_valid = "no info";
+    if (table.serial == "error" || table.issuer == "error" ||
+        table.pem == "error" || table.revoke == "error")
     {
-        table_cert.isOk = false;
-        table_cert.status = "не удалось импортировать сертификат";
-        return table_cert;
+        table.isOk = false;
+        setErrorString("не удалось импортировать сертификат");
+        return FAIL;
     }
-    data_base.saveToDb(table_cert, data_base.query);
-    return table_cert;
+    data_base.saveToDb(table, data_base.query);
+    return OK;
 }
 
 // Генерация шаблона сертификата в конфиг

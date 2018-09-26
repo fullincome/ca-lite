@@ -410,6 +410,7 @@ void MainWindow::on_exportBtn_clicked()
 // Кнопка: Импорт сертификата
 void MainWindow::on_importBtn_clicked()
 {
+    BOOL_ERR rc = FAIL;
     DbTable table;
     DbDialog db_dialog;
     connect(&db_dialog, SIGNAL(sendData(QString)), this, SLOT(getData(QString)));
@@ -417,10 +418,10 @@ void MainWindow::on_importBtn_clicked()
     db_dialog.exec();
     if (!work_dir.files.import_cert_file.isEmpty())
     {
-        table = work_dir.importCert(work_dir.files.import_cert_file);
-        if (!table.isOk)
+        rc = work_dir.importCert(work_dir.files.import_cert_file, table);
+        if (!rc)
         {
-            messageError(this, "Сертификат не импортирован: \n\n" + work_dir.data_base.table.status);
+            messageError(this, "Сертификат не импортирован: \n\n" + getLastErrorString());
         }
         else
         {

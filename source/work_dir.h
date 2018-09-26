@@ -156,7 +156,7 @@ public:
     void saveConfig(Config config);
     BOOL_ERR loadCaCert(Config config, CACert &ca_cert);
     BOOL_ERR exportCert(QString CN, QString file_name);
-    DbTable importCert(QString file_name);
+    BOOL_ERR importCert(QString file_name, DbTable &table);
     BOOL_ERR genCertConfig(DbTable &table, BOOL mod);
     BOOL_ERR saveCertConfigToFile(DbTable table);
     BOOL_ERR delCertConfigFile();
