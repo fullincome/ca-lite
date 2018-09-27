@@ -1,5 +1,10 @@
 # ca-lite 
-based on openssl and cryptopro CSP.
+
+Based on openssl and cryptopro CSP.
+
+Windows: [![Build status](https://ci.appveyor.com/api/projects/status/8b53ekvj6ngbjoyo?svg=true)](https://ci.appveyor.com/project/fullincome/ca-lite)
+
+Linux: [![Build Status](https://travis-ci.org/fullincome/ca-lite.svg?branch=master)](https://travis-ci.org/fullincome/ca-lite)
 
 ## Supported OS:
 - Ubuntu 16.04
