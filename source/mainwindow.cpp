@@ -98,7 +98,7 @@ void MainWindow::on_openWorkDirBtn_clicked()
         if (!rc)
         {
             setErrorString("Не удалось инициализировать директорию");
-            messageError(this, getLastErrorString());
+            messageError(this, getErrorString());
             return;
         }
     }
@@ -106,7 +106,7 @@ void MainWindow::on_openWorkDirBtn_clicked()
     rc = work_dir.initialiseDatabase();
     if (!rc)
     {
-        messageError(this, "Не удалось открыть базу данных:\n" + getLastErrorString());
+        messageError(this, "Не удалось открыть базу данных:\n" + getErrorString());
         return;
     }
 
@@ -146,13 +146,13 @@ void MainWindow::checkWorkDir(WorkDir work_dir)
         rc = work_dir.loadCaCert(work_dir.config, work_dir.ca_cert);
         if (rc == FAIL)
         {
-            messageError(this, tr("loadCaCert fail: \n") + getLastErrorString());
+            messageError(this, tr("loadCaCert fail: \n") + getErrorString());
         }
         QString cert_info;
         rc = DbTable::getTextFromCert(work_dir.ca_cert.file_name, cert_info);
         if (rc == FAIL)
         {
-            messageError(this, tr("Файл сертификата УЦ поврежден: \n") + getLastErrorString());
+            messageError(this, tr("Файл сертификата УЦ поврежден: \n") + getErrorString());
         }
         else
         {
@@ -235,12 +235,12 @@ void MainWindow::on_signCsrBtn_clicked()
     rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + csr_CN + "'", work_dir.data_base.query, table_cert);
     if (!rc)
     {
-        messageError(this, "Error in loadFromDb: " + getLastErrorString());
+        messageError(this, "Error in loadFromDb: " + getErrorString());
     }
     rc = work_dir.data_base.loadFromDb("cert_extension", "id = '" + table_cert.id + "'", work_dir.data_base.query, table_cert);
     if (!rc)
     {
-        messageError(this, "Error in loadFromDb: " + getLastErrorString());
+        messageError(this, "Error in loadFromDb: " + getErrorString());
     }
     if (table_cert.suite == "gost") prog.suite = "gost";
     //table_cert.creatSerialToFile(work_dir.files.srl_ca_cert_file);
@@ -276,12 +276,12 @@ void MainWindow::on_signCsrBtn_clicked()
         rc = table_cert.getCNFromCert(work_dir.ca_cert.file_name, table_cert.issuer);
         if (rc == FAIL)
         {
-            messageError(this, getLastErrorString());
+            messageError(this, getErrorString());
         }
         rc = work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
         if (rc == FAIL)
         {
-            messageError(this, getLastErrorString());
+            messageError(this, getErrorString());
         }
         updateView(work_dir.data_base);
     }
@@ -317,7 +317,7 @@ void MainWindow::on_revokeCertBtn_clicked()
     rc = work_dir.data_base.loadFromDb("cert",  "CN = '" + cert_CN + "'", work_dir.data_base.query, table_cert);
     if (!rc)
     {
-        messageError(this, "Error in loadFromDb: " + getLastErrorString());
+        messageError(this, "Error in loadFromDb: " + getErrorString());
     }
     if (table_cert.suite == "gost") prog.suite = "gost";
     //Заполнение параметров программы
@@ -336,7 +336,7 @@ void MainWindow::on_revokeCertBtn_clicked()
         rc = table_cert.getCNFromCert(work_dir.ca_cert.file_name, table_cert.issuer);
         if (rc == FAIL)
         {
-            messageError(this, "revoke cert fail: " + getLastErrorString());
+            messageError(this, "revoke cert fail: " + getErrorString());
         }
         work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
         updateView(work_dir.data_base);
@@ -421,7 +421,7 @@ void MainWindow::on_importBtn_clicked()
         rc = work_dir.importCert(work_dir.files.import_cert_file, table);
         if (!rc)
         {
-            messageError(this, "Сертификат не импортирован: \n\n" + getLastErrorString());
+            messageError(this, "Сертификат не импортирован: \n\n" + getErrorString());
         }
         else
         {
@@ -626,7 +626,7 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table)
         rc = prepareSaveToDb(prog, table);
         if (!rc)
         {
-            messageError(this, "error: prepareSaveToDb: " + getLastErrorString());
+            messageError(this, "error: prepareSaveToDb: " + getErrorString());
             return FAIL;
         }
         else
@@ -634,7 +634,7 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table)
             rc = work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
             if (!rc)
             {
-                messageError(this, "work_dir.data_base.saveToDb error: " + getLastErrorString());
+                messageError(this, "work_dir.data_base.saveToDb error: " + getErrorString());
                 return FAIL;
             }
             updateView(work_dir.data_base);
@@ -651,7 +651,7 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table)
 
         if (!rc)
         {
-            messageError(this, "error: prepareSaveToDb: " + getLastErrorString());
+            messageError(this, "error: prepareSaveToDb: " + getErrorString());
             return FAIL;
         }
         else
@@ -666,7 +666,7 @@ BOOL_ERR MainWindow::generateCert(Program prog, DbTable table)
                 rc = work_dir.data_base.saveToDb(work_dir.data_base.table, work_dir.data_base.query);
                 if (!rc)
                 {
-                    messageError(this, "work_dir.data_base.saveToDb error: " + getLastErrorString());
+                    messageError(this, "work_dir.data_base.saveToDb error: " + getErrorString());
                     return FAIL;
                 }
                 updateView(work_dir.data_base);

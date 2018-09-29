@@ -18,7 +18,7 @@ void setErrorString(QString str, int error_type)
     }
 }
 
-QString getLastErrorString()
+QString getErrorString()
 {
     return errorStr.getLastError();
 }

@@ -85,7 +85,7 @@ public:
     {
         if (empty())
         {
-            return "getLastErrorString() is empty";
+            return "getErrorString() is empty";
         }
         else
         {
@@ -104,7 +104,7 @@ public:
 } errorStr;
 
 extern void setErrorString(QString str, int error_type = 0);
-extern QString getLastErrorString();
+extern QString getErrorString();
 
 //extern void setErrorStringasdf(QString str) {
 //    errorStr.setError(str);
