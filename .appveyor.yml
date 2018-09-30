@@ -31,16 +31,22 @@ build_script:
     mingw32-make.exe
 
     cd ..
+    
 
     copy .\release\ca-lite.exe .\release\deploy\ca-lite.exe
     
     %QT_MINGW_DIR%\bin\windeployqt.exe .\release\deploy\ca-lite.exe
     
+    copy %QT_MINGW_DIR%\bin\libwinpthread-1.dll .\release\deploy\libwinpthread-1.dll
+    
     7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\*
+    
     
     copy .\debug\ca-lite.exe .\debug\deploy\ca-lite.exe
     
     %QT_MINGW_DIR%\bin\windeployqt.exe .\debug\deploy\ca-lite.exe
+    
+    copy %QT_MINGW_DIR%\bin\libwinpthread-1.dll .\debug\deploy\libwinpthread-1.dll
 
     7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip .\debug\deploy\*
 on_failure:
