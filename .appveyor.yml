@@ -1,6 +1,6 @@
 version: 1.1.{build}
 environment:
-  QTDIR: C:\Qt\5.5\mingw492_32
+  QTDIR: C:\Qt\5.11.1\mingw53_32
   PATH: '%PATH%;%QTDIR%\bin;C:\MinGW\bin'
 build_script:
 - cmd: >-
@@ -11,7 +11,7 @@ build_script:
     if not defined APPVEYOR_REPO_TAG_NAME set APPVEYOR_REPO_TAG_NAME=notag
 
 
-    mkdir release
+    mkdir release release\deploy
     
     cd release
     
@@ -22,7 +22,7 @@ build_script:
     cd ..
 
 
-    mkdir debug
+    mkdir debug debug\deploy
 
     cd debug
 
@@ -32,14 +32,17 @@ build_script:
 
     cd ..
 
-
-    copy .\release\ca-lite.exe .\ca-lite.exe
+    copy .\release\ca-lite.exe .\release\deploy\ca-lite.exe
     
-    7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip ca-lite.exe
+    %QT_MINGW_DIR%\windeploy.exe .\release\deploy\ca-lite.exe
+    
+    7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\*
+    
+    copy .\debug\ca-lite.exe .\debug\deploy\ca-lite.exe
+    
+    %QT_MINGW_DIR%\windeploy.exe .\debug\deploy\ca-lite.exe
 
-    copy .\debug\ca-lite.exe .\ca-lite.exe
-
-    7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip ca-lite.exe
+    7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip .\debug\deploy\*
 artifacts:
 - path: release/ca-lite.exe
   name: release_ca-lite
