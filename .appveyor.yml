@@ -34,15 +34,19 @@ build_script:
 
     copy .\release\ca-lite.exe .\release\deploy\ca-lite.exe
     
-    %QT_MINGW_DIR%\windeploy.exe .\release\deploy\ca-lite.exe
+    %QT_MINGW_DIR%\bin\windeploy.exe .\release\deploy\ca-lite.exe
     
     7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\*
     
     copy .\debug\ca-lite.exe .\debug\deploy\ca-lite.exe
     
-    %QT_MINGW_DIR%\windeploy.exe .\debug\deploy\ca-lite.exe
+    %QT_MINGW_DIR%\bin\windeploy.exe .\debug\deploy\ca-lite.exe
 
     7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip .\debug\deploy\*
+on_failure:
+- ps: >-
+    $blockRdp = $true;
+    iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 artifacts:
 - path: release/ca-lite.exe
   name: release_ca-lite
