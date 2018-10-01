@@ -58,7 +58,7 @@ signals:
     void sendData(WorkDir work_dir);
     void sendData(QString data);
     void sendData(QString data1, QString data2);
-    void closeCertParam(QString rc);
+    void closeWindow(QString rc);
 private slots:
     BOOL_ERR generateCert(Program prog, DbTable table);
     void checkWorkDir(WorkDir work_dir);

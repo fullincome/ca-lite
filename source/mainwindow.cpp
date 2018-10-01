@@ -62,7 +62,7 @@ void MainWindow::on_creatCaCertBtn_clicked()
 {
     CertParams certParams;
     connect(this, SIGNAL(sendData(QStringList)), &certParams, SLOT(getData(QStringList)));
-    connect(this, SIGNAL(closeCertParam(QString)), &certParams, SLOT(closeWindow(QString)));
+    connect(this, SIGNAL(closeWindow(QString)), &certParams, SLOT(closeWindow(QString)));
     connect(&certParams, SIGNAL(readyToCheck(DbTable)), this, SLOT(checkCertParam(DbTable)));
     emit sendData(work_dir.checkContainers());
     certParams.initialise("ca");
@@ -216,7 +216,7 @@ void MainWindow::on_creatCsrBtn_clicked()
 {
     CertParams csrParams;
     connect(this, SIGNAL(sendData(QStringList)), &csrParams, SLOT(getData(QStringList)));
-    connect(this, SIGNAL(closeCertParam(QString)), &csrParams, SLOT(closeWindow(QString)));
+    connect(this, SIGNAL(closeWindow(QString)), &csrParams, SLOT(closeWindow(QString)));
     connect(&csrParams, SIGNAL(readyToCheck(DbTable)), this, SLOT(checkCertParam(DbTable)));
     emit sendData(work_dir.checkContainers());
     csrParams.initialise("cert");
@@ -781,7 +781,7 @@ void MainWindow::checkCertParam(DbTable table)
     prog.files_to_delete = work_dir.files.getVariableFiles();
     prog.args = args_cur;
     generateCert(prog, table);
-    emit closeCertParam("ok");
+    emit closeWindow("ok");
 }
 // Слот, принимающие данные от сигналов
 void MainWindow::getData(QString data)
