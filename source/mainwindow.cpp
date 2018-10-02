@@ -755,8 +755,6 @@ void MainWindow::checkCertParam(DbTable table)
 {
     Program prog("openssl", work_dir.work_path);
     QStringList args_cur;
-    if (table.table_name == "ca");
-
     //RSA MOD
     //args_cur = QString("req -x509 -newkey rsa:2048").split(" ");
     //args_cur += QString("-keyout " + prog.key_out + " -nodes -out " + prog.file_out).split(" ");

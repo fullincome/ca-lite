@@ -35,14 +35,14 @@ Program::Program (QString prog_name, QString work_path,
         program_name = OPENSSL_EXE;
     }
 #if defined(Q_OS_WIN)
-    if(prog_name == "powershell")
+    else if(prog_name == "powershell")
     {
         program_path = "C:/Windows/system32/WindowsPowerShell/v1.0/";
         program_name = "powershell.exe";
     }
 #endif
 #if defined(Q_OS_UNIX)
-    if (prog_name == "wget")
+    else if (prog_name == "wget")
     {
         program_path = "";
         program_name = "bash";
@@ -55,8 +55,7 @@ Program::Program (QString prog_name, QString work_path,
         install_str += "wget ";
         args.push_back(install_str);
     }
-
-    if (prog_name == "install" || prog_name == "dpkg")
+    else if (prog_name == "install" || prog_name == "dpkg")
     {
         program_path = "";
         program_name = "bash";

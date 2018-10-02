@@ -50,9 +50,9 @@ typedef BOOL_ERR BOOL;
 #define OPENSSL_GOST_DEB QString("cprocsp-cpopenssl-110-gost-64_5.0.11216-5_amd64.deb")
 
 #elif defined(Q_OS_WIN)
-#define OPENSSL_DIR_PATH QString("C:\\OpenSSL-Win64\\gost\\")
-#define OPENSSL_CONFIG_PATH QString("C:\\OpenSSL-Win64\\gost\\")
-#define CRYPTOPRO_DIR_PATH QString("C:\\Program Files\\Crypto Pro\\CSP\\")
+#define OPENSSL_DIR_PATH QString("C:/OpenSSL-Win64/gost/")
+#define OPENSSL_CONFIG_PATH QString("C:/OpenSSL-Win64/gost/")
+#define CRYPTOPRO_DIR_PATH QString("C:/Program Files/Crypto Pro/CSP/")
 
 #define OPENSSL_URL QString("http://37.230.116.109/openssl-1.1.0i-gost-0.17/bin64/")
 #define OPENSSL_X64_LIBCRYPTO QString("libcrypto-1_1-x64.dll")
