@@ -12,9 +12,9 @@ build_script:
 
 
     mkdir release release\deploy
-    
+
     cd release
-    
+
     qmake.exe ..\ca-lite.pro -spec win32-g++
 
     mingw32-make.exe
@@ -31,27 +31,28 @@ build_script:
     mingw32-make.exe
 
     cd ..
-    
+
 
     copy .\release\ca-lite.exe .\release\deploy\ca-lite.exe
-    
+
     windeployqt.exe --release .\release\deploy\ca-lite.exe
-    
+
     copy %QT_MINGW_DIR%\bin\libwinpthread-1.dll .\release\deploy\libwinpthread-1.dll
-    
+
     # windeployqt update wrong libstdc++-6.dll, do it manually
+
     copy /y %QT_MINGW_DIR%\bin\libstdc++-6.dll .\release\deploy\libstdc++-6.dll
-    
+
     7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\*
-    
+
     copy .\debug\ca-lite.exe .\debug\deploy\ca-lite.exe
-    
+
     windeployqt.exe .\debug\deploy\ca-lite.exe
-    
+
     copy %QT_MINGW_DIR%\bin\libwinpthread-1.dll .\debug\deploy\libwinpthread-1.dll
-    
+
     copy /y %QT_MINGW_DIR%\bin\libstdc++-6.dll .\debug\deploy\libstdc++-6.dll
-    
+
     7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip .\debug\deploy\*
 on_failure:
 - ps: >-
