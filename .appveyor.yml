@@ -38,9 +38,9 @@ build_script:
 
     windeployqt.exe --release .\release\deploy\ca-lite.exe
 
-    copy %QT_MINGW_DIR%\bin\libwinpthread-1.dll .\release\deploy\libwinpthread-1.dll
+    copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\release\deploy\
 
-    copy /y %QT_MINGW_DIR%\bin\libstdc++-6.dll .\release\deploy\libstdc++-6.dll
+    copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\release\deploy\
 
     7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\*
 
@@ -48,9 +48,9 @@ build_script:
 
     windeployqt.exe .\debug\deploy\ca-lite.exe
 
-    copy %QT_MINGW_DIR%\bin\libwinpthread-1.dll .\debug\deploy\libwinpthread-1.dll
+    copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\debug\deploy\
 
-    copy /y %QT_MINGW_DIR%\bin\libstdc++-6.dll .\debug\deploy\libstdc++-6.dll
+    copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\debug\deploy\
 
     7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip .\debug\deploy\*
 on_failure:
