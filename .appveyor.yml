@@ -2,6 +2,7 @@ version: 1.1.{build}
 environment:
   QTDIR: C:\Qt\5.11.1\mingw53_32
   PATH: '%PATH%;%QTDIR%\bin;C:\MinGW\bin'
+# windeployqt update wrong libstdc++-6.dll, copy it manually
 build_script:
 - cmd: >-
     set QT_MINGW_DIR=C:\Qt\5.11.1\mingw53_32
@@ -38,8 +39,6 @@ build_script:
     windeployqt.exe --release .\release\deploy\ca-lite.exe
 
     copy %QT_MINGW_DIR%\bin\libwinpthread-1.dll .\release\deploy\libwinpthread-1.dll
-
-    # windeployqt update wrong libstdc++-6.dll, do it manually
 
     copy /y %QT_MINGW_DIR%\bin\libstdc++-6.dll .\release\deploy\libstdc++-6.dll
 
