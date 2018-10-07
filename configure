@@ -5,8 +5,8 @@ BUILD_DIR=""
 BUILD_CONFIG="release"
 PROJECT_DIR=$(pwd)
 ARGV=$@
-
-
+config=""
+dir=""
 
 # парсинг аргументов
 #--------------------------------------------------------
@@ -22,13 +22,14 @@ do
             BUILD_CONFIG="release"
             ;;
     esac
+
     dir="`echo ${arg_cur}|awk -F= '/^\-\-dir=.+/{print $2}'`"
     if ! test -z ${dir}; then BUILD_DIR=${dir}; fi
 done
 #--------------------------------------------------------
 
-case ${BUILD_CONFIG} in
-    "debug qml_debug")
+case ${config} in
+    "debug")
         if test -z ${BUILD_DIR}; then BUILD_DIR="${PROJECT_DIR}/build_debug"; fi
         echo "Configuration: DEBUG"
         ;;
