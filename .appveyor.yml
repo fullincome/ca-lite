@@ -1,58 +1,43 @@
 version: 1.1.{build}
-environment:
-  QTDIR: C:\Qt\5.11.1\mingw53_32
-  PATH: '%PATH%;%QTDIR%\bin;C:\MinGW\bin'
+configuration:
+  - Release
+  - StaticRelease
+  - Debug
 # windeployqt update wrong libstdc++-6.dll, copy it manually
 build_script:
 - cmd: >-
-    set QT_MINGW_DIR=C:\Qt\5.11.1\mingw53_32
+    set QT_MINGW_DIR=C:\Qt\5.11.1\mingw53_32 \n
+    set PATH=%QT_MINGW_DIR%\bin;C:\MinGW\bin;%PATH% \n
 
-    set PATH=%QT_MINGW_DIR%\bin;C:\MinGW\bin;%PATH%
+    if not defined APPVEYOR_REPO_TAG_NAME set APPVEYOR_REPO_TAG_NAME=notag \n
 
-    if not defined APPVEYOR_REPO_TAG_NAME set APPVEYOR_REPO_TAG_NAME=notag
+    if %CONFIGURATION% == "Release" ( \n
+      mkdir release release\deploy \n
+      cd release \n
+      qmake.exe ..\ca-lite.pro -spec win32-g++ \n
+      mingw32-make.exe \n
+      cd .. \n
+    ) \n
 
+    if %CONFIGURATION% == "Debug" ( \n
+      mkdir debug debug\deploy \n
+      cd debug \n
+      qmake.exe ..\ca-lite.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug" \n
+      mingw32-make.exe \n
+      cd .. \n
+    ) \n
 
-    mkdir release release\deploy
+    copy .\release\ca-lite.exe .\release\deploy\ca-lite.exe \n
+    windeployqt.exe --release .\release\deploy\ca-lite.exe \n
+    copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\release\deploy\ \n
+    copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\release\deploy\ \n
+    7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\* \n
 
-    cd release
-
-    qmake.exe ..\ca-lite.pro -spec win32-g++
-
-    mingw32-make.exe
-
-    cd ..
-
-
-    mkdir debug debug\deploy
-
-    cd debug
-
-    qmake.exe ..\ca-lite.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
-
-    mingw32-make.exe
-
-    cd ..
-
-
-    copy .\release\ca-lite.exe .\release\deploy\ca-lite.exe
-
-    windeployqt.exe --release .\release\deploy\ca-lite.exe
-
-    copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\release\deploy\
-
-    copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\release\deploy\
-
-    7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\*
-
-    copy .\debug\ca-lite.exe .\debug\deploy\ca-lite.exe
-
-    windeployqt.exe .\debug\deploy\ca-lite.exe
-
-    copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\debug\deploy\
-
-    copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\debug\deploy\
-
-    7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip .\debug\deploy\*
+    copy .\debug\ca-lite.exe .\debug\deploy\ca-lite.exe \n
+    windeployqt.exe .\debug\deploy\ca-lite.exe \n
+    copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\debug\deploy\ \n
+    copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\debug\deploy\ \n
+    7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip .\debug\deploy\* \n
 on_failure:
 - ps: >-
     $blockRdp = $true;
@@ -73,7 +58,7 @@ deploy:
   tag: $(APPVEYOR_REPO_TAG_NAME)
   auth_token:
     secure: boZUnfupnQ0mzFj+v+4IRwzDkWOm7uWf/4xzBEhEeztMFyf1AKNAVSQeJslJu+j1
-  artifact: $(APPVEYOR_REPO_TAG_NAME)-release_win32.zip; $(APPVEYOR_REPO_TAG_NAME)-debug_win32.zip
+  artifact: $(APPVEYOR_REPO_TAG_NAME)-release_win32.zip;
   draft: true
   prerelease: false
   force_update: true
