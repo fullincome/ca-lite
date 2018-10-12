@@ -5,39 +5,25 @@ configuration:
   - Debug
 # windeployqt update wrong libstdc++-6.dll, copy it manually
 build_script:
-- cmd: >-
-    set QT_MINGW_DIR=C:\Qt\5.11.1\mingw53_32 \n
-    set PATH=%QT_MINGW_DIR%\bin;C:\MinGW\bin;%PATH% \n
+- cmd: set QT_MINGW_DIR=C:\Qt\5.11.1\mingw53_32
+- cmd: set PATH=%QT_MINGW_DIR%\bin;C:\MinGW\bin;%PATH%
+- cmd: if not defined APPVEYOR_REPO_TAG_NAME set APPVEYOR_REPO_TAG_NAME=notag
 
-    if not defined APPVEYOR_REPO_TAG_NAME set APPVEYOR_REPO_TAG_NAME=notag \n
+- cmd: if %CONFIGURATION% == "Release" ( mkdir release release\deploy && cd release && qmake.exe ..\ca-lite.pro -spec win32-g++ && mingw32-make.exe && cd .. )
 
-    if %CONFIGURATION% == "Release" ( \n
-      mkdir release release\deploy \n
-      cd release \n
-      qmake.exe ..\ca-lite.pro -spec win32-g++ \n
-      mingw32-make.exe \n
-      cd .. \n
-    ) \n
+- cmd: if %CONFIGURATION% == "Debug" ( mkdir debug debug\deploy && cd debug && qmake.exe ..\ca-lite.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug" && mingw32-make.exe && cd .. )
 
-    if %CONFIGURATION% == "Debug" ( \n
-      mkdir debug debug\deploy \n
-      cd debug \n
-      qmake.exe ..\ca-lite.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug" \n
-      mingw32-make.exe \n
-      cd .. \n
-    ) \n
+- cmd: copy .\release\ca-lite.exe .\release\deploy\ca-lite.exe
+- cmd: windeployqt.exe --release .\release\deploy\ca-lite.exe
+- cmd: copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\release\deploy\
+- cmd: copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\release\deploy\
+- cmd: 7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\*
 
-    copy .\release\ca-lite.exe .\release\deploy\ca-lite.exe \n
-    windeployqt.exe --release .\release\deploy\ca-lite.exe \n
-    copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\release\deploy\ \n
-    copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\release\deploy\ \n
-    7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\* \n
-
-    copy .\debug\ca-lite.exe .\debug\deploy\ca-lite.exe \n
-    windeployqt.exe .\debug\deploy\ca-lite.exe \n
-    copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\debug\deploy\ \n
-    copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\debug\deploy\ \n
-    7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip .\debug\deploy\* \n
+- cmd: copy .\debug\ca-lite.exe .\debug\deploy\ca-lite.exe
+- cmd: windeployqt.exe .\debug\deploy\ca-lite.exe
+- cmd: copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\debug\deploy\
+- cmd: copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\debug\deploy\
+- cmd: 7z a %APPVEYOR_REPO_TAG_NAME%-debug_win32.zip .\debug\deploy\*
 on_failure:
 - ps: >-
     $blockRdp = $true;
