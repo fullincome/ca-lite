@@ -1,4 +1,4 @@
-if %CONFIGURATION% == "Release" (
+if "%CONFIGURATION%" == "Release" (
     mkdir release release\deploy
     cd release
     qmake.exe ..\ca-lite.pro -spec win32-g++ "CONFIG+=release"
@@ -12,7 +12,7 @@ if %CONFIGURATION% == "Release" (
     7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\*
 )
 
-if %CONFIGURATION% == "Debug" (
+if "%CONFIGURATION%" == "Debug" (
     mkdir debug debug\deploy
     cd debug
     qmake.exe ..\ca-lite.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
