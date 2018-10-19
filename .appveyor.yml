@@ -5,7 +5,7 @@ configuration:
   - Debug
 install:
 # download static qt if necessary
-- ps: If "$CONFIGURATION" == "StaticRelease" ( appveyor DownloadFile "https://github.com/fullincome/qtbase/releases/download/static_build/qtbase-static.zip" -FileName qtbase-static.zip )
+- ps: If ("$CONFIGURATION" == "StaticRelease") { appveyor DownloadFile "https://github.com/fullincome/qtbase/releases/download/static_build/qtbase-static.zip" -FileName qtbase-static.zip }
 build_script:
 - cmd: set QT_MINGW_DIR=C:\Qt\5.11.1\mingw53_32
 - cmd: set PATH=%QT_MINGW_DIR%\bin;C:\MinGW\bin;%PATH%
