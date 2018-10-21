@@ -13,8 +13,9 @@ if "%CONFIGURATION%" == "Release" (
 )
 
 if "%CONFIGURATION%" == "StaticRelease" (
-    7z e qtbase-static.zip -o "C:\Qt\5.11.1\Static-5.11.1"
-    set PATH=C:\Qt\5.11.1\Static-5.11.1\bin;%PATH%
+    set QT_STATIC_DIR="C:\Qt\5.11.1\Static-5.11.1"
+    7z e qtbase-static.zip -o %QT_STATIC_DIR%
+    set "PATH=%QT_STATIC_DIR%\bin;%PATH%"
     mkdir static_release static_release\deploy
     cd static_release
     qmake.exe ..\ca-lite.pro -spec win32-msvc "CONFIG+=release" "CONFIG+=static"
