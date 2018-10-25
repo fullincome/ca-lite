@@ -7,7 +7,7 @@ install:
 # download static qt if necessary
 - ps: If ( $env:CONFIGURATION -eq "StaticRelease" ) { appveyor DownloadFile "https://github.com/fullincome/qtbase/releases/download/static_build/qtbase-static.zip" -FileName qtbase-static.zip }
 build_script:
-- cmd: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat" x86
+- cmd: call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 - cmd: set QT_STATIC_DIR=C:\Qt\5.11.1\Static-5.11.1
 - cmd: set QT_MINGW_DIR=C:\Qt\5.11.1\mingw53_32
 - cmd: set PATH=%QT_MINGW_DIR%\bin;C:\MinGW\bin;%PATH%
