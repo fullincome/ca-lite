@@ -13,7 +13,6 @@ if "%CONFIGURATION%" == "Release" (
 )
 
 if "%CONFIGURATION%" == "StaticRelease" (
-    set QT_STATIC_DIR="C:\Qt\5.11.1\Static-5.11.1"
     7z x -y -r qtbase-static.zip -o%QT_STATIC_DIR%
     set "PATH=%QT_STATIC_DIR%\bin;%PATH%"
     mkdir static_release static_release\deploy
@@ -22,7 +21,7 @@ if "%CONFIGURATION%" == "StaticRelease" (
     nmake release
     cd ..
 
-    copy .\static_release\ca-lite.exe .\static_release\deploy\ca-lite.exe
+    copy .\static_release\release\ca-lite.exe .\static_release\deploy\ca-lite.exe
     7z a %APPVEYOR_REPO_TAG_NAME%-static_release_win32.zip .\static_release\deploy\ca-lite.exe
 )
 
