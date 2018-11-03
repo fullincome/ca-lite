@@ -18,11 +18,11 @@ on_failure:
     $blockRdp = $true;
     iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 artifacts:
-- path: release/ca-lite.exe
+- path: release/deploy/ca-lite.exe
   name: release_ca-lite
-- path: static_release/ca-lite.exe
+- path: static_release/deploy/ca-lite.exe
   name: static_release_ca-lite
-- path: debug/ca-lite.exe
+- path: debug/deploy/ca-lite.exe
   name: debug_ca-lite
 - path: $(APPVEYOR_REPO_TAG_NAME)-release_win32.zip
   name: $(APPVEYOR_REPO_TAG_NAME)-release_win32.zip
