@@ -9,7 +9,7 @@ if "%CONFIGURATION%" == "Release" (
     windeployqt.exe --release .\release\deploy\ca-lite.exe
     copy "%QT_MINGW_DIR%\bin\libwinpthread-1.dll" .\release\deploy\
     copy /y "%QT_MINGW_DIR%\bin\libstdc++-6.dll" .\release\deploy\
-    7z a %APPVEYOR_REPO_TAG_NAME%-release_win32.zip .\release\deploy\*
+    7z a %APPVEYOR_REPO_TAG_NAME%_win32.zip .\release\deploy\*
 )
 
 if "%CONFIGURATION%" == "StaticRelease" (
@@ -22,7 +22,7 @@ if "%CONFIGURATION%" == "StaticRelease" (
     cd ..
 
     copy .\static_release\release\ca-lite.exe .\static_release\deploy\ca-lite.exe
-    7z a %APPVEYOR_REPO_TAG_NAME%-static_release_win32.zip .\static_release\deploy\ca-lite.exe
+    7z a %APPVEYOR_REPO_TAG_NAME%-standalone_win32.zip .\static_release\deploy\ca-lite.exe
 )
 
 if "%CONFIGURATION%" == "Debug" (

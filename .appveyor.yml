@@ -24,10 +24,10 @@ artifacts:
   name: static_release_ca-lite
 - path: debug/deploy/ca-lite.exe
   name: debug_ca-lite
-- path: $(APPVEYOR_REPO_TAG_NAME)-release_win32.zip
-  name: $(APPVEYOR_REPO_TAG_NAME)-release_win32.zip
-- path: $(APPVEYOR_REPO_TAG_NAME)-static_release_win32.zip
-  name: $(APPVEYOR_REPO_TAG_NAME)-static_release_win32.zip
+- path: $(APPVEYOR_REPO_TAG_NAME)_win32.zip
+  name: $(APPVEYOR_REPO_TAG_NAME)_win32.zip
+- path: $(APPVEYOR_REPO_TAG_NAME)-standalone_win32.zip
+  name: $(APPVEYOR_REPO_TAG_NAME)-standalone_win32.zip
 - path: $(APPVEYOR_REPO_TAG_NAME)-debug_win32.zip
   name: $(APPVEYOR_REPO_TAG_NAME)-debug_win32.zip
 before_deploy:
@@ -37,7 +37,7 @@ deploy:
   tag: $(APPVEYOR_REPO_TAG_NAME)
   auth_token:
     secure: boZUnfupnQ0mzFj+v+4IRwzDkWOm7uWf/4xzBEhEeztMFyf1AKNAVSQeJslJu+j1
-  artifact: $(APPVEYOR_REPO_TAG_NAME)-release_win32.zip $(APPVEYOR_REPO_TAG_NAME)-static_release_win32.zip;
+  artifact: $(APPVEYOR_REPO_TAG_NAME)_win32.zip $(APPVEYOR_REPO_TAG_NAME)-standalone_win32.zip;
   draft: true
   prerelease: false
   force_update: true
