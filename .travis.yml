@@ -34,7 +34,6 @@ deploy:
   target_commitish: $TRAVIS_COMMIT
   file:
     - "${TRAVIS_TAG}-release_linux-amd64.tar.gz"
-    - "${TRAVIS_TAG}-debug_linux-amd64.tar.gz"
   on:
     tags: true
     repo: fullincome/ca-lite
