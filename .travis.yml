@@ -23,6 +23,7 @@ before_deploy:
   chmod +x ./scripts/allow_keys2001.sh;
   chmod +x install.sh;
   tar -cvzf ${TRAVIS_TAG}-${RELEASE_NAME}_linux-amd64.tar.gz scripts openssl_calite.cnf ca-lite install.sh;
+  cp ${TRAVIS_TAG}-${RELEASE_NAME}_linux-amd64.tar.gz ${TRAVIS_TAG}_linux-amd64.tar.gz;
   fi
 deploy:
   provider: releases
@@ -33,7 +34,7 @@ deploy:
   tag_name: $TRAVIS_TAG
   target_commitish: $TRAVIS_COMMIT
   file:
-    - "${TRAVIS_TAG}-release_linux-amd64.tar.gz"
+    - "${TRAVIS_TAG}_linux-amd64.tar.gz"
   on:
     tags: true
     repo: fullincome/ca-lite
